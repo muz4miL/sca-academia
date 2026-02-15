@@ -16,7 +16,6 @@ interface FeeReceiptProps {
   collectedBy?: string;
   studentPhone?: string;
   time?: string;
-  seatNo?: string;
   splitBreakdown?: {
     teacherShare: number;
     academyShare: number;
@@ -45,7 +44,6 @@ const FeeReceipt = forwardRef<HTMLDivElement, FeeReceiptProps>(
       collectedBy,
       studentPhone,
       time,
-      seatNo,
       splitBreakdown,
       showSplit = false,
       onPrint,
@@ -193,13 +191,13 @@ const FeeReceipt = forwardRef<HTMLDivElement, FeeReceiptProps>(
                     </span>
                   </div>
 
-                  {/* Seat No Row */}
+                  {/* Roll No Row */}
                   <div className="flex items-center">
                     <span className="font-semibold text-gray-700 w-20">
-                      Seat No.:
+                      Roll No.:
                     </span>
                     <span className="flex-1 border-b border-gray-400 px-2 py-0.5">
-                      {seatNo || studentId || "—"}
+                      {studentId || "—"}
                     </span>
                   </div>
 

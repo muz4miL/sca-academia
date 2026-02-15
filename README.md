@@ -11,23 +11,24 @@
 
 The **SCIENCES COACHING ACADEMY Management System** is a multi-interface ERP solution designed to bridge the gap between administrative control and student experience. Moving beyond simple record-keeping, it offers a robust **Operational Engine** that handles everything from inventory tracking to public inquiries.
 
-The standout feature is the **Interactive Chair Selection System**, allowing students to visually reserve their seats for academic sessions, similar to a cinema booking platform.
+The standout features include the **Smart Gatekeeper System** with barcode-based entry verification, real-time attendance tracking, and intelligent timetable-aware access control.
 
 ## 🏗️ Architecture
 
 The system consists of three distinct interfaces:
 1.  **🛡️ Admin Portal:** Complete control over Users, Finances, Inventory, and Academics.
-2.  **🎓 Student Portal:** A secure, read-only dashboard for students to view timetables and select seats.
+2.  **🎓 Student Portal:** A secure dashboard for students to view timetables and fee status.
 3.  **🌐 Public Website:** A landing interface for inquiries and general academy information.
 
 ---
 
 ## ✨ Key Features
 
-### 🪑 Interactive Chair Selection (New)
-* **Visual Seat Map:** Students can view a visual grid of the classroom.
-* **Real-Time Booking:** "Cinema-style" selection—Green for 'My Seat', Red for 'Occupied', Gray for 'Available'.
-* **Session Locking:** Prevents double-booking and locks seats to specific academic terms.
+### 🔐 Smart Gatekeeper & Attendance
+* **Barcode Scanning:** USB scanner integration for instant student verification.
+* **Real-Time Attendance:** Auto-marked on successful gate scan, synced to dashboard.
+* **Timetable-Aware:** Validates entry against class schedule (day + time window).
+* **Fee Enforcement:** Blocks full defaulters at the gate automatically.
 
 ### 🏢 Core Administration
 * **Admissions Cycle:** Two-stage process (Signup -> Formal Admission).

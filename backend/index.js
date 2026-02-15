@@ -7,7 +7,6 @@ const app = express();
 const Routes = require("./routes/route.js");
 
 // Phase 2: New Route Imports
-const seatRoutes = require("./routes/seat-routes.js");
 const payrollRoutes = require("./routes/payroll-routes.js");
 const admissionRoutes = require("./routes/admission-routes.js");
 
@@ -37,7 +36,6 @@ mongoose
 app.use("/", Routes);
 
 // Phase 2: Wire New Routes
-app.use("/api/seats", seatRoutes);
 app.use("/api/payroll", payrollRoutes);
 app.use("/api/admission", admissionRoutes);
 

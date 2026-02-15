@@ -423,8 +423,8 @@ exports.scanBarcode = async (req, res) => {
           markedByUser: req.user?._id,
           session: currentSession ? {
             subject: currentSession.subject,
-            teacher: currentSession.teacherName,
-            room: currentSession.roomNumber,
+            teacher: currentSession.teacher,
+            room: currentSession.room,
             startTime: currentSession.startTime,
             endTime: currentSession.endTime,
           } : undefined,

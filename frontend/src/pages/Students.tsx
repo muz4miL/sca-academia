@@ -533,7 +533,6 @@ const Students = () => {
               <TableRow className="bg-secondary hover:bg-secondary">
                 <TableHead className="font-semibold">ID</TableHead>
                 <TableHead className="font-semibold">Student</TableHead>
-                <TableHead className="font-semibold">Seat</TableHead>
                 <TableHead className="font-semibold">Class</TableHead>
                 <TableHead className="font-semibold">Group</TableHead>
                 <TableHead className="font-semibold">Subjects</TableHead>
@@ -585,23 +584,6 @@ const Students = () => {
                               )}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          {student.seatNumber ? (
-                            <span
-                              className={`px-2 py-1 rounded-md text-xs font-bold font-mono ${
-                                student.seatNumber?.startsWith("L")
-                                  ? "bg-pink-100 text-pink-700 border border-pink-200"
-                                  : "bg-sky-100 text-sky-700 border border-sky-200"
-                              }`}
-                            >
-                              {student.seatNumber}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">
-                              —
-                            </span>
-                          )}
                         </TableCell>
                         <TableCell className="font-medium">
                           {student.class}

@@ -21,10 +21,8 @@ import Payroll from "./pages/Payroll";
 import Leads from "./pages/Leads";
 import PendingApprovals from "./pages/PendingApprovals";
 import KioskRegister from "./pages/KioskRegister";
-import SeatManagementPage from "./pages/SeatManagementPage";
 // Student Portal
 import StudentPortal from "./pages/StudentPortal";
-import StudentSeatSelection from "./pages/StudentSeatSelection";
 import NotFound from "./pages/NotFound";
 import PublicLanding from "./pages/PublicLanding";
 import Attendance from "./pages/Attendance";
@@ -49,10 +47,6 @@ const App = () => (
 
             {/* Student Portal */}
             <Route path="/student-portal" element={<StudentPortal />} />
-            <Route
-              path="/student-portal/seat-selection"
-              element={<StudentSeatSelection />}
-            />
 
             {/* Protected Routes */}
             <Route
@@ -172,14 +166,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PendingApprovals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/seat-management"
-              element={
-                <ProtectedRoute>
-                  <SeatManagementPage />
                 </ProtectedRoute>
               }
             />

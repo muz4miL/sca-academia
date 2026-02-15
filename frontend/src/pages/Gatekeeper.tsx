@@ -558,6 +558,14 @@ export default function Gatekeeper() {
                 <div className="h-3 w-3 rounded-full bg-emerald-400 animate-pulse" />
                 <p className="text-2xl font-medium text-white/60 uppercase tracking-widest">Fee Status: <span className="text-emerald-300 font-black">CLEARED</span></p>
               </div>
+
+              {/* Attendance Confirmation */}
+              <div className="flex items-center gap-4">
+                <div className="h-3 w-3 rounded-full bg-sky-400 animate-pulse" />
+                <p className="text-2xl font-medium text-white/60 uppercase tracking-widest">
+                  Attendance: <span className="text-sky-300 font-black">MARKED PRESENT</span>
+                </p>
+              </div>
             </div>
           </div>
 

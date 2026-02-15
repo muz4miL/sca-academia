@@ -115,7 +115,7 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    // Gender field — required for seat selection (SRS 4.1)
+    // Gender field
     gender: {
       type: String,
       enum: ["Male", "Female"],
@@ -219,18 +219,6 @@ const studentSchema = new mongoose.Schema(
     referralSource: {
       type: String,
       trim: true,
-    },
-    // Smart Seat System — auto-assigned based on gender (SRS 4.1)
-    seatNumber: {
-      type: String,
-      trim: true,
-      // Format: R-001 (Right Wing / Male), L-001 (Left Wing / Female)
-    },
-    // Track seat changes for limiting (max 2 changes allowed)
-    seatChangeCount: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
   },
   {

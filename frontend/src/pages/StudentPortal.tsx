@@ -45,7 +45,6 @@ import {
   Timer,
   ArrowRight,
   FileQuestion,
-  Armchair,
   FileText,
   CheckCircle2,
   UserCircle,
@@ -694,31 +693,6 @@ export function StudentPortal() {
                 <DropdownMenuItem className="text-slate-200 focus:bg-brand-gold/10 focus:text-brand-gold rounded-xl py-3 cursor-pointer">
                   <User className="mr-3 h-4 w-4" />
                   <span className="font-bold">Institutional Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    // Save student info to localStorage for seat selection page
-                    if (profile) {
-                      const studentInfo = {
-                        _id: profile._id,
-                        name: profile.name || (profile as any).studentName,
-                        studentId: profile.studentId,
-                        gender: (profile as any).gender || "Male",
-                        class: profile.class,
-                        classId: profile.classRef?._id || profile.classRef,
-                        session: profile.session ? {
-                          _id: typeof profile.session === "string" ? profile.session : (profile.session as any)?._id,
-                          name: typeof profile.session === "string" ? profile.session : (profile.session as any)?.name || (profile.session as any)?.sessionName,
-                        } : undefined,
-                      };
-                      localStorage.setItem("studentInfo", JSON.stringify(studentInfo));
-                    }
-                    navigate("/student-portal/seat-selection");
-                  }}
-                  className="text-slate-200 focus:bg-brand-gold/10 focus:text-brand-gold rounded-xl py-3 cursor-pointer"
-                >
-                  <Armchair className="mr-3 h-4 w-4" />
-                  <span className="font-bold">Book Seat</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-slate-200 focus:bg-brand-gold/10 focus:text-brand-gold rounded-xl py-3 cursor-pointer">
                   <CreditCard className="mr-3 h-4 w-4" />

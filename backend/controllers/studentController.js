@@ -51,24 +51,6 @@ exports.createStudent = async (req, res) => {
     const totalFee = studentData.totalFee || 0;
     studentData.feeStatus = calculateFeeStatus(paidAmount, totalFee);
 
-    // Smart Seat Assignment — gender-based wing prefix
-    if (!studentData.seatNumber) {
-      const gender = studentData.gender || "Male";
-      const prefix = gender === "Female" ? "L" : "R"; // L = Left Wing, R = Right Wing
-      const lastSeat = await Student.findOne({
-        seatNumber: new RegExp(`^${prefix}-`),
-      })
-        .sort({ seatNumber: -1 })
-        .select("seatNumber")
-        .lean();
-      let nextNum = 1;
-      if (lastSeat && lastSeat.seatNumber) {
-        const parts = lastSeat.seatNumber.split("-");
-        nextNum = (parseInt(parts[1], 10) || 0) + 1;
-      }
-      studentData.seatNumber = `${prefix}-${String(nextNum).padStart(3, "0")}`;
-    }
-
     const student = await Student.create(studentData);
 
     // Create INCOME transaction for admission fee (Sync with fee collection system)

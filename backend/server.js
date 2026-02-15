@@ -76,7 +76,6 @@ const publicRoutes = require("./routes/public");
 const studentPortalRoutes = require("./routes/studentPortal");
 
 const notificationRoutes = require("./routes/notifications");
-const seatRoutes = require("./routes/seat-routes");
 const inventoryRoutes = require("./routes/inventory");
 
 // API Routes
@@ -99,7 +98,6 @@ app.use("/api/public", publicRoutes);
 app.use("/api/student-portal", studentPortalRoutes);
 
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/seats", seatRoutes);
 app.use("/api/inventory", inventoryRoutes);
 
 // Root endpoint

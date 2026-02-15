@@ -95,9 +95,6 @@ export const ViewEditStudentModal = ({
   const [paidAmount, setPaidAmount] = useState("");
   const [balance, setBalance] = useState(0);
 
-  // Seat Number (admin override)
-  const [seatNumber, setSeatNumber] = useState("");
-
   // Fetch active classes for the dropdown
   const { data: classesData, isLoading: classesLoading } = useQuery({
     queryKey: ["active-classes"],
@@ -173,7 +170,6 @@ export const ViewEditStudentModal = ({
       );
       setTotalFee(String(student.totalFee || ""));
       setPaidAmount(String(student.paidAmount || ""));
-      setSeatNumber(student.seatNumber || "");
     }
   }, [student, open]);
 
@@ -250,7 +246,6 @@ export const ViewEditStudentModal = ({
       admissionDate,
       totalFee: Number(totalFee) || 0,
       // paidAmount removed - use Collect Fee flow instead
-      seatNumber: seatNumber || undefined,
     };
 
     console.log("Saving student with data:", studentData);
@@ -357,22 +352,6 @@ export const ViewEditStudentModal = ({
                       {formatDate(admissionDate)}
                     </span>
                   </div>
-                  {seatNumber && (
-                    <div className="flex justify-between items-center py-2.5 border-t border-slate-100 dark:border-slate-800">
-                      <span className="text-sm text-muted-foreground">
-                        Seat Number
-                      </span>
-                      <span
-                        className={`px-2.5 py-1 rounded-md text-xs font-bold font-mono ${
-                          seatNumber.startsWith("L")
-                            ? "bg-pink-100 text-pink-700 border border-pink-200"
-                            : "bg-sky-100 text-sky-700 border border-sky-200"
-                        }`}
-                      >
-                        {seatNumber}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -593,19 +572,6 @@ export const ViewEditStudentModal = ({
                       onChange={(e) => setAdmissionDate(e.target.value)}
                       className="bg-background"
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="seatNumber">Seat Number (Override)</Label>
-                    <Input
-                      id="seatNumber"
-                      value={seatNumber}
-                      onChange={(e) => setSeatNumber(e.target.value)}
-                      placeholder="e.g. R-001"
-                      className="bg-background font-mono"
-                    />
-                    <p className="text-[11px] text-muted-foreground">
-                      Auto-assigned at admission. Override only if needed.
-                    </p>
                   </div>
                 </div>
               </div>

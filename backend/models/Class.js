@@ -209,29 +209,6 @@ const classSchema = new mongoose.Schema({
     default: "active",
   },
 
-  // Seat configuration
-  seatConfig: {
-    totalSeats: {
-      type: Number,
-      default: 182,
-      min: 1,
-    },
-    rows: {
-      type: Number,
-      default: 13,
-      min: 1,
-    },
-    columnsPerWing: {
-      type: Number,
-      default: 7,
-      min: 1,
-    },
-    seatsInitialized: {
-      type: Boolean,
-      default: false,
-    },
-  },
-
   // Timestamps
   createdAt: {
     type: Date,
