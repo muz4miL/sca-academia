@@ -16,6 +16,9 @@ import {
   Banknote,
   ClipboardList,
   Armchair,
+  Globe,
+  Scan,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -152,7 +155,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav
         className="mt-4 flex flex-col gap-1 px-2 overflow-y-auto sidebar-scrollbar"
-        style={{ maxHeight: "calc(100vh - 180px)" }}
+        style={{ maxHeight: "calc(100vh - 300px)" }}
       >
         {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -173,6 +176,49 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* System Apps Section */}
+      <div className="absolute bottom-16 left-0 right-0 border-t border-sidebar-border pt-3 px-2 bg-sidebar">
+        {!collapsed && (
+          <div className="px-3 mb-2">
+            <p className="text-[10px] font-semibold text-blue-400/60 tracking-widest uppercase">
+              System Apps
+            </p>
+          </div>
+        )}
+        
+        {/* Public Website */}
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mb-1"
+        >
+          <Globe className="h-5 w-5 shrink-0" />
+          {!collapsed && (
+            <>
+              <span>Public Website</span>
+              <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
+            </>
+          )}
+        </a>
+
+        {/* Gatekeeper Station */}
+        <a
+          href="/gatekeeper"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
+        >
+          <Scan className="h-5 w-5 shrink-0" />
+          {!collapsed && (
+            <>
+              <span>Gatekeeper Station</span>
+              <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
+            </>
+          )}
+        </a>
+      </div>
 
       {/* Collapse button */}
       <button
