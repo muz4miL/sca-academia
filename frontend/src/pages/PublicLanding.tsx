@@ -172,12 +172,12 @@ function InquiryForm() {
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md mx-auto text-center py-12"
+        className="max-w-md mx-auto text-center py-10"
       >
-        <div className="h-20 w-20 mx-auto mb-6 rounded-3xl bg-brand-primary text-white flex items-center justify-center shadow-2xl shadow-brand-primary/20">
-          <CheckCircle2 className="h-10 w-10" />
+        <div className="h-16 w-16 mx-auto mb-5 rounded-2xl bg-brand-primary text-white flex items-center justify-center shadow-2xl shadow-brand-primary/20">
+          <CheckCircle2 className="h-8 w-8" />
         </div>
-        <h3 className="text-2xl font-black text-brand-primary mb-2 uppercase tracking-tighter">
+        <h3 className="text-xl font-black text-brand-primary mb-2 uppercase tracking-tight">
           Thank You!
         </h3>
         <p className="text-slate-500 font-medium">
@@ -202,7 +202,7 @@ function InquiryForm() {
             placeholder="Your name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-14 rounded-2xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-bold"
+            className="h-12 rounded-xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-semibold"
             required
           />
         </div>
@@ -219,7 +219,7 @@ function InquiryForm() {
             placeholder="03XX-XXXXXXX"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="h-14 rounded-2xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-bold"
+            className="h-12 rounded-xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-semibold"
             required
           />
         </div>
@@ -238,7 +238,7 @@ function InquiryForm() {
           placeholder="your.email@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="h-14 rounded-2xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-bold"
+          className="h-12 rounded-xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-semibold"
         />
       </div>
 
@@ -254,7 +254,7 @@ function InquiryForm() {
           placeholder="How can we help you?"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="rounded-2xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-bold min-h-[120px] resize-none"
+          className="rounded-xl border-slate-200 bg-white/50 focus:bg-white focus:ring-brand-primary transition-all text-brand-primary font-semibold min-h-[110px] resize-none"
           required
         />
       </div>
@@ -262,7 +262,7 @@ function InquiryForm() {
       <Button
         type="submit"
         disabled={inquiryMutation.isPending}
-        className="w-full h-16 bg-brand-primary hover:bg-brand-primary/90 text-white text-lg font-black uppercase tracking-widest rounded-full transition-all shadow-xl shadow-brand-primary/20"
+        className="w-full h-14 bg-brand-primary hover:bg-brand-primary/90 text-white text-base font-black uppercase tracking-[0.14em] rounded-full transition-all shadow-xl shadow-brand-primary/20"
       >
         {inquiryMutation.isPending ? (
           <>
@@ -347,6 +347,8 @@ export default function PublicLanding() {
   }[] = (teachersData?.data || []).filter((t: any) => t.status === "active");
 
   const config: PublicConfig | null = data?.data || null;
+  const brandTitle =
+    config?.heroSection?.title?.trim() || "SCIENCES COACHING ACADEMY";
 
   // Rotate announcements
   useEffect(() => {
@@ -376,35 +378,31 @@ export default function PublicLanding() {
       {/* Top Navigation Bar */}
       <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-24">
+          <div className="flex justify-between items-center h-20">
             {/* Logo with Dynamic Title */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-4 cursor-pointer"
+              whileHover={{ scale: 1.03 }}
+              className="flex items-center gap-3 cursor-pointer min-w-0"
             >
               <img
                 src="/logo.png"
                 alt="SCIENCES COACHING ACADEMY"
-                className="h-14 w-14 object-contain"
+                className="h-11 w-11 object-contain shrink-0"
               />
-              <div className="flex flex-col">
-                <span className="text-2xl font-serif font-black tracking-tight text-brand-primary leading-none">
-                  {config?.heroSection?.title?.split("'")[0] ||
-                    "SCIENCES COACHING ACADEMY"}
-                </span>
-                <span className="text-sm font-bold tracking-[0.4em] text-brand-gold uppercase">
-                  Academy
+              <div className="min-w-0">
+                <span className="block text-xl md:text-2xl font-serif font-black tracking-tight text-brand-primary leading-none whitespace-nowrap">
+                  {brandTitle}
                 </span>
               </div>
             </motion.div>
 
             {/* Primary Action Buttons */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-5">
               <Link to="/student-portal">
                 <motion.div {...ripple}>
                   <Button
                     variant="outline"
-                    className="border-brand-primary/20 text-brand-primary hover:bg-brand-primary hover:text-white rounded-full px-10 h-12 transition-all font-bold tracking-wide bg-white/50 backdrop-blur-sm"
+                    className="border-brand-primary/20 text-brand-primary hover:bg-brand-primary hover:text-white rounded-full px-7 h-10 transition-all font-semibold tracking-wide bg-white/50 backdrop-blur-sm"
                   >
                     Student Portal
                   </Button>
@@ -414,7 +412,7 @@ export default function PublicLanding() {
                 <motion.div {...ripple}>
                   <Button
                     variant="ghost"
-                    className="text-brand-primary hover:bg-brand-primary/10 rounded-full px-8 h-12 font-bold tracking-wide"
+                    className="text-brand-primary hover:bg-brand-primary/10 rounded-full px-6 h-10 font-semibold tracking-wide"
                   >
                     <LogIn className="mr-2 h-4 w-4" />
                     Staff Login
@@ -434,12 +432,12 @@ export default function PublicLanding() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden liquid-mesh">
+      <section className="relative pt-14 pb-20 overflow-hidden liquid-mesh">
         <div className="absolute inset-0 bg-brand-primary/40 backdrop-blur-[2px]" />
         <div className="absolute top-0 right-0 w-1/3 h-full bg-white/5 -skew-x-12 transform origin-top-right backdrop-blur-3xl" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div className="max-w-2xl text-left">
               {/* Admission Status Badge */}
               {config?.admissionStatus && (
@@ -449,7 +447,7 @@ export default function PublicLanding() {
                   transition={{ duration: 0.8, type: "spring" }}
                 >
                   <Badge
-                    className={`mb-6 text-xs font-bold uppercase tracking-[0.2em] px-5 py-2 rounded-full backdrop-blur-xl border ${
+                    className={`mb-5 text-[11px] font-bold uppercase tracking-[0.16em] px-4 py-1.5 rounded-full backdrop-blur-xl border ${
                       config.admissionStatus.isOpen
                         ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/20"
                         : "bg-red-400/10 text-red-300 border-red-400/20"
@@ -466,7 +464,7 @@ export default function PublicLanding() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, type: "spring", stiffness: 50 }}
-                className="text-5xl sm:text-6xl lg:text-7xl font-serif font-black text-white mb-8 leading-[1.1] tracking-tight"
+                className="text-4xl sm:text-5xl lg:text-6xl font-serif font-black text-white mb-6 leading-[1.06] tracking-tight"
               >
                 {config?.heroSection?.title || "SCIENCES COACHING ACADEMY"}
               </motion.h1>
@@ -480,7 +478,7 @@ export default function PublicLanding() {
                   type: "spring",
                   stiffness: 50,
                 }}
-                className="text-xl text-slate-200/80 mb-10 leading-relaxed font-medium max-w-xl"
+                className="text-lg text-slate-200/85 mb-8 leading-relaxed font-medium max-w-xl"
               >
                 {config?.heroSection?.subtitle ||
                   "Advancing Knowledge. Transforming Lives."}
@@ -496,7 +494,7 @@ export default function PublicLanding() {
                     type: "spring",
                     stiffness: 50,
                   }}
-                  className="text-sm font-bold uppercase tracking-[0.3em] text-brand-gold mb-8"
+                  className="text-xs font-bold uppercase tracking-[0.22em] text-brand-gold mb-7"
                 >
                   {config.heroSection.tagline}
                 </motion.p>
@@ -511,12 +509,12 @@ export default function PublicLanding() {
                   type: "spring",
                   stiffness: 50,
                 }}
-                className="flex flex-wrap gap-5"
+                className="flex flex-wrap gap-4"
               >
                 <motion.div {...ripple}>
                   <Button
                     size="lg"
-                    className="bg-brand-gold hover:bg-brand-gold/90 text-white rounded-full px-12 h-16 text-base font-bold shadow-2xl shadow-brand-gold/20"
+                    className="bg-brand-gold hover:bg-brand-gold/90 text-white rounded-full px-8 h-12 text-sm font-bold shadow-xl shadow-brand-gold/20"
                     onClick={() =>
                       (window.location.href = `tel:${config?.contactInfo?.mobile}`)
                     }
@@ -529,7 +527,7 @@ export default function PublicLanding() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10 rounded-full px-12 h-16 text-base font-bold bg-white/5 backdrop-blur-md"
+                    className="border-white/20 text-white hover:bg-white/10 rounded-full px-8 h-12 text-sm font-bold bg-white/5 backdrop-blur-md"
                     onClick={() =>
                       window.open(config?.contactInfo?.facebook, "_blank")
                     }
@@ -546,12 +544,12 @@ export default function PublicLanding() {
                 initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 transition={{ duration: 1.2, type: "spring" }}
-                className="relative z-10 rounded-[3rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border-[12px] border-white/5 backdrop-blur-3xl"
+                className="relative z-10 rounded-[2.25rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.26)] border-[8px] border-white/5 backdrop-blur-3xl"
               >
                 <img
                   src="logo.png"
                   alt="Academy Life"
-                  className="w-full h-[600px] object-cover mix-blend-overlay opacity-90"
+                  className="w-full h-[520px] object-cover mix-blend-overlay opacity-90"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/80 to-transparent" />
               </motion.div>
@@ -571,20 +569,20 @@ export default function PublicLanding() {
 
       {/* Announcements Section */}
       {config?.announcements && config.announcements.length > 0 && (
-        <section className="bg-white py-12 border-y border-slate-100">
+        <section className="bg-white py-8 border-y border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-shrink-0 flex items-center gap-3">
-                <div className="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center shadow-lg shadow-brand-primary/20">
-                  <Megaphone className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg shadow-brand-primary/20">
+                  <Megaphone className="h-5 w-5 text-white" />
                 </div>
-                <h2 className="text-xl font-black text-brand-primary uppercase tracking-tighter">
+                <h2 className="text-lg font-black text-brand-primary uppercase tracking-tight leading-none">
                   Notice
                   <br />
                   Board
                 </h2>
               </div>
-              <div className="flex-1 overflow-hidden relative h-12 flex items-center">
+              <div className="flex-1 overflow-hidden relative h-10 flex items-center">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentAnnouncement}
@@ -594,7 +592,7 @@ export default function PublicLanding() {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0 flex items-center"
                   >
-                    <p className="text-lg font-medium text-slate-700 truncate">
+                    <p className="text-base font-medium text-slate-700 truncate">
                       {config.announcements[currentAnnouncement].text}
                     </p>
                   </motion.div>
@@ -619,20 +617,20 @@ export default function PublicLanding() {
       )}
 
       {/* Featured Subjects Section */}
-      <section className="py-32 bg-brand-secondary">
+      <section className="py-24 bg-brand-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div {...waterfall} className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black text-brand-primary mb-6 tracking-tight">
+          <motion.div {...waterfall} className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-black text-brand-primary mb-4 tracking-tight">
               Academic Programs
             </h2>
-            <div className="w-24 h-1.5 bg-brand-gold mx-auto rounded-full mb-8" />
-            <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium">
+            <div className="w-20 h-1 bg-brand-gold mx-auto rounded-full mb-6" />
+            <p className="text-base text-slate-500 max-w-2xl mx-auto font-medium">
               Explore our specialized tuition tracks designed for board exam
               excellence.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {(
               config?.featuredSubjects || [
                 "Chemistry",
@@ -650,16 +648,16 @@ export default function PublicLanding() {
                 }}
                 className="group cursor-pointer"
               >
-                <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] group-hover:-translate-y-3 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.1)] transition-all duration-500 relative overflow-hidden">
+                <div className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-[0_16px_40px_rgba(0,0,0,0.05)] group-hover:-translate-y-2 group-hover:shadow-[0_28px_64px_rgba(0,0,0,0.09)] transition-all duration-500 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-brand-gold/5 rounded-bl-[4rem] -mr-8 -mt-8 group-hover:bg-brand-gold/10 transition-colors" />
 
-                  <div className="w-20 h-20 bg-brand-secondary rounded-[1.5rem] flex items-center justify-center mb-8 group-hover:bg-brand-primary group-hover:scale-110 transition-all duration-500">
-                    <BookOpen className="h-10 w-10 text-brand-primary group-hover:text-white" />
+                  <div className="w-16 h-16 bg-brand-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-brand-primary group-hover:scale-105 transition-all duration-500">
+                    <BookOpen className="h-8 w-8 text-brand-primary group-hover:text-white" />
                   </div>
-                  <h3 className="text-2xl font-black text-brand-primary mb-4">
+                  <h3 className="text-xl font-black text-brand-primary mb-3">
                     {subject}
                   </h3>
-                  <p className="text-slate-500 text-sm leading-relaxed font-medium mb-8">
+                  <p className="text-slate-500 text-sm leading-relaxed font-medium mb-6">
                     Comprehensive syllabus coverage with expert guidance and
                     testing.
                   </p>
@@ -678,21 +676,21 @@ export default function PublicLanding() {
 
       {/* Why Choose Us - Highlights */}
       {config?.highlights && config.highlights.length > 0 && (
-        <section className="py-32 px-4 bg-white relative overflow-hidden">
+        <section className="py-24 px-4 bg-white relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-slate-50/50 -z-10" />
           <div className="max-w-7xl mx-auto">
-            <motion.div {...waterfall} className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black text-brand-primary mb-6 tracking-tight">
+            <motion.div {...waterfall} className="text-center mb-14">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-black text-brand-primary mb-4 tracking-tight">
                 Why SCIENCES COACHING ACADEMY?
               </h2>
-              <div className="w-24 h-1.5 bg-brand-gold mx-auto rounded-full mb-8" />
-              <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium">
+              <div className="w-20 h-1 bg-brand-gold mx-auto rounded-full mb-6" />
+              <p className="text-base text-slate-500 max-w-2xl mx-auto font-medium">
                 We combine traditional academic excellence with modern
                 interactive learning systems.
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {config.highlights.map((highlight, index) => (
                 <motion.div
                   key={index}
@@ -703,14 +701,14 @@ export default function PublicLanding() {
                   }}
                   className="text-center group"
                 >
-                  <div className="w-24 h-24 mx-auto mb-8 rounded-[2rem] bg-brand-secondary flex items-center justify-center shadow-lg group-hover:bg-brand-primary group-hover:rotate-6 group-hover:scale-110 transition-all duration-500">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-[1.5rem] bg-brand-secondary flex items-center justify-center shadow-lg group-hover:bg-brand-primary group-hover:rotate-6 group-hover:scale-105 transition-all duration-500">
                     <div className="text-brand-primary group-hover:text-white transition-colors">
                       {iconMap[highlight.icon] || (
-                        <Sparkles className="h-10 w-10" />
+                        <Sparkles className="h-8 w-8" />
                       )}
                     </div>
                   </div>
-                  <h3 className="text-2xl font-black text-brand-primary mb-4 tracking-tight">
+                  <h3 className="text-xl font-black text-brand-primary mb-3 tracking-tight">
                     {highlight.title}
                   </h3>
                   <p className="text-slate-500 text-sm leading-relaxed font-medium">
@@ -725,17 +723,17 @@ export default function PublicLanding() {
 
       {/* Faculty Section — Dynamic Carousel */}
       <section
-        className="py-32 px-4 bg-brand-secondary relative overflow-hidden"
+        className="py-24 px-4 bg-brand-secondary relative overflow-hidden"
         id="faculty"
       >
         <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white to-transparent opacity-50" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div {...waterfall} className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black text-brand-primary mb-6 tracking-tight">
+          <motion.div {...waterfall} className="text-center mb-14">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-black text-brand-primary mb-4 tracking-tight">
               Expert Faculty
             </h2>
-            <div className="w-24 h-1.5 bg-brand-gold mx-auto rounded-full mb-8" />
-            <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium">
+            <div className="w-20 h-1 bg-brand-gold mx-auto rounded-full mb-6" />
+            <p className="text-base text-slate-500 max-w-2xl mx-auto font-medium">
               Learn from the region's most experienced professors and subject
               matter experts.
             </p>
@@ -749,7 +747,7 @@ export default function PublicLanding() {
 
               {/* Auto-scrolling marquee */}
               <motion.div
-                className="flex gap-8"
+                className="flex gap-6"
                 animate={{ x: ["0%", "-50%"] }}
                 transition={{
                   x: {
@@ -764,11 +762,11 @@ export default function PublicLanding() {
                   (teacher, index) => (
                     <div
                       key={`${teacher._id}-${index}`}
-                      className="flex-shrink-0 w-72"
+                      className="flex-shrink-0 w-64"
                     >
-                      <div className="group relative bg-white rounded-[3rem] p-10 text-center border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)]">
-                        <div className="relative inline-block mb-8">
-                          <div className="w-32 h-32 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-4xl font-black text-brand-primary shadow-inner border-[6px] border-white overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                      <div className="group relative bg-white rounded-[2.25rem] p-7 text-center border border-slate-100 shadow-[0_18px_42px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_28px_58px_rgba(0,0,0,0.09)]">
+                        <div className="relative inline-block mb-6">
+                          <div className="w-24 h-24 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-3xl font-black text-brand-primary shadow-inner border-4 border-white overflow-hidden group-hover:scale-105 transition-transform duration-500">
                             {teacher.profileImage ? (
                               <img
                                 src={teacher.profileImage}
@@ -780,7 +778,7 @@ export default function PublicLanding() {
                             )}
                           </div>
                         </div>
-                        <h3 className="text-2xl font-black text-brand-primary mb-2">
+                        <h3 className="text-xl font-black text-brand-primary mb-2">
                           {teacher.name}
                         </h3>
                         <p className="text-sm font-bold text-brand-gold uppercase tracking-[0.2em]">
@@ -793,7 +791,7 @@ export default function PublicLanding() {
               </motion.div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {(config?.faculty || []).map((professor, index) => (
                 <motion.div
                   key={index}
@@ -803,13 +801,13 @@ export default function PublicLanding() {
                     delay: index * 0.1,
                   }}
                 >
-                  <div className="group relative bg-white rounded-[3rem] p-10 text-center border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-3">
-                    <div className="relative inline-block mb-8">
-                      <div className="w-32 h-32 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-4xl font-black text-brand-primary shadow-inner border-[6px] border-white overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                  <div className="group relative bg-white rounded-[2.25rem] p-7 text-center border border-slate-100 shadow-[0_18px_42px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-2">
+                    <div className="relative inline-block mb-6">
+                      <div className="w-24 h-24 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-3xl font-black text-brand-primary shadow-inner border-4 border-white overflow-hidden group-hover:scale-105 transition-transform duration-500">
                         {professor.name?.charAt(0)?.toUpperCase() || "?"}
                       </div>
                     </div>
-                    <h3 className="text-2xl font-black text-brand-primary mb-2">
+                    <h3 className="text-xl font-black text-brand-primary mb-2">
                       {professor.name}
                     </h3>
                     <p className="text-sm font-bold text-brand-gold uppercase tracking-[0.2em]">
@@ -824,55 +822,55 @@ export default function PublicLanding() {
       </section>
 
       {/* Contact & Inquiry Section */}
-      <section className="py-32 px-4 bg-white" id="contact">
+      <section className="py-24 px-4 bg-white" id="contact">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <motion.div {...waterfall}>
-              <h2 className="text-4xl md:text-6xl font-serif font-black text-brand-primary mb-10 tracking-tight leading-[1.1]">
+              <h2 className="text-3xl md:text-5xl font-serif font-black text-brand-primary mb-8 tracking-tight leading-[1.12]">
                 Have a Question? <br />
                 <span className="text-brand-gold italic">Get in Touch.</span>
               </h2>
-              <p className="text-xl text-slate-500 mb-12 font-medium leading-relaxed">
+              <p className="text-lg text-slate-500 mb-10 font-medium leading-relaxed">
                 Our admissions team is ready to help you plan your academic
                 journey. Send us a message and we'll respond within 24 hours.
               </p>
 
-              <div className="space-y-10">
-                <div className="flex items-start gap-8 group">
-                  <div className="w-16 h-16 bg-brand-secondary rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary group-hover:rotate-6 transition-all duration-500">
-                    <Phone className="h-7 w-7 text-brand-primary group-hover:text-white transition-colors" />
+              <div className="space-y-8">
+                <div className="flex items-start gap-6 group">
+                  <div className="w-14 h-14 bg-brand-secondary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary group-hover:rotate-6 transition-all duration-500">
+                    <Phone className="h-6 w-6 text-brand-primary group-hover:text-white transition-colors" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">
                       Call Us
                     </p>
-                    <p className="text-2xl font-black text-brand-primary">
+                    <p className="text-xl font-black text-brand-primary">
                       {config?.contactInfo?.mobile || "0300-0000000"}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-8 group">
-                  <div className="w-16 h-16 bg-brand-secondary rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary group-hover:rotate-6 transition-all duration-500">
-                    <Mail className="h-7 w-7 text-brand-primary group-hover:text-white transition-colors" />
+                <div className="flex items-start gap-6 group">
+                  <div className="w-14 h-14 bg-brand-secondary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary group-hover:rotate-6 transition-all duration-500">
+                    <Mail className="h-6 w-6 text-brand-primary group-hover:text-white transition-colors" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">
                       Email Us
                     </p>
-                    <p className="text-2xl font-black text-brand-primary">
+                    <p className="text-xl font-black text-brand-primary">
                       {config?.contactInfo?.email || "academy@example.com"}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-8 group">
-                  <div className="w-16 h-16 bg-brand-secondary rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary group-hover:rotate-6 transition-all duration-500">
-                    <MapPin className="h-7 w-7 text-brand-primary group-hover:text-white transition-colors" />
+                <div className="flex items-start gap-6 group">
+                  <div className="w-14 h-14 bg-brand-secondary rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-brand-primary group-hover:rotate-6 transition-all duration-500">
+                    <MapPin className="h-6 w-6 text-brand-primary group-hover:text-white transition-colors" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">
                       Visit Us
                     </p>
-                    <p className="text-xl font-black text-brand-primary max-w-sm">
+                    <p className="text-lg font-black text-brand-primary max-w-sm">
                       {config?.contactInfo?.address ||
                         "University Road, Peshawar"}
                     </p>
@@ -883,10 +881,10 @@ export default function PublicLanding() {
 
             <motion.div
               {...waterfall}
-              className="bg-brand-secondary p-10 md:p-16 rounded-[4rem] shadow-[0_40px_100px_rgba(0,0,0,0.08)] relative overflow-hidden"
+              className="bg-brand-secondary p-8 md:p-10 rounded-[2.75rem] shadow-[0_28px_76px_rgba(0,0,0,0.08)] relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/5 rounded-bl-[5rem]" />
-              <h3 className="text-3xl font-serif font-black text-brand-primary mb-10">
+              <h3 className="text-2xl font-serif font-black text-brand-primary mb-8">
                 Send an Inquiry
               </h3>
               <InquiryForm />
@@ -896,53 +894,47 @@ export default function PublicLanding() {
       </section>
 
       {/* Institutional Footer */}
-      <footer className="bg-brand-primary text-white pt-32 pb-16 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-gold/50 to-transparent" />
+      <footer className="bg-white text-brand-primary pt-14 pb-8 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
             <div className="col-span-1 lg:col-span-1">
-              <div className="flex items-center gap-4 mb-10">
+              <div className="flex items-center gap-3 mb-5">
                 <img
                   src="/logo.png"
                   alt="Logo"
-                  className="h-14 w-14 brightness-0 invert opacity-90"
+                  className="h-10 w-10 object-contain"
                 />
-                <div className="flex flex-col">
-                  <span className="text-2xl font-serif font-black tracking-tight">
-                    SCIENCES COACHING ACADEMY
-                  </span>
-                  <span className="text-sm font-bold tracking-[0.4em] text-brand-gold">
-                    ACADEMY
-                  </span>
-                </div>
+                <span className="text-lg font-serif font-black tracking-tight whitespace-nowrap">
+                  SCIENCES COACHING ACADEMY
+                </span>
               </div>
-              <p className="text-slate-400 font-medium leading-relaxed mb-10 text-lg">
+              <p className="text-slate-600 font-medium leading-relaxed mb-5 text-sm">
                 Advancing knowledge and transforming lives through excellence in
                 education since 2017.
               </p>
-              <div className="flex gap-5">
+              <div className="flex gap-3">
                 {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
                   <motion.a
                     key={i}
                     href="#"
-                    whileHover={{ y: -5, scale: 1.1 }}
-                    className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-brand-gold hover:text-white transition-all border border-white/5 hover:border-brand-gold"
+                    whileHover={{ y: -2, scale: 1.04 }}
+                    className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center hover:bg-brand-primary hover:text-white transition-all border border-slate-200"
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 w-4" />
                   </motion.a>
                 ))}
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-bold mb-10 uppercase tracking-[0.3em] text-brand-gold">
+              <h4 className="text-[11px] font-bold mb-4 uppercase tracking-[0.2em] text-slate-500">
                 Programs
               </h4>
-              <ul className="space-y-5 text-slate-400 font-medium text-lg">
+              <ul className="space-y-2 text-slate-700 font-medium text-sm">
                 <li>
                   <a
                     href="#contact"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     F.Sc Pre-Medical
                   </a>
@@ -950,7 +942,7 @@ export default function PublicLanding() {
                 <li>
                   <a
                     href="#contact"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     F.Sc Pre-Engineering
                   </a>
@@ -958,7 +950,7 @@ export default function PublicLanding() {
                 <li>
                   <a
                     href="#contact"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     Computer Science
                   </a>
@@ -966,7 +958,7 @@ export default function PublicLanding() {
                 <li>
                   <a
                     href="#contact"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     Matric Science
                   </a>
@@ -975,14 +967,14 @@ export default function PublicLanding() {
             </div>
 
             <div>
-              <h4 className="text-sm font-bold mb-10 uppercase tracking-[0.3em] text-brand-gold">
+              <h4 className="text-[11px] font-bold mb-4 uppercase tracking-[0.2em] text-slate-500">
                 Quick Links
               </h4>
-              <ul className="space-y-5 text-slate-400 font-medium text-lg">
+              <ul className="space-y-2 text-slate-700 font-medium text-sm">
                 <li>
                   <Link
                     to="/student-portal"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     Student Portal
                   </Link>
@@ -990,7 +982,7 @@ export default function PublicLanding() {
                 <li>
                   <a
                     href="#contact"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     Inquire About Admission
                   </a>
@@ -998,7 +990,7 @@ export default function PublicLanding() {
                 <li>
                   <a
                     href="#faculty"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     Our Faculty
                   </a>
@@ -1006,7 +998,7 @@ export default function PublicLanding() {
                 <li>
                   <Link
                     to="/login"
-                    className="hover:text-brand-gold transition-colors"
+                    className="hover:text-brand-primary transition-colors"
                   >
                     Staff Login
                   </Link>
@@ -1015,34 +1007,31 @@ export default function PublicLanding() {
             </div>
 
             <div>
-              <h4 className="text-sm font-bold mb-10 uppercase tracking-[0.3em] text-brand-gold">
+              <h4 className="text-[11px] font-bold mb-4 uppercase tracking-[0.2em] text-slate-500">
                 Newsletter
               </h4>
-              <p className="text-slate-400 text-base font-medium mb-8">
+              <p className="text-slate-600 text-sm font-medium mb-4">
                 Subscribe to get updates on admissions and academic calendars.
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Input
-                  className="h-14 bg-white/5 border-white/10 rounded-2xl px-6 text-white placeholder:text-slate-500 focus:ring-brand-gold focus:border-brand-gold"
+                  className="h-10 bg-white border-slate-300 rounded-lg px-3 text-brand-primary placeholder:text-slate-400 focus:ring-brand-primary focus:border-brand-primary"
                   placeholder="Email Address"
                 />
-                <Button className="h-14 bg-brand-gold hover:bg-brand-gold/90 rounded-2xl px-8 shadow-lg shadow-brand-gold/20">
-                  <Send className="h-5 w-5" />
+                <Button className="h-10 bg-brand-primary hover:bg-brand-primary/90 rounded-lg px-4">
+                  <Send className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
 
-          <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">
-            <p>
-              © {new Date().getFullYear()} SCIENCES COACHING ACADEMY. All Rights
-              Reserved.
-            </p>
-            <div className="flex gap-10">
-              <a href="#" className="hover:text-white transition-colors">
+          <div className="pt-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em]">
+            <p>© {new Date().getFullYear()} SCIENCES COACHING ACADEMY. All Rights Reserved.</p>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-brand-primary transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <a href="#" className="hover:text-brand-primary transition-colors">
                 Terms of Service
               </a>
             </div>
