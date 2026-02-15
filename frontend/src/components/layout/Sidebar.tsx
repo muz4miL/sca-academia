@@ -15,6 +15,7 @@ import {
   Phone,
   Banknote,
   ClipboardList,
+  ClipboardCheck,
   Armchair,
   Globe,
   Scan,
@@ -48,6 +49,12 @@ const navItems = [
     permission: "admissions",
   },
   { icon: Users, label: "Students", path: "/students", permission: "students" },
+  {
+    icon: ClipboardCheck,
+    label: "Attendance",
+    path: "/attendance",
+    permission: "students",
+  },
   {
     icon: GraduationCap,
     label: "Teachers",
@@ -188,11 +195,9 @@ export function Sidebar() {
         )}
         
         {/* Public Website */}
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mb-1"
+        <button
+          onClick={() => window.open("/public", "_blank")}
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 mb-1"
         >
           <Globe className="h-5 w-5 shrink-0" />
           {!collapsed && (
@@ -201,14 +206,12 @@ export function Sidebar() {
               <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
             </>
           )}
-        </a>
+        </button>
 
         {/* Gatekeeper Station */}
-        <a
-          href="/gatekeeper"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
+        <button
+          onClick={() => window.open("/gatekeeper", "_blank")}
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
         >
           <Scan className="h-5 w-5 shrink-0" />
           {!collapsed && (
@@ -217,7 +220,7 @@ export function Sidebar() {
               <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
             </>
           )}
-        </a>
+        </button>
       </div>
 
       {/* Collapse button */}

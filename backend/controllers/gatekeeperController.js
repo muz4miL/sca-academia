@@ -397,10 +397,47 @@ exports.scanBarcode = async (req, res) => {
     }
 
     // ========================================
-    // STEP 5C: UPDATE LAST SCANNED TIMESTAMP
+    // STEP 5C: UPDATE LAST SCANNED TIMESTAMP + MARK ATTENDANCE
     // ========================================
     await Student.findByIdAndUpdate(student._id, { lastScannedAt: now });
     console.log(`🕒 Updated lastScannedAt for ${student.studentName}`);
+
+    // Auto-mark attendance via Gatekeeper scan
+    let attendanceResult = null;
+    try {
+      const Attendance = require("../models/Attendance");
+      const todayPKT = Attendance.getTodayDate();
+      const existingAttendance = await Attendance.findOne({ student: student._id, date: todayPKT });
+
+      if (!existingAttendance) {
+        attendanceResult = await Attendance.create({
+          student: student._id,
+          studentId: student.studentId,
+          studentName: student.studentName,
+          class: student.class || "",
+          classRef: student.classRef?._id || student.classRef,
+          date: todayPKT,
+          status: "Present",
+          checkInTime: new Date(),
+          markedBy: "Gatekeeper",
+          markedByUser: req.user?._id,
+          session: currentSession ? {
+            subject: currentSession.subject,
+            teacher: currentSession.teacherName,
+            room: currentSession.roomNumber,
+            startTime: currentSession.startTime,
+            endTime: currentSession.endTime,
+          } : undefined,
+        });
+        console.log(`✅ Attendance auto-marked: ${student.studentName} — Present (Gatekeeper)`);
+      } else {
+        attendanceResult = existingAttendance;
+        console.log(`ℹ️ Attendance already marked for ${student.studentName} today`);
+      }
+    } catch (attendanceError) {
+      // Don't block the scan if attendance marking fails
+      console.error(`⚠️ Attendance marking failed (non-blocking):`, attendanceError.message);
+    }
 
     // Build enriched class schedule with teacher info
     let enrolledClasses = [];
@@ -440,6 +477,11 @@ exports.scanBarcode = async (req, res) => {
           status: balance <= 0 ? "PAID" : "PENDING",
         },
         session: currentSession,
+        attendance: attendanceResult ? {
+          status: attendanceResult.status,
+          checkInTime: attendanceResult.checkInTime,
+          alreadyMarked: !!attendanceResult._id && !attendanceResult.isNew,
+        } : null,
       },
       // Legacy format for backward compatibility
       student: {

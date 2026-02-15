@@ -71,6 +71,7 @@ const payrollRoutes = require("./routes/payroll");
 const leadRoutes = require("./routes/leads");
 // Phase 2 & 3: Security & LMS
 const gatekeeperRoutes = require("./routes/gatekeeper");
+const attendanceRoutes = require("./routes/attendance");
 const publicRoutes = require("./routes/public");
 const studentPortalRoutes = require("./routes/studentPortal");
 
@@ -93,6 +94,7 @@ app.use("/api/payroll", payrollRoutes);
 app.use("/api/leads", leadRoutes);
 // Phase 2 & 3: Security & LMS
 app.use("/api/gatekeeper", gatekeeperRoutes);
+app.use("/api/attendance", attendanceRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/student-portal", studentPortalRoutes);
 
