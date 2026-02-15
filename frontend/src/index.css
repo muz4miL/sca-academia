@@ -1,0 +1,427 @@
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/playfair-display/900.css";
+@import "@fontsource/plus-jakarta-sans/400.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/600.css";
+@import "@fontsource/plus-jakarta-sans/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core palette - Sciences Coaching Academy Professional Blue Theme */
+    --background: 0 0% 98%;
+    --foreground: 210 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 20% 10%;
+
+    /* Primary - Professional Academic Blue (#0056b3) */
+    --primary: 210 100% 35%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 210 80% 95%;
+    --primary-hover: 210 100% 28%;
+
+    /* Secondary - Dark Navy (#1a2332) */
+    --secondary: 215 30% 15%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 10% 95%;
+    --muted-foreground: 210 10% 45%;
+
+    /* Accent - Light Blue */
+    --accent: 210 70% 95%;
+    --accent-foreground: 210 100% 30%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 95%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 92% 95%;
+
+    --pending: 210 100% 50%;
+    --pending-foreground: 0 0% 100%;
+    --pending-light: 210 80% 95%;
+
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 210 100% 35%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Dark Theme with Blue Accents */
+    --sidebar-background: 215 30% 8%;
+    --sidebar-foreground: 210 10% 85%;
+    --sidebar-primary: 210 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 20% 14%;
+    --sidebar-accent-foreground: 210 70% 90%;
+    --sidebar-border: 215 20% 18%;
+    --sidebar-ring: 210 100% 45%;
+    --sidebar-muted: 210 10% 55%;
+
+    /* Chart colors */
+    --chart-1: 210 100% 35%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 210 10% 40%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 195 80% 45%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 35%), hsl(210 100% 25%));
+    --gradient-header: linear-gradient(135deg, hsl(210 100% 35%), hsl(215 80% 28%));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(215 30% 10% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(215 30% 10% / 0.1), 0 2px 4px -2px hsl(215 30% 10% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(215 30% 10% / 0.1), 0 4px 6px -4px hsl(215 30% 10% / 0.1);
+    --shadow-glow: 0 0 20px hsl(210 100% 35% / 0.3);
+  }
+
+  .dark {
+    /* Sciences Coaching Academy Dark Theme - Blue & Navy */
+    --background: 215 30% 4%;
+    --foreground: 210 10% 92%;
+
+    --card: 215 25% 7%;
+    --card-foreground: 210 10% 92%;
+
+    --popover: 215 25% 7%;
+    --popover-foreground: 210 10% 92%;
+
+    /* Primary - Bright Blue */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 210 70% 18%;
+    --primary-hover: 210 100% 58%;
+
+    --secondary: 215 20% 14%;
+    --secondary-foreground: 210 10% 92%;
+
+    --muted: 215 20% 14%;
+    --muted-foreground: 210 10% 55%;
+
+    --accent: 210 60% 18%;
+    --accent-foreground: 210 80% 70%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success-light: 142 76% 15%;
+    --warning-light: 38 92% 15%;
+    --pending-light: 210 80% 15%;
+
+    --border: 215 15% 16%;
+    --input: 215 15% 16%;
+    --ring: 210 100% 50%;
+
+    /* Sidebar - Dark with Blue Accents */
+    --sidebar-background: 215 30% 4%;
+    --sidebar-foreground: 210 10% 80%;
+    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 30% 12%;
+    --sidebar-accent-foreground: 210 80% 90%;
+    --sidebar-border: 215 20% 14%;
+    --sidebar-muted: 210 10% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  .header-gradient {
+    background: var(--gradient-header);
+  }
+
+  .card-shadow {
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-shadow-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .glow-shadow {
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shine {
+
+    0%,
+    100% {
+      opacity: 0.15;
+      transform: translateX(-100%) translateY(-100%);
+    }
+
+    50% {
+      opacity: 0.25;
+      transform: translateX(100%) translateY(100%);
+    }
+  }
+
+  @keyframes border-glow {
+
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  .animate-shine {
+    animation: shine 3s ease-in-out infinite;
+  }
+
+  .animate-border-glow {
+    animation: border-glow 2s ease-in-out infinite;
+  }
+
+  /* Liquid Mesh Animation */
+  .liquid-mesh {
+    background: linear-gradient(
+      -45deg,
+      #1a2332,
+      #2a3a4d,
+      #0056b3,
+      #1a2332
+    );
+    background-size: 400% 400%;
+    animation: liquidMesh 15s ease infinite;
+  }
+
+  @keyframes liquidMesh {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Glassmorphism Ethereal */
+  .glass-ethereal {
+    @apply backdrop-blur-2xl bg-white/5 border border-white/20;
+  }
+
+  .glass-ethereal-dark {
+    @apply backdrop-blur-2xl bg-black/40 border border-white/10;
+  }
+
+  /* Hide scrollbar for horizontal scroll carousel */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+  }
+
+  /* Custom Scrollbar - Thin Blue Theme */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(210 100% 35%) hsl(210 10% 95%);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(210 10% 95%);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(210 100% 35%);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(210 100% 28%);
+  }
+
+  /* Dark mode scrollbar */
+  .dark .scrollbar-thin {
+    scrollbar-color: hsl(210 100% 45%) hsl(215 20% 15%);
+  }
+
+  .dark .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(215 20% 15%);
+  }
+
+  /* Sidebar Navigation Scrollbar - Blue Theme */
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(210 100% 45% / 0.6) hsl(215 20% 12%);
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: hsl(215 20% 12%);
+    border-radius: 3px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(210 100% 45% / 0.6);
+    border-radius: 3px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(210 100% 45% / 0.8);
+  }
+}
+
+/* ========================================
+   PRINT STYLES - Security Receipt
+   ======================================== */
+@media print {
+
+  /* Hide everything except the receipt */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the receipt and its children */
+  #security-receipt,
+  #security-receipt * {
+    visibility: visible;
+  }
+
+  /* Position the receipt at top-left */
+  #security-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    /* Thermal printer width */
+    max-width: 100%;
+    padding: 10mm;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide dialog overlay and buttons */
+  [role="dialog"],
+  [data-state="open"] {
+    background: transparent !important;
+    position: static !important;
+  }
+
+  /* Reset colors for grayscale printing */
+  #security-receipt img {
+    filter: grayscale(100%);
+  }
+
+  /* Ensure text is black */
+  #security-receipt .text-gray-500,
+  #security-receipt .text-gray-600 {
+    color: #333 !important;
+  }
+
+  /* Hide buttons in print */
+  button,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: 80mm auto;
+    /* Thermal printer */
+    margin: 0;
+  }
+}
