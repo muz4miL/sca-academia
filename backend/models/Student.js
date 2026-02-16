@@ -346,26 +346,18 @@ studentSchema.pre("save", async function () {
     `✅ FINAL STATE: ID=${this.studentId}, FeeStatus=${this.feeStatus}, TotalFee=${totalFee}, PaidAmount=${paidAmount}, Subjects=${this.subjects?.length || 0}\n`,
   );
 
+  // Auto-set default password for new students (password = studentId)
+  if (this.isNew && !this.password && this.studentId) {
+    this.password = this.studentId;
+    this.plainPassword = this.studentId;
+    console.log(`🔑 Default password set to studentId: ${this.studentId}`);
+  }
+
   // Hash password if modified
   if (this.isModified("password") && this.password) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     console.log("🔐 Password hashed for student");
-  }
-});
-
-// ========================================
-// MIDDLEWARE: Hash password before saving
-// ========================================
-studentSchema.pre('save', async function () {
-  // Only hash password if it has been modified (or is new)
-  if (!this.isModified('password')) return;
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  } catch (error) {
-    throw error;
   }
 });
 
@@ -407,7 +399,7 @@ studentSchema.methods.getStudentProfile = function () {
     group: this.group,
     subjects: this.subjects,
     email: this.email,
-    photo: this.photo || defaultPhoto,
+    photo: this.imageUrl || this.photo || defaultPhoto,
     studentStatus: this.studentStatus,
     feeStatus: this.feeStatus,
     totalFee: this.totalFee,

@@ -133,7 +133,7 @@ exports.getStudentProfile = async (req, res) => {
         class: student.class,
         group: student.group,
         subjects: student.subjects,
-        photo: student.photo,
+        photo: student.imageUrl || student.photo,
         email: student.email,
         feeStatus: student.feeStatus,
         totalFee: student.totalFee,
@@ -293,11 +293,12 @@ exports.studentLogout = async (req, res) => {
   });
 };
 
-// @desc    Get student's class schedule/timetable
+// @desc    Get student's class timetable from Timetable model
 // @route   GET /api/student-portal/schedule
 // @access  Protected (Student)
 exports.getStudentSchedule = async (req, res) => {
   try {
+    const Timetable = require("../models/Timetable");
     const Class = require("../models/Class");
 
     const student = await Student.findById(req.student._id).lean();
@@ -309,101 +310,48 @@ exports.getStudentSchedule = async (req, res) => {
       });
     }
 
-    // Find the class the student is enrolled in
-    let classData = null;
+    // Resolve classId for the student
+    let classId = student.classRef;
 
-    if (student.classRef) {
-      classData = await Class.findById(student.classRef).lean();
-    } else if (student.class) {
-      // Fallback: Find by classTitle or gradeLevel
-      classData = await Class.findOne({
+    if (!classId && student.class) {
+      const classDoc = await Class.findOne({
         $or: [
           { classTitle: { $regex: student.class, $options: 'i' } },
           { gradeLevel: { $regex: student.class, $options: 'i' } }
         ],
         status: 'active'
       }).lean();
+      classId = classDoc?._id;
     }
 
-    if (!classData) {
+    if (!classId) {
       return res.status(200).json({
         success: true,
-        data: {
-          schedule: [],
-          className: student.class || "Not Enrolled",
-          message: "No schedule found for your class"
-        },
+        data: [],
+        count: 0,
+        message: "No class assigned",
       });
     }
 
-    // Format schedule for frontend calendar
-    const schedule = (classData.days || []).map(day => ({
-      day: day,
-      dayFull: {
-        'Mon': 'Monday',
-        'Tue': 'Tuesday',
-        'Wed': 'Wednesday',
-        'Thu': 'Thursday',
-        'Fri': 'Friday',
-        'Sat': 'Saturday',
-        'Sun': 'Sunday'
-      }[day] || day,
-      startTime: classData.startTime,
-      endTime: classData.endTime,
-      roomNumber: classData.roomNumber || 'TBD',
-      subjects: classData.subjects?.map(s => s.name) || [],
-      classTitle: classData.classTitle,
-      group: classData.group,
-      shift: classData.shift
-    }));
+    // Query Timetable model directly — same data the admin Timetable page creates
+    const entries = await Timetable.find({ classId, status: 'active' })
+      .populate('classId', 'classTitle gradeLevel classId')
+      .populate('teacherId', 'name teacherId subject')
+      .sort({ day: 1, startTime: 1 })
+      .lean();
 
-    // Find next class
-    const now = new Date();
-    const currentDay = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()];
-    const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
-
-    let nextClass = null;
-    const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const currentDayIndex = dayOrder.indexOf(currentDay);
-
-    // Look for next class starting from today
-    for (let i = 0; i < 7; i++) {
-      const checkDayIndex = (currentDayIndex + i) % 7;
-      const checkDay = dayOrder[checkDayIndex];
-
-      if (classData.days?.includes(checkDay)) {
-        // If it's today, check if the class hasn't started yet
-        if (i === 0 && classData.startTime <= currentTime) {
-          continue;
-        }
-
-        nextClass = {
-          day: checkDay,
-          dayFull: {
-            'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
-            'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday', 'Sun': 'Sunday'
-          }[checkDay],
-          startTime: classData.startTime,
-          endTime: classData.endTime,
-          roomNumber: classData.roomNumber || 'TBD',
-          isToday: i === 0,
-          daysUntil: i
-        };
-        break;
-      }
-    }
+    // Sort by day order then time
+    const DAY_ORDER = { Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6, Sunday: 7 };
+    entries.sort((a, b) => {
+      const dayDiff = (DAY_ORDER[a.day] || 8) - (DAY_ORDER[b.day] || 8);
+      if (dayDiff !== 0) return dayDiff;
+      return 0;
+    });
 
     return res.status(200).json({
       success: true,
-      data: {
-        schedule,
-        className: classData.classTitle || classData.displayName,
-        group: classData.group,
-        shift: classData.shift,
-        roomNumber: classData.roomNumber,
-        nextClass,
-        subjects: classData.subjects
-      },
+      count: entries.length,
+      data: entries,
     });
   } catch (error) {
     console.error("❌ Error in getStudentSchedule:", error);
