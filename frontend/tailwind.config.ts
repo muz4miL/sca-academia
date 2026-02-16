@@ -25,11 +25,12 @@ export default {
       },
       colors: {
         brand: {
-          primary: "#0056b3",
+          primary: "#0C1222",
           secondary: "#F8FAFC",
           accent: "#1976D2",
           navy: "#0D2137",
-          gold: "#1565C0",
+          gold: "#C8860A",
+          teal: "#0D9488",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
