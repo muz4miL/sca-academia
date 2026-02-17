@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
+import JsBarcode from "jsbarcode";
 import {
   ReceiptPDF,
   StudentPDFData,
@@ -38,6 +39,29 @@ async function loadLogoAsDataUrl(): Promise<string> {
 
 // Cache the logo data URL to avoid repeated fetches
 let cachedLogoDataUrl: string | null = null;
+
+/**
+ * Generate a barcode as a Base64 Data URL using JsBarcode
+ * Uses the numeric studentId for scanner compatibility (CODE39 format)
+ */
+function generateBarcodeDataUrl(value: string): string {
+  try {
+    const canvas = document.createElement("canvas");
+    JsBarcode(canvas, value, {
+      format: "CODE128",
+      width: 2,
+      height: 40,
+      displayValue: false, // We show the ID separately below
+      margin: 4,
+      background: "#ffffff",
+      lineColor: "#000000",
+    });
+    return canvas.toDataURL("image/png");
+  } catch (error) {
+    console.error("Error generating barcode:", error);
+    return "";
+  }
+}
 
 /**
  * usePDFReceipt - Universal hook for generating PDF receipts
@@ -115,11 +139,15 @@ export function usePDFReceipt() {
           cachedLogoDataUrl = await loadLogoAsDataUrl();
         }
 
-        // Create PDF document
+        // Generate barcode as Base64 data URL using the numeric studentId
+        const barcodeDataUrl = generateBarcodeDataUrl(data.student.studentId);
+
+        // Create PDF document with barcode
         const pdfDoc = (
           <ReceiptPDF
             student={data.student}
             receiptConfig={data.receiptConfig}
+            barcodeDataUrl={barcodeDataUrl || undefined}
             logoDataUrl={cachedLogoDataUrl}
           />
         );

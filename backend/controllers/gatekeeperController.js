@@ -404,6 +404,7 @@ exports.scanBarcode = async (req, res) => {
 
     // Auto-mark attendance via Gatekeeper scan
     let attendanceResult = null;
+    let attendanceAlreadyMarked = false;
     try {
       const Attendance = require("../models/Attendance");
       const todayPKT = Attendance.getTodayDate();
@@ -429,9 +430,11 @@ exports.scanBarcode = async (req, res) => {
             endTime: currentSession.endTime,
           } : undefined,
         });
+        attendanceAlreadyMarked = false;
         console.log(`✅ Attendance auto-marked: ${student.studentName} — Present (Gatekeeper)`);
       } else {
         attendanceResult = existingAttendance;
+        attendanceAlreadyMarked = true;
         console.log(`ℹ️ Attendance already marked for ${student.studentName} today`);
       }
     } catch (attendanceError) {
@@ -460,6 +463,8 @@ exports.scanBarcode = async (req, res) => {
       success: true,
       status: verificationStatus,
       message: statusMessage,
+      // Current session at top level for frontend compatibility
+      currentSession: currentSession || null,
       // New structured scanResult for System Bridge
       scanResult: {
         statusColor, // 'GREEN' | 'RED' | 'ORANGE'
@@ -480,7 +485,7 @@ exports.scanBarcode = async (req, res) => {
         attendance: attendanceResult ? {
           status: attendanceResult.status,
           checkInTime: attendanceResult.checkInTime,
-          alreadyMarked: !!attendanceResult._id && !attendanceResult.isNew,
+          alreadyMarked: attendanceAlreadyMarked,
         } : null,
       },
       // Legacy format for backward compatibility

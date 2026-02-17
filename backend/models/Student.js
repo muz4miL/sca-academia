@@ -370,7 +370,7 @@ studentSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Generate barcode ID (EDW-YEAR-XXX format)
+// Generate barcode ID (SCA-YEAR-XXX format)
 studentSchema.methods.generateBarcodeId = async function () {
   if (this.barcodeId) return this.barcodeId;
 
@@ -379,7 +379,7 @@ studentSchema.methods.generateBarcodeId = async function () {
     barcodeId: { $exists: true, $ne: null },
   });
   const sequence = String(count + 1).padStart(3, "0");
-  this.barcodeId = `EDW-${year}-${sequence}`;
+  this.barcodeId = `SCA-${year}-${sequence}`;
 
   return this.barcodeId;
 };

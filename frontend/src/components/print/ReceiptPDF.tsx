@@ -400,7 +400,7 @@ export interface ReceiptPDFConfig {
 interface ReceiptPDFProps {
   student: StudentPDFData;
   receiptConfig: ReceiptPDFConfig;
-  barcodeDataUrl?: string; // Deprecated - no longer used
+  barcodeDataUrl?: string; // Base64 barcode image from JsBarcode
   logoDataUrl?: string; // Optional logo data URL for PDF
 }
 
@@ -571,11 +571,16 @@ export const ReceiptPDF = ({
               )}
             </View>
 
-            {/* Center Section - Student ID */}
+            {/* Center Section - Smart Gate Barcode */}
             <View style={styles.centerSection}>
-              <Text style={styles.barcodeLabel}>STUDENT ID</Text>
+              <Text style={styles.barcodeLabel}>SMART GATE ID</Text>
+              {barcodeDataUrl ? (
+                <Image src={barcodeDataUrl} style={{ width: 120, height: 50, objectFit: "contain" }} />
+              ) : (
+                <Text style={styles.barcodeId}>{student.studentId}</Text>
+              )}
               <Text style={styles.barcodeId}>{student.studentId}</Text>
-              <Text style={styles.barcodeHint}>For record verification</Text>
+              <Text style={styles.barcodeHint}>Scan for verification</Text>
             </View>
 
             {/* Right Section - Financial Box */}

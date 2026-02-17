@@ -73,6 +73,14 @@ interface ScanResult {
     feeStatus: string;
     balance: number;
     studentStatus: string;
+    enrolledClasses?: Array<{
+      classTitle: string;
+      teacherName: string;
+      days: string[];
+      startTime: string;
+      endTime: string;
+      roomNumber?: string;
+    }>;
   };
   currentSession?: {
     subject: string;
@@ -80,6 +88,28 @@ interface ScanResult {
     startTime: string;
     endTime: string;
     room?: string;
+  };
+  scanResult?: {
+    statusColor: string;
+    session?: {
+      subject: string;
+      teacher: string;
+      startTime: string;
+      endTime: string;
+      room?: string;
+    };
+    attendance?: {
+      status: string;
+      checkInTime: string;
+      alreadyMarked: boolean;
+    };
+  };
+  schedule?: {
+    classStartTime: string;
+    classEndTime: string;
+    classDays: string[];
+    currentTime: string;
+    teacherName: string;
   };
   scannedAt?: string;
 }
@@ -462,6 +492,9 @@ export default function Gatekeeper() {
   // SUCCESS STATE - Full-Screen Green Welcome
   if (terminalState === "success" && scanResult?.student) {
     const defaultPhoto = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + scanResult.student.studentId;
+    // Resolve current session from multiple sources
+    const activeSession = scanResult.currentSession || scanResult.scanResult?.session || null;
+    const attendanceInfo = scanResult.scanResult?.attendance || null;
 
     return (
       <div
@@ -520,7 +553,7 @@ export default function Gatekeeper() {
               </div>
 
               {/* Intelligent Schedule Highlight */}
-              {scanResult.currentSession ? (
+              {activeSession ? (
                 <div className="bg-emerald-400/20 backdrop-blur-xl rounded-3xl p-8 border-2 border-emerald-300/50 shadow-2xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
                     <BookOpen className="h-20 w-20 rotate-12" />
@@ -531,17 +564,17 @@ export default function Gatekeeper() {
                         <div className="px-3 py-1 rounded-full bg-emerald-400 text-emerald-900 text-[10px] font-black uppercase tracking-widest animate-pulse">
                           Live Session
                         </div>
-                        <span className="text-white/60 text-lg font-mono">{scanResult.currentSession.startTime} - {scanResult.currentSession.endTime}</span>
+                        <span className="text-white/60 text-lg font-mono">{activeSession.startTime} - {activeSession.endTime}</span>
                       </div>
-                      <h3 className="text-5xl font-black tracking-tight">{scanResult.currentSession.subject}</h3>
+                      <h3 className="text-5xl font-black tracking-tight">{activeSession.subject}</h3>
                       <p className="text-2xl font-bold flex items-center gap-3 text-emerald-100">
-                        <User className="h-6 w-6" /> {scanResult.currentSession.teacher}
+                        <User className="h-6 w-6" /> {activeSession.teacher}
                       </p>
                     </div>
-                    {scanResult.currentSession.room && (
+                    {activeSession.room && (
                       <div className="text-right">
                         <p className="text-sm font-black uppercase tracking-widest text-white/60">Room</p>
-                        <p className="text-6xl font-black text-emerald-300">{scanResult.currentSession.room}</p>
+                        <p className="text-6xl font-black text-emerald-300">{activeSession.room}</p>
                       </div>
                     )}
                   </div>
@@ -563,7 +596,14 @@ export default function Gatekeeper() {
               <div className="flex items-center gap-4">
                 <div className="h-3 w-3 rounded-full bg-sky-400 animate-pulse" />
                 <p className="text-2xl font-medium text-white/60 uppercase tracking-widest">
-                  Attendance: <span className="text-sky-300 font-black">MARKED PRESENT</span>
+                  Attendance: <span className="text-sky-300 font-black">
+                    {attendanceInfo?.alreadyMarked ? "ALREADY MARKED" : "MARKED PRESENT"}
+                  </span>
+                  {attendanceInfo?.checkInTime && (
+                    <span className="text-sky-200/60 text-lg ml-3">
+                      at {new Date(attendanceInfo.checkInTime).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Karachi" })}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
