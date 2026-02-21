@@ -260,15 +260,29 @@ exports.getDashboardStats = async (req, res) => {
 
 // =====================================================================
 // RECORD STUDENT MISC PAYMENT — Trip, Test, Lab, Event fees etc.
+// Supports both enrolled students AND outsider/walk-in payments
 // =====================================================================
 exports.recordStudentMiscPayment = async (req, res) => {
   try {
-    const { studentId, amount, paymentType, description, paymentMethod } = req.body;
+    const { studentId, amount, paymentType, description, paymentMethod, isOutsider, outsiderName, outsiderFatherName, outsiderContact, outsiderClass } = req.body;
 
-    if (!studentId || !amount || !paymentType) {
+    // Validate: need either enrolled studentId OR outsider name
+    if (!isOutsider && !studentId) {
       return res.status(400).json({
         success: false,
-        message: "Student, amount, and payment type are required.",
+        message: "Please select a student or enter outsider details.",
+      });
+    }
+    if (isOutsider && !outsiderName?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Name is required for outsider payments.",
+      });
+    }
+    if (!amount || !paymentType) {
+      return res.status(400).json({
+        success: false,
+        message: "Amount and payment type are required.",
       });
     }
 
@@ -277,16 +291,6 @@ exports.recordStudentMiscPayment = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Amount must be greater than 0.",
-      });
-    }
-
-    // Find the student
-    const Student = require("../models/Student");
-    const student = await Student.findById(studentId);
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found.",
       });
     }
 
@@ -304,23 +308,62 @@ exports.recordStudentMiscPayment = async (req, res) => {
     const category = categoryMap[paymentType] || "Student_Misc";
     const paymentLabel = paymentType.charAt(0).toUpperCase() + paymentType.slice(1);
 
+    let personName, personFather, personClass, personContact, personId, studentRef;
+
+    if (isOutsider) {
+      // ---- OUTSIDER (walk-in / non-enrolled) ----
+      personName = outsiderName.trim();
+      personFather = outsiderFatherName?.trim() || "-";
+      personClass = outsiderClass?.trim() || "-";
+      personContact = outsiderContact?.trim() || "-";
+      personId = "WALK-IN";
+      studentRef = null;
+    } else {
+      // ---- ENROLLED STUDENT ----
+      const Student = require("../models/Student");
+      const student = await Student.findById(studentId);
+      if (!student) {
+        return res.status(404).json({
+          success: false,
+          message: "Student not found.",
+        });
+      }
+      personName = student.studentName;
+      personFather = student.fatherName || "-";
+      personClass = student.class || "-";
+      personContact = student.parentCell || student.studentCell || "-";
+      personId = student.studentId;
+      studentRef = student._id;
+    }
+
     // Generate receipt ID
     const now = new Date();
     const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const receiptId = `MISC-${student.studentId}-${dateStr}-${randomSuffix}`;
+    const receiptId = `MISC-${personId}-${dateStr}-${randomSuffix}`;
 
     // Create transaction in ledger
-    const transaction = await Transaction.create({
+    const transactionData = {
       type: "INCOME",
       category,
       amount: amountNum,
-      description: description || `${paymentLabel} fee from ${student.studentName} (${student.studentId})`,
+      description: description || `${paymentLabel} fee from ${personName}${personId !== "WALK-IN" ? ` (${personId})` : " (Walk-in)"}`,
       date: now,
       collectedBy: req.user._id,
       status: "FLOATING",
-      studentId: student._id,
-    });
+    };
+
+    if (studentRef) {
+      transactionData.studentId = studentRef;
+    }
+    if (isOutsider) {
+      transactionData.outsiderName = personName;
+      transactionData.outsiderFatherName = personFather;
+      transactionData.outsiderContact = personContact;
+      transactionData.outsiderClass = personClass;
+    }
+
+    const transaction = await Transaction.create(transactionData);
 
     // Send notification to owner
     try {
@@ -332,7 +375,7 @@ exports.recordStudentMiscPayment = async (req, res) => {
         await Notification.create({
           recipient: owner._id,
           recipientRole: "OWNER",
-          message: `${paymentLabel} fee of PKR ${amountNum.toLocaleString()} collected from ${student.studentName} (${student.studentId})`,
+          message: `${paymentLabel} fee of PKR ${amountNum.toLocaleString()} collected from ${personName}${personId !== "WALK-IN" ? ` (${personId})` : " (Walk-in)"}`,
           type: "FINANCE",
           relatedId: transaction._id.toString(),
         });
@@ -357,16 +400,16 @@ exports.recordStudentMiscPayment = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: `${paymentLabel} fee of PKR ${amountNum.toLocaleString()} collected from ${student.studentName}.`,
+      message: `${paymentLabel} fee of PKR ${amountNum.toLocaleString()} collected from ${personName}.`,
       data: {
         transaction,
         receiptData: {
           receiptId,
-          studentId: student.studentId,
-          studentName: student.studentName,
-          fatherName: student.fatherName || "-",
-          class: student.class || "-",
-          contact: student.parentCell || student.studentCell || "-",
+          studentId: personId,
+          studentName: personName,
+          fatherName: personFather,
+          class: personClass,
+          contact: personContact,
           paymentType: paymentLabel,
           category,
           amount: amountNum,
@@ -393,6 +436,7 @@ exports.getStudentMiscPayments = async (req, res) => {
     const transactions = await Transaction.find({
       category: { $in: miscCategories },
     })
+      .select("+outsiderName +outsiderFatherName +outsiderContact +outsiderClass")
       .populate("studentId", "studentName studentId class fatherName parentCell")
       .populate("collectedBy", "fullName")
       .sort({ date: -1 })
@@ -1121,7 +1165,7 @@ exports.getAnalyticsDashboard = async (req, res) => {
     const weekStart = new Date(today);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
 
-    const [todayRev, weeklyRev, monthlyRev] = await Promise.all([
+    const [todayRev, weeklyRev, monthlyRev, todayRefund, weeklyRefund, monthlyRefund] = await Promise.all([
       Transaction.aggregate([
         { $match: { type: "INCOME", date: { $gte: today, $lt: tmr } } },
         { $group: { _id: null, total: { $sum: "$amount" } } },
@@ -1132,6 +1176,18 @@ exports.getAnalyticsDashboard = async (req, res) => {
       ]),
       Transaction.aggregate([
         { $match: { type: "INCOME", date: { $gte: startOfMonth } } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+      Transaction.aggregate([
+        { $match: { type: "REFUND", date: { $gte: today, $lt: tmr } } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+      Transaction.aggregate([
+        { $match: { type: "REFUND", date: { $gte: weekStart } } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+      Transaction.aggregate([
+        { $match: { type: "REFUND", date: { $gte: startOfMonth } } },
         { $group: { _id: null, total: { $sum: "$amount" } } },
       ]),
     ]);
@@ -1147,9 +1203,9 @@ exports.getAnalyticsDashboard = async (req, res) => {
         feeCollection,
         expenseCategories,
         quickStats: {
-          todayRevenue: todayRev[0]?.total || 0,
-          weeklyRevenue: weeklyRev[0]?.total || 0,
-          monthlyRevenue: monthlyRev[0]?.total || 0,
+          todayRevenue: (todayRev[0]?.total || 0) - (todayRefund[0]?.total || 0),
+          weeklyRevenue: (weeklyRev[0]?.total || 0) - (weeklyRefund[0]?.total || 0),
+          monthlyRevenue: (monthlyRev[0]?.total || 0) - (monthlyRefund[0]?.total || 0),
           totalStudents,
           totalTeachers,
         },

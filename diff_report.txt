@@ -1,0 +1,2757 @@
+﻿
+====== pages\Finance.tsx ======
+Lines differ: 205
+[TARGET]             SCIENCES COACHING ACADEMY â€” Revenue & Expense Tracking
+[TARGET]                               : "text-emerald-600"
+[TARGET]                             : "text-right font-bold text-emerald-700"
+[TARGET]       p.studentId?.studentId?.toLowerCase().includes(search)
+[TARGET]     if (!selectedStudent || !amount || Number(amount) <= 0) {
+[TARGET]       toast.error("Please select a student and enter a valid amount");
+[TARGET]       return;
+[TARGET]     collectMutation.mutate({
+[TARGET]       studentId: selectedStudent._id,
+[TARGET]       amount: Number(amount),
+[TARGET]       paymentType,
+[TARGET]       description,
+[TARGET]       paymentMethod,
+[TARGET]     });
+[TARGET]                           <span className="font-medium">{p.studentId?.studentName || "-"}</span>
+[TARGET]                           {p.studentId?.studentId && (
+[TARGET]                           )}
+[TARGET]               Record Student Misc Payment
+[TARGET]             {/* Student Search */}
+[TARGET]               <Label>Student *</Label>
+[TARGET]               {selectedStudent ? (
+[TARGET]                 <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-md p-3 mt-1">
+[TARGET]                     <span className="font-semibold">{selectedStudent.studentName}</span>
+[TARGET]                     <span className="text-xs ml-2 text-slate-500">({selectedStudent.studentId})</span>
+[TARGET]                     <div className="text-xs text-slate-500 mt-0.5">
+[TARGET]                       {selectedStudent.class} | Father: {selectedStudent.fatherName || "-"}
+[TARGET]                   <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(null)}>
+[TARGET]                     Change
+[TARGET]                   </Button>
+[TARGET]                 <div className="mt-1">
+[TARGET]                   <div className="relative">
+[TARGET]                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+[TARGET]                       placeholder="Search by name or student ID..."
+[TARGET]                       value={studentSearch}
+[TARGET]                       onChange={(e) => setStudentSearch(e.target.value)}
+[TARGET]                       className="pl-10"
+[TARGET]                   {studentsData?.data && studentsData.data.length > 0 && (
+[TARGET]                     <div className="max-h-40 overflow-auto border rounded-md mt-1 bg-white shadow-sm">
+[TARGET]                       {studentsData.data.slice(0, 8).map((s: any) => (
+[TARGET]                         <button
+[TARGET]                           key={s._id}
+[TARGET]                           className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b last:border-b-0 transition-colors"
+[TARGET]                           onClick={() => {
+[TARGET]                             setSelectedStudent(s);
+[TARGET]                             setStudentSearch("");
+[TARGET]                           }}
+[TARGET]                         >
+[TARGET]                           <span className="font-medium text-sm">{s.studentName}</span>
+[TARGET]                           <span className="text-xs ml-2 text-slate-400">({s.studentId})</span>
+[TARGET]                           <span className="text-xs ml-2 text-slate-500">{s.class}</span>
+[TARGET]                         </button>
+[TARGET]                       ))}
+[TARGET]                   )}
+[TARGET]                 </div>
+[TARGET]               disabled={collectMutation.isPending || !selectedStudent || !amount}
+[SOURCE]             Genius Islamian's Academy â€” Revenue & Expense Tracking
+[SOURCE]                               : item.type === "REFUND"
+[SOURCE]                                 ? "text-amber-600"
+[SOURCE]                                 : "text-emerald-600"
+[SOURCE]                             : item.type === "REFUND"
+[SOURCE]                               ? "text-right font-bold text-amber-600"
+[SOURCE]                               : "text-right font-bold text-emerald-700"
+[SOURCE]   // Outsider mode
+[SOURCE]   const [isOutsider, setIsOutsider] = useState(false);
+[SOURCE]   const [outsiderName, setOutsiderName] = useState("");
+[SOURCE]   const [outsiderFatherName, setOutsiderFatherName] = useState("");
+[SOURCE]   const [outsiderContact, setOutsiderContact] = useState("");
+[SOURCE]       p.studentId?.studentId?.toLowerCase().includes(search) ||
+[SOURCE]       p.outsiderName?.toLowerCase().includes(search)
+[SOURCE]       setIsOutsider(false);
+[SOURCE]       setOutsiderName("");
+[SOURCE]       setOutsiderFatherName("");
+[SOURCE]       setOutsiderContact("");
+[SOURCE]     if (isOutsider) {
+[SOURCE]       if (!outsiderName.trim() || !amount || Number(amount) <= 0) {
+[SOURCE]         toast.error("Please enter a name and a valid amount");
+[SOURCE]         return;
+[SOURCE]       }
+[SOURCE]       collectMutation.mutate({
+[SOURCE]         isOutsider: true,
+[SOURCE]         outsiderName: outsiderName.trim(),
+[SOURCE]         outsiderFatherName: outsiderFatherName.trim(),
+[SOURCE]         outsiderContact: outsiderContact.trim(),
+[SOURCE]         amount: Number(amount),
+[SOURCE]         paymentType,
+[SOURCE]         description,
+[SOURCE]         paymentMethod,
+[SOURCE]       });
+[SOURCE]     } else {
+[SOURCE]       if (!selectedStudent || !amount || Number(amount) <= 0) {
+[SOURCE]         toast.error("Please select a student and enter a valid amount");
+[SOURCE]         return;
+[SOURCE]       }
+[SOURCE]       collectMutation.mutate({
+[SOURCE]         studentId: selectedStudent._id,
+[SOURCE]         amount: Number(amount),
+[SOURCE]         paymentType,
+[SOURCE]         description,
+[SOURCE]         paymentMethod,
+[SOURCE]       });
+[SOURCE]                           <span className="font-medium">
+[SOURCE]                             {p.studentId?.studentName || p.outsiderName || "-"}
+[SOURCE]                           </span>
+[SOURCE]                           {p.studentId?.studentId ? (
+[SOURCE]                           ) : p.outsiderName ? (
+[SOURCE]                             <span className="text-xs text-amber-500 ml-1">(Walk-in)</span>
+[SOURCE]                           ) : null}
+[SOURCE]               Record Misc Payment
+[SOURCE]             {/* Enrolled / Outsider Toggle */}
+[SOURCE]               <Label className="mb-1.5 block">Paying Person *</Label>
+[SOURCE]               <div className="flex gap-2 mb-3">
+[SOURCE]                 <Button
+[SOURCE]                   type="button"
+[SOURCE]                   size="sm"
+[SOURCE]                   variant={!isOutsider ? "default" : "outline"}
+[SOURCE]                   className={!isOutsider ? "bg-blue-600 hover:bg-blue-700" : ""}
+[SOURCE]                   onClick={() => { setIsOutsider(false); setOutsiderName(""); setOutsiderFatherName(""); setOutsiderContact(""); }}
+[SOURCE]                 >
+[SOURCE]                   Enrolled Student
+[SOURCE]                 </Button>
+[SOURCE]                 <Button
+[SOURCE]                   type="button"
+[SOURCE]                   size="sm"
+[SOURCE]                   variant={isOutsider ? "default" : "outline"}
+[SOURCE]                   className={isOutsider ? "bg-amber-600 hover:bg-amber-700" : ""}
+[SOURCE]                   onClick={() => { setIsOutsider(true); setSelectedStudent(null); setStudentSearch(""); }}
+[SOURCE]                 >
+[SOURCE]                   Outsider / Walk-in
+[SOURCE]                 </Button>
+[SOURCE]               {!isOutsider ? (
+[SOURCE]                 /* ---- Enrolled Student Search ---- */
+[SOURCE]                 selectedStudent ? (
+[SOURCE]                   <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-md p-3">
+[SOURCE]                     <div>
+[SOURCE]                       <span className="font-semibold">{selectedStudent.studentName}</span>
+[SOURCE]                       <span className="text-xs ml-2 text-slate-500">({selectedStudent.studentId})</span>
+[SOURCE]                       <div className="text-xs text-slate-500 mt-0.5">
+[SOURCE]                         {selectedStudent.class} | Father: {selectedStudent.fatherName || "-"}
+[SOURCE]                       </div>
+[SOURCE]                     <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(null)}>
+[SOURCE]                       Change
+[SOURCE]                     </Button>
+[SOURCE]                 ) : (
+[SOURCE]                     <div className="relative">
+[SOURCE]                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+[SOURCE]                       <Input
+[SOURCE]                         placeholder="Search by name or student ID..."
+[SOURCE]                         value={studentSearch}
+[SOURCE]                         onChange={(e) => setStudentSearch(e.target.value)}
+[SOURCE]                         className="pl-10"
+[SOURCE]                       />
+[SOURCE]                     {studentsData?.data && studentsData.data.length > 0 && (
+[SOURCE]                       <div className="max-h-40 overflow-auto border rounded-md mt-1 bg-white shadow-sm">
+[SOURCE]                         {studentsData.data.slice(0, 8).map((s: any) => (
+[SOURCE]                           <button
+[SOURCE]                             key={s._id}
+[SOURCE]                             className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b last:border-b-0 transition-colors"
+[SOURCE]                             onClick={() => {
+[SOURCE]                               setSelectedStudent(s);
+[SOURCE]                               setStudentSearch("");
+[SOURCE]                             }}
+[SOURCE]                           >
+[SOURCE]                             <span className="font-medium text-sm">{s.studentName}</span>
+[SOURCE]                             <span className="text-xs ml-2 text-slate-400">({s.studentId})</span>
+[SOURCE]                             <span className="text-xs ml-2 text-slate-500">{s.class}</span>
+[SOURCE]                           </button>
+[SOURCE]                         ))}
+[SOURCE]                       </div>
+[SOURCE]                     )}
+[SOURCE]                 )
+[SOURCE]                 /* ---- Outsider / Walk-in Manual Entry ---- */
+[SOURCE]                 <div className="space-y-3 bg-amber-50 border border-amber-200 rounded-md p-3">
+[SOURCE]                   <div className="grid grid-cols-2 gap-3">
+[SOURCE]                     <div>
+[SOURCE]                       <Label className="text-xs">Full Name *</Label>
+[SOURCE]                       <Input
+[SOURCE]                         placeholder="e.g., Ahmad Khan"
+[SOURCE]                         value={outsiderName}
+[SOURCE]                         onChange={(e) => setOutsiderName(e.target.value)}
+[SOURCE]                         className="mt-1 bg-white"
+[SOURCE]                       />
+[SOURCE]                     </div>
+[SOURCE]                     <div>
+[SOURCE]                       <Label className="text-xs">Father's Name</Label>
+[SOURCE]                       <Input
+[SOURCE]                         placeholder="e.g., Ali Khan"
+[SOURCE]                         value={outsiderFatherName}
+[SOURCE]                         onChange={(e) => setOutsiderFatherName(e.target.value)}
+[SOURCE]                         className="mt-1 bg-white"
+[SOURCE]                       />
+[SOURCE]                     </div>
+[SOURCE]                   </div>
+[SOURCE]                   <div>
+[SOURCE]                     <Label className="text-xs">Contact Number</Label>
+[SOURCE]                       placeholder="e.g., 0300-1234567"
+[SOURCE]                       value={outsiderContact}
+[SOURCE]                       onChange={(e) => setOutsiderContact(e.target.value)}
+[SOURCE]                       className="mt-1 bg-white"
+[SOURCE]                   </div>
+[SOURCE]               </div>
+[SOURCE]               disabled={collectMutation.isPending || (!isOutsider && !selectedStudent) || (isOutsider && !outsiderName.trim()) || !amount}
+[SOURCE] 
+[SOURCE] 
+[SOURCE] 
+[SOURCE] 
+
+====== pages\Students.tsx ======
+Lines differ: 155
+[TARGET] import { DeleteStudentDialog } from "@/components/dashboard/DeleteStudentDialog";
+[TARGET]   // Delete mutation
+[TARGET]   const deleteStudentMutation = useMutation({
+[TARGET]     mutationFn: studentApi.delete,
+[TARGET]     onSuccess: () => {
+[TARGET]       toast.success("Student Deleted", {
+[TARGET]         description: "Student record has been removed successfully",
+[TARGET]       toast.error("Delete Failed", {
+[TARGET]         description: error.message || "Failed to delete student",
+[TARGET]   const confirmDelete = () => {
+[TARGET]       deleteStudentMutation.mutate(selectedStudent._id);
+[TARGET]             <div class="header">SCIENCES COACHING ACADEMY</div>
+[TARGET]         subtitle={`Total Students: ${students.length} | Active: ${students.filter((s: any) => s.status === "active").length}`}
+[TARGET]                         className="hover:bg-secondary/50"
+[TARGET]                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white font-bold text-sm shadow-md">
+[TARGET]                                 student.status === "active"
+[TARGET]                                   : "drop-shadow(0 0 8px rgba(148, 163, 184, 0.2))",
+[TARGET]                             <StatusBadge status={student.status} />
+[TARGET]                                   ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.3))"
+[TARGET]                               className="h-8 w-8 hover:bg-green-50 hover:text-green-600"
+[TARGET]                               onClick={() => handleCollectFee(student)}
+[TARGET]                               title="Collect Fee"
+[TARGET]                               <DollarSign className="h-4 w-4" />
+[TARGET]                             <Button
+[TARGET]                               variant="ghost"
+[TARGET]                               size="icon"
+[TARGET]                             </Button>
+[TARGET]                             <Button
+[TARGET]                               variant="ghost"
+[TARGET]                               size="icon"
+[TARGET]                               className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
+[TARGET]                               onClick={() => handleEdit(student)}
+[TARGET]                               title="Edit Student"
+[TARGET]                             >
+[TARGET]                               <Edit className="h-4 w-4" />
+[TARGET]                             </Button>
+[TARGET]                             <Button
+[TARGET]                               variant="ghost"
+[TARGET]                               size="icon"
+[TARGET]                               className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
+[TARGET]                               onClick={() => handleDelete(student)}
+[TARGET]                               disabled={deleteStudentMutation.isPending}
+[TARGET]                               title="Delete Student"
+[TARGET]                             >
+[TARGET]                               <Trash2 className="h-4 w-4" />
+[TARGET]                             </Button>
+[TARGET]       <DeleteStudentDialog
+[TARGET]         onConfirm={confirmDelete}
+[TARGET]         isDeleting={deleteStudentMutation.isPending}
+[SOURCE] import { WithdrawStudentDialog } from "@/components/dashboard/WithdrawStudentDialog";
+[SOURCE]   // Withdraw mutation (soft-delete with optional refund)
+[SOURCE]   const withdrawStudentMutation = useMutation({
+[SOURCE]     mutationFn: ({ id, refundAmount, refundReason }: { id: string; refundAmount?: number; refundReason?: string }) =>
+[SOURCE]       studentApi.withdraw(id, { refundAmount, refundReason }),
+[SOURCE]     onSuccess: (_data, variables) => {
+[SOURCE]       queryClient.invalidateQueries({ queryKey: ["classes"] });
+[SOURCE]       toast.success("Student Withdrawn", {
+[SOURCE]         description: variables.refundAmount
+[SOURCE]           ? `Student withdrawn and PKR ${variables.refundAmount.toLocaleString()} refunded`
+[SOURCE]           : "Student has been withdrawn successfully",
+[SOURCE]       toast.error("Withdraw Failed", {
+[SOURCE]         description: error.message || "Failed to withdraw student",
+[SOURCE]   const confirmWithdraw = (refundAmount?: number, refundReason?: string) => {
+[SOURCE]       withdrawStudentMutation.mutate({
+[SOURCE]         id: selectedStudent._id,
+[SOURCE]         refundAmount,
+[SOURCE]         refundReason,
+[SOURCE]       });
+[SOURCE]             <div class="header">Genius Islamian's Academy</div>
+[SOURCE]         subtitle={`Total Students: ${students.length} | Active: ${students.filter((s: any) => s.status === "active" && s.studentStatus !== "Withdrawn").length}`}
+[SOURCE]                 <TableHead className="font-semibold">Seat</TableHead>
+[SOURCE]                         className={`hover:bg-secondary/50 ${student.studentStatus === "Withdrawn" ? "opacity-50" : ""}`}
+[SOURCE]                             {(student.photo || student.imageUrl) ? (
+[SOURCE]                               <img
+[SOURCE]                                 src={
+[SOURCE]                                   (student.photo || student.imageUrl).startsWith("data:") ||
+[SOURCE]                                   (student.photo || student.imageUrl).startsWith("http")
+[SOURCE]                                     ? (student.photo || student.imageUrl)
+[SOURCE]                                     : `${API_BASE_URL}${student.photo || student.imageUrl}`
+[SOURCE]                                 }
+[SOURCE]                                 alt={student.studentName}
+[SOURCE]                                 className="h-10 w-10 shrink-0 rounded-full object-cover shadow-md"
+[SOURCE]                                 onError={(e) => {
+[SOURCE]                                   (e.target as HTMLImageElement).style.display = 'none';
+[SOURCE]                                   (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+[SOURCE]                                 }}
+[SOURCE]                               />
+[SOURCE]                             ) : null}
+[SOURCE]                             <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white font-bold text-sm shadow-md ${(student.photo || student.imageUrl) ? 'hidden' : ''}`}>
+[SOURCE]                           {student.seatNumber ? (
+[SOURCE]                             <span
+[SOURCE]                               className={`px-2 py-1 rounded-md text-xs font-bold font-mono ${
+[SOURCE]                                 student.seatNumber?.startsWith("L")
+[SOURCE]                                   ? "bg-pink-100 text-pink-700 border border-pink-200"
+[SOURCE]                                   : "bg-sky-100 text-sky-700 border border-sky-200"
+[SOURCE]                               }`}
+[SOURCE]                               {student.seatNumber}
+[SOURCE]                             </span>
+[SOURCE]                           ) : (
+[SOURCE]                             <span className="text-xs text-muted-foreground">
+[SOURCE]                               â€”
+[SOURCE]                             </span>
+[SOURCE]                           )}
+[SOURCE]                                 student.studentStatus === "Withdrawn"
+[SOURCE]                                   ? "drop-shadow(0 0 8px rgba(234, 88, 12, 0.3))"
+[SOURCE]                                   : student.status === "active"
+[SOURCE]                                     ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.3))"
+[SOURCE]                                     : "drop-shadow(0 0 8px rgba(148, 163, 184, 0.2))",
+[SOURCE]                             {student.studentStatus === "Withdrawn" ? (
+[SOURCE]                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+[SOURCE]                                 Withdrawn
+[SOURCE]                               </span>
+[SOURCE]                             ) : (
+[SOURCE]                               <StatusBadge status={student.status} />
+[SOURCE]                             )}
+[SOURCE]                         <TableCell>
+[SOURCE]                             {student.studentStatus !== "Withdrawn" && (
+[SOURCE]                               <Button
+[SOURCE]                                 variant="ghost"
+[SOURCE]                                 size="icon"
+[SOURCE]                                 className="h-8 w-8 hover:bg-green-50 hover:text-green-600"
+[SOURCE]                                 onClick={() => handleCollectFee(student)}
+[SOURCE]                                 title="Collect Fee"
+[SOURCE]                               >
+[SOURCE]                                 <DollarSign className="h-4 w-4" />
+[SOURCE]                               </Button>
+[SOURCE]                             )}
+[SOURCE]                             {student.studentStatus !== "Withdrawn" && (
+[SOURCE]                               <>
+[SOURCE]                                 <Button
+[SOURCE]                                   variant="ghost"
+[SOURCE]                                   size="icon"
+[SOURCE]                                   className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
+[SOURCE]                                   onClick={() => handleEdit(student)}
+[SOURCE]                                   title="Edit Student"
+[SOURCE]                                 >
+[SOURCE]                                   <Edit className="h-4 w-4" />
+[SOURCE]                                 </Button>
+[SOURCE]                                 <Button
+[SOURCE]                                   variant="ghost"
+[SOURCE]                                   size="icon"
+[SOURCE]                                   className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
+[SOURCE]                                   onClick={() => handleDelete(student)}
+[SOURCE]                                   disabled={withdrawStudentMutation.isPending}
+[SOURCE]                                   title="Withdraw Student"
+[SOURCE]                                 >
+[SOURCE]                                   <Trash2 className="h-4 w-4" />
+[SOURCE]                                 </Button>
+[SOURCE]                               </>
+[SOURCE]                             )}
+[SOURCE]                         </TableCell>
+[SOURCE]       <WithdrawStudentDialog
+[SOURCE]         onConfirm={confirmWithdraw}
+[SOURCE]         paidAmount={selectedStudent?.paidAmount || 0}
+[SOURCE]         isProcessing={withdrawStudentMutation.isPending}
+
+====== pages\Classes.tsx ======
+Lines differ: 165
+[TARGET]       students: classes.reduce((sum, c) => sum + (c.studentCount || 0), 0),
+[TARGET]               <SelectItem value="all">All Academic Sessions</SelectItem>
+[TARGET]               {mergedSessions.map((session) => {
+[TARGET]                 const sessionId = session._id || session.sessionId;
+[TARGET]                 <TableHead>Group / Shift</TableHead>
+[TARGET]                               {classDoc.shift}
+[TARGET]                             {classDoc.studentCount || 0}
+[TARGET]                               70% = PKR {(classDoc.estimatedTeacherShare || 0).toLocaleString()}
+[TARGET]             {/* Shift Selection */}
+[TARGET]                 <Clock className="h-4 w-4" />
+[TARGET]                 Shift / Batch
+[TARGET]                 value={formData.shift || ""}
+[TARGET]                   setFormData((prev) => ({ ...prev, shift: val }))
+[TARGET]                   <SelectValue placeholder="Select shift (optional)" />
+[TARGET]                   {SHIFT_OPTIONS.map((shift) => (
+[TARGET]                     <SelectItem key={shift} value={shift}>
+[TARGET]                       {shift}
+[TARGET]             <div className="space-y-2">
+[TARGET]               <Label className="flex items-center gap-2">
+[TARGET]               </Label>
+[TARGET]               <Select
+[TARGET]                 onValueChange={(val) =>
+[TARGET]               >
+[TARGET]                 <SelectTrigger>
+[TARGET]                 </SelectTrigger>
+[TARGET]                 <SelectContent>
+[TARGET]                 </SelectContent>
+[TARGET]               </Select>
+[TARGET]                     </SelectItem>
+[TARGET]                 }
+[TARGET] 
+[SOURCE]   Calendar,
+[SOURCE]   days: string[];
+[SOURCE]   startTime: string;
+[SOURCE]   endTime: string;
+[SOURCE]   roomNumber?: string;
+[SOURCE]   days: string[];
+[SOURCE]   startTime: string;
+[SOURCE]   endTime: string;
+[SOURCE]   roomNumber: string;
+[SOURCE] const DAYS_OF_WEEK = [
+[SOURCE]   { value: "Mon", label: "Mon", full: "Monday" },
+[SOURCE]   { value: "Tue", label: "Tue", full: "Tuesday" },
+[SOURCE]   { value: "Wed", label: "Wed", full: "Wednesday" },
+[SOURCE]   { value: "Thu", label: "Thu", full: "Thursday" },
+[SOURCE]   { value: "Fri", label: "Fri", full: "Friday" },
+[SOURCE]   { value: "Sat", label: "Sat", full: "Saturday" },
+[SOURCE]   { value: "Sun", label: "Sun", full: "Sunday" },
+[SOURCE] ] as const;
+[SOURCE]     days: [],
+[SOURCE]     startTime: "16:00",
+[SOURCE]     endTime: "18:00",
+[SOURCE]     roomNumber: "",
+[SOURCE]     if (!formData.days?.length)
+[SOURCE]       errors.days = "At least one day must be selected";
+[SOURCE]     if (!formData.startTime) errors.schedule = "Start time is required";
+[SOURCE]     if (!formData.endTime) errors.schedule = "End time is required";
+[SOURCE]       days: [],
+[SOURCE]       startTime: "16:00",
+[SOURCE]       endTime: "18:00",
+[SOURCE]       roomNumber: "",
+[SOURCE]       days: classDoc.days || [],
+[SOURCE]       startTime: classDoc.startTime || "16:00",
+[SOURCE]       endTime: classDoc.endTime || "18:00",
+[SOURCE]       roomNumber: classDoc.roomNumber || "",
+[SOURCE]       days: formData.days || [],
+[SOURCE]       startTime: formData.startTime || "16:00",
+[SOURCE]       endTime: formData.endTime || "18:00",
+[SOURCE]       roomNumber: formData.roomNumber || "TBD",
+[SOURCE]   const toggleDay = (day: string) => {
+[SOURCE]     setFormData((prev) => ({
+[SOURCE]       ...prev,
+[SOURCE]       days: prev.days?.includes(day)
+[SOURCE]         ? prev.days.filter((d) => d !== day)
+[SOURCE]         : [...(prev.days || []), day],
+[SOURCE]       students: classes.reduce((sum, c) => sum + (c.enrolledStudents || c.studentCount || 0), 0),
+[SOURCE]     }));
+[SOURCE]               <SelectItem value="all">All Sessions</SelectItem>
+[SOURCE]               {sessions.map((session) => {
+[SOURCE]                 const sessionId = session._id;
+[SOURCE]                 <TableHead>Group / Schedule</TableHead>
+[SOURCE]                               {classDoc.shift} â€¢ {classDoc.days?.join(", ")}
+[SOURCE]                             {classDoc.enrolledStudents || classDoc.studentCount || 0}
+[SOURCE]                               {classDoc.teacherSharePct || 70}% = PKR {(classDoc.estimatedTeacherShare || 0).toLocaleString()}
+[SOURCE]             {/* Schedule Section */}
+[SOURCE]             <div className="space-y-4 p-4 bg-blue-50/30 rounded-xl border border-blue-100">
+[SOURCE]               <div className="flex items-center gap-2 text-blue-800">
+[SOURCE]                 <Calendar className="h-4 w-4" />
+[SOURCE]                 <Label className="font-semibold">
+[SOURCE]                   Schedule Configuration *
+[SOURCE]               <div className="space-y-2">
+[SOURCE]                 <Label className="text-sm text-muted-foreground">
+[SOURCE]                   Class Days
+[SOURCE]                 <div className="flex flex-wrap gap-2">
+[SOURCE]                   {DAYS_OF_WEEK.map((day) => (
+[SOURCE]                     <button
+[SOURCE]                       key={day.value}
+[SOURCE]                       type="button"
+[SOURCE]                       onClick={() => toggleDay(day.value)}
+[SOURCE]                       className={cn(
+[SOURCE]                         "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+[SOURCE]                         formData.days?.includes(day.value)
+[SOURCE]                           ? "bg-blue-600 text-white shadow-md"
+[SOURCE]                           : "bg-white border border-gray-200 text-gray-700 hover:border-blue-300",
+[SOURCE]                       )}
+[SOURCE]                     >
+[SOURCE]                       {day.label}
+[SOURCE]                     </button>
+[SOURCE]                 {formErrors.days && (
+[SOURCE]                   <p className="text-xs text-red-600">{formErrors.days}</p>
+[SOURCE]               <div className="grid grid-cols-3 gap-3">
+[SOURCE]                 <div className="space-y-1">
+[SOURCE]                   <Label className="text-xs text-muted-foreground">
+[SOURCE]                     Start Time
+[SOURCE]                   </Label>
+[SOURCE]                   <Input
+[SOURCE]                     type="time"
+[SOURCE]                     value={formData.startTime || "16:00"}
+[SOURCE]                     onChange={(e) =>
+[SOURCE]                       setFormData((prev) => ({
+[SOURCE]                         ...prev,
+[SOURCE]                         startTime: e.target.value,
+[SOURCE]                       }))
+[SOURCE]                     }
+[SOURCE]                   />
+[SOURCE]                 <div className="space-y-1">
+[SOURCE]                   <Label className="text-xs text-muted-foreground">
+[SOURCE]                     End Time
+[SOURCE]                   </Label>
+[SOURCE]                   <Input
+[SOURCE]                     type="time"
+[SOURCE]                     value={formData.endTime || "18:00"}
+[SOURCE]                     onChange={(e) =>
+[SOURCE]                       setFormData((prev) => ({
+[SOURCE]                         ...prev,
+[SOURCE]                         endTime: e.target.value,
+[SOURCE]                       }))
+[SOURCE]                     }
+[SOURCE]                   />
+[SOURCE]                 <div className="space-y-1">
+[SOURCE]                   <Label className="text-xs text-muted-foreground">Room</Label>
+[SOURCE]                   <Input
+[SOURCE]                     placeholder="e.g., 101"
+[SOURCE]                     value={formData.roomNumber || ""}
+[SOURCE]                     onChange={(e) =>
+[SOURCE]                       setFormData((prev) => ({
+[SOURCE]                         ...prev,
+[SOURCE]                         roomNumber: e.target.value,
+[SOURCE]                       }))
+[SOURCE]                     }
+[SOURCE]                   />
+[SOURCE]                 </div>
+[SOURCE]               </div>
+[SOURCE]               {formErrors.schedule && (
+[SOURCE]                 <p className="text-xs text-red-600">{formErrors.schedule}</p>
+[SOURCE]                 </Label>
+[SOURCE]                 )}
+[SOURCE]               </div>
+[SOURCE]                 </div>
+[SOURCE]                 </div>
+[SOURCE]                 </div>
+[SOURCE]                 </Label>
+[SOURCE]               </div>
+[SOURCE]               )}
+[SOURCE]   };
+
+====== pages\StudentPortal.tsx ======
+Lines differ: 1212
+[TARGET] import { useState, useEffect } from "react";
+[TARGET] import { motion } from "framer-motion";
+[TARGET]   // Fetch student schedule/timetable from student-portal endpoint (properly authenticated)
+[TARGET]     refetchInterval: 30000, // Auto-refresh every 30s for real-time sync
+[TARGET]     } catch { }
+[TARGET]           initial={{ y: 40, opacity: 0 }}
+[TARGET]           animate={{ y: 0, opacity: 1 }}
+[TARGET]           transition={{ type: "spring", stiffness: 40, damping: 15 }}
+[TARGET]                     alt="SCIENCES COACHING ACADEMY"
+[TARGET]                   type="submit"
+[TARGET]                   disabled={loginMutation.isPending}
+[TARGET]                   className="w-full h-16 bg-brand-gold hover:bg-brand-gold/90 text-white text-lg font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-2xl shadow-brand-gold/20"
+[TARGET]                   {loginMutation.isPending ? (
+[TARGET]                     <>
+[TARGET]                       <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+[TARGET]                       Verifying...
+[TARGET]                     </>
+[TARGET]                     "Access Portal"
+[TARGET]             Institutional Access Only â€¢ Protected by SCIENCES COACHING ACADEMY Security
+[TARGET]           initial={{ y: 40, opacity: 0 }}
+[TARGET]           animate={{ y: 0, opacity: 1 }}
+[TARGET]           transition={{ type: "spring", stiffness: 40, damping: 15 }}
+[TARGET]                   ) : (
+[TARGET]                   )}
+[TARGET]                     onClick={handleRefreshStatus}
+[TARGET]                     className="w-full h-16 bg-brand-gold hover:bg-brand-gold/90 text-white font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-brand-gold/20"
+[TARGET]                     <RefreshCw className="mr-3 h-5 w-5" />
+[TARGET]                     Check Status
+[TARGET]                     onClick={handleLogout}
+[TARGET]                     variant="outline"
+[TARGET]                     className="w-full h-16 border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 font-black uppercase tracking-[0.2em] rounded-2xl transition-all"
+[TARGET]                     <LogOut className="mr-3 h-5 w-5" />
+[TARGET]                     Sign Out
+[TARGET]             Admissions Department â€¢ SCIENCES COACHING ACADEMY Executive Office
+[TARGET]   const feePercentage = profile && profile.totalFee > 0
+[TARGET]     ? Math.min(100, Math.round((profile.paidAmount / profile.totalFee) * 100))
+[TARGET]     : 0;
+[TARGET]   // MAIN DASHBOARD - Clean Warm Academic Design
+[TARGET]       className="min-h-screen bg-[#0C1222] text-white relative overflow-hidden font-sans selection:bg-brand-gold/30"
+[TARGET]       {/* Subtle gradient background */}
+[TARGET]       <div className="fixed inset-0 bg-gradient-to-br from-[#0C1222] via-[#111B2E] to-[#0C1222]" />
+[TARGET]       {/* Header */}
+[TARGET]       <header className="sticky top-0 z-50 bg-[#0C1222]/80 backdrop-blur-xl border-b border-white/[0.06]">
+[TARGET]         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+[TARGET]           <div className="flex items-center gap-3">
+[TARGET]             <div className="p-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08]">
+[TARGET]                 alt="SCA"
+[TARGET]                 className="h-9 w-auto object-contain"
+[TARGET]               <p className="text-xs font-bold text-brand-gold tracking-wide">
+[TARGET]               <p className="text-[11px] text-slate-500">
+[TARGET]                 Sciences Coaching Academy
+[TARGET]             <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/15">
+[TARGET]               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+[TARGET]               <span className="text-[11px] font-semibold text-emerald-400">Active</span>
+[TARGET]                 <Button
+[TARGET]                   className="flex items-center gap-3 hover:bg-white/5 h-12 px-3 rounded-xl border border-transparent hover:border-white/10 transition-all"
+[TARGET]                   <div className="w-9 h-9 rounded-lg overflow-hidden ring-2 ring-brand-gold/30">
+[TARGET]                         src={profile.photo.startsWith('http') ? profile.photo : `${API_BASE_URL}${profile.photo}`}
+[TARGET]                     <p className="text-sm font-semibold text-white leading-none">
+[TARGET]                     <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+[TARGET]                 </Button>
+[TARGET]                 className="w-56 bg-[#151D2E]/95 backdrop-blur-2xl border-white/10 rounded-xl p-1.5 shadow-2xl"
+[TARGET]                 <DropdownMenuLabel className="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-3 py-2">
+[TARGET]                   Account
+[TARGET]                 <DropdownMenuItem className="text-slate-200 focus:bg-white/5 focus:text-white rounded-lg py-2.5 cursor-pointer">
+[TARGET]                   <User className="mr-3 h-4 w-4 text-slate-400" />
+[TARGET]                   <span className="font-medium">Profile</span>
+[TARGET]                 <DropdownMenuItem className="text-slate-200 focus:bg-white/5 focus:text-white rounded-lg py-2.5 cursor-pointer">
+[TARGET]                   <CreditCard className="mr-3 h-4 w-4 text-slate-400" />
+[TARGET]                   <span className="font-medium">
+[TARGET]                     Fee: <span className="capitalize text-brand-gold">{profile?.feeStatus}</span>
+[TARGET]                   className="text-red-400 focus:bg-red-500/10 focus:text-red-400 rounded-lg py-2.5 cursor-pointer"
+[TARGET]                   <span className="font-medium">Sign Out</span>
+[TARGET]       <main className="max-w-7xl mx-auto px-6 py-8 relative z-10">
+[TARGET]         {/* Welcome + Stats Row */}
+[TARGET]         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+[TARGET]           {/* Welcome Card */}
+[TARGET]             initial={{ opacity: 0, y: 16 }}
+[TARGET]             transition={{ duration: 0.4 }}
+[TARGET]             className="lg:col-span-2"
+[TARGET]             <div className="bg-gradient-to-br from-[#151D2E] to-[#1A2540] rounded-2xl border border-white/[0.06] p-8 relative overflow-hidden">
+[TARGET]               <div className="absolute top-0 right-0 w-48 h-48 bg-brand-gold/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+[TARGET]               <div className="relative z-10">
+[TARGET]                 <p className="text-xs font-semibold text-brand-gold/80 uppercase tracking-widest mb-2">
+[TARGET]                   {getGreeting()}
+[TARGET]                 </p>
+[TARGET]                 <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+[TARGET]                   <span className="text-white">Welcome, </span>
+[TARGET]                   <span className="text-brand-gold">
+[TARGET]                     {profile?.name?.split(" ")[0] || "Scholar"}
+[TARGET]                   </span>
+[TARGET]                 </h2>
+[TARGET]                 <p className="text-slate-400 text-base max-w-xl leading-relaxed">
+[TARGET]                   Continue your academic journey with Sciences Coaching Academy.
+[TARGET]                 </p>
+[TARGET]                 {/* Quick Info Chips */}
+[TARGET]                 <div className="flex flex-wrap gap-3 mt-6">
+[TARGET]                   <div className="flex items-center gap-2 bg-white/[0.06] border border-white/[0.08] rounded-lg px-4 py-2.5">
+[TARGET]                     <GraduationCap className="h-4 w-4 text-brand-gold" />
+[TARGET]                     <span className="text-sm font-medium text-slate-200">
+[TARGET]                       {profile?.class} &middot; {profile?.group}
+[TARGET]                   <div className="flex items-center gap-2 bg-white/[0.06] border border-white/[0.08] rounded-lg px-4 py-2.5">
+[TARGET]                     <BookOpen className="h-4 w-4 text-teal-400" />
+[TARGET]                     <span className="text-sm font-medium text-slate-200">
+[TARGET]                       {profile?.subjects?.length || 0} Subjects
+[TARGET]           {/* Finance Card */}
+[TARGET]           <motion.div
+[TARGET]             initial={{ opacity: 0, y: 16 }}
+[TARGET]             animate={{ opacity: 1, y: 0 }}
+[TARGET]             transition={{ duration: 0.4, delay: 0.1 }}
+[TARGET]           >
+[TARGET]             <div className="bg-[#151D2E] rounded-2xl border border-white/[0.06] p-6 h-full">
+[TARGET]               <div className="flex items-center justify-between mb-4">
+[TARGET]                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+[TARGET]                   Fee Status
+[TARGET]                 </h3>
+[TARGET]                 {profile?.feeStatus === "paid" ? (
+[TARGET]                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+[TARGET]                     <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+[TARGET]                     <span className="text-[10px] font-bold text-emerald-400 uppercase">Cleared</span>
+[TARGET]                 ) : (
+[TARGET]                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20">
+[TARGET]                     <Clock className="h-3.5 w-3.5 text-amber-400" />
+[TARGET]                     <span className="text-[10px] font-bold text-amber-400 uppercase">Pending</span>
+[TARGET]                 )}
+[TARGET]               <div className="flex items-center justify-center my-4 relative">
+[TARGET]                 <div className="absolute inset-0 flex flex-col items-center justify-center">
+[TARGET]                   <p className="text-3xl font-bold text-white">{feePercentage}%</p>
+[TARGET]                   <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Paid</p>
+[TARGET]                 <ResponsiveContainer width="100%" height={130}>
+[TARGET]                   <PieChart>
+[TARGET]                     <Pie
+[TARGET]                       data={[
+[TARGET]                         { value: feePercentage },
+[TARGET]                         { value: 100 - feePercentage },
+[TARGET]                       ]}
+[TARGET]                       cx="50%"
+[TARGET]                       cy="50%"
+[TARGET]                       innerRadius={48}
+[TARGET]                       outerRadius={60}
+[TARGET]                       paddingAngle={6}
+[TARGET]                       dataKey="value"
+[TARGET]                       stroke="none"
+[TARGET]                       <Cell fill={profile?.feeStatus === "paid" ? "#10b981" : "#C8860A"} />
+[TARGET]                       <Cell fill="rgba(255,255,255,0.04)" />
+[TARGET]                     </Pie>
+[TARGET]                   </PieChart>
+[TARGET]                 </ResponsiveContainer>
+[TARGET]               </div>
+[TARGET]               <div className="bg-white/[0.04] rounded-xl p-3 border border-white/[0.06] text-center">
+[TARGET]                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Balance</p>
+[TARGET]                 <p className="text-lg font-bold text-white">
+[TARGET]                   PKR {profile?.balance?.toLocaleString() || 0}
+[TARGET]                 </p>
+[TARGET]               </div>
+[TARGET]           </motion.div>
+[TARGET]         {/* Live Session Banner */}
+[TARGET]         <motion.div
+[TARGET]           initial={{ opacity: 0, y: 12 }}
+[TARGET]           animate={{ opacity: 1, y: 0 }}
+[TARGET]           transition={{ duration: 0.4, delay: 0.15 }}
+[TARGET]           className="mb-8"
+[TARGET]         >
+[TARGET]           <div className={cn(
+[TARGET]             "rounded-2xl border p-6 transition-all",
+[TARGET]             currentSession
+[TARGET]               ? "bg-emerald-500/10 border-emerald-500/20"
+[TARGET]               : "bg-white/[0.03] border-white/[0.06]",
+[TARGET]           )}>
+[TARGET]             <div className="flex flex-col md:flex-row items-center gap-5">
+[TARGET]               <div className={cn(
+[TARGET]                 "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
+[TARGET]                 currentSession
+[TARGET]                   ? "bg-emerald-500 shadow-lg shadow-emerald-500/20"
+[TARGET]                   : "bg-brand-gold/20",
+[TARGET]               )}>
+[TARGET]                 {currentSession ? (
+[TARGET]                   <Play className="h-5 w-5 text-white" />
+[TARGET]                 ) : (
+[TARGET]                   <Clock className="h-5 w-5 text-brand-gold" />
+[TARGET]                 )}
+[TARGET]               </div>
+[TARGET]               <div className="flex-1 text-center md:text-left">
+[TARGET]                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1 text-slate-400">
+[TARGET]                   {currentSession ? "In Session Now" : "Up Next"}
+[TARGET]                 </p>
+[TARGET]                 {currentSession || nextSession ? (
+[TARGET]                   <div>
+[TARGET]                     <p className="text-xl font-bold text-white">
+[TARGET]                       {(currentSession || nextSession)?.subject}
+[TARGET]                       {currentSession && (
+[TARGET]                         <span className="ml-2 px-2 py-0.5 bg-emerald-500 text-white rounded text-[10px] font-bold uppercase">
+[TARGET]                           Live
+[TARGET]                     <p className="text-sm text-slate-400 mt-1">
+[TARGET]                       {(currentSession || nextSession)?.startTime} â€” {(currentSession || nextSession)?.endTime}
+[TARGET]                       <span className="mx-2 text-slate-600">|</span>
+[TARGET]                       Room {(currentSession || nextSession)?.room || "TBA"}
+[TARGET]                       {(currentSession || nextSession)?.teacherId?.name && (
+[TARGET]                         <>
+[TARGET]                           <span className="mx-2 text-slate-600">|</span>
+[TARGET]                           {(currentSession || nextSession)?.teacherId?.name}
+[TARGET]                         </>
+[TARGET]                 ) : (
+[TARGET]                   <p className="text-lg font-semibold text-slate-500">
+[TARGET]                     No upcoming sessions scheduled
+[TARGET]                 )}
+[TARGET]               </div>
+[TARGET]               <Button
+[TARGET]                 onClick={() =>
+[TARGET]                   document.getElementById("timetable-section")?.scrollIntoView({ behavior: "smooth" })
+[TARGET]                 variant="outline"
+[TARGET]                 className="bg-white/[0.06] hover:bg-white/[0.1] border-white/[0.1] text-white font-semibold h-10 px-6 rounded-lg"
+[TARGET]                 <Calendar className="mr-2 h-4 w-4" />
+[TARGET]                 View Timetable
+[TARGET]               </Button>
+[TARGET]         </motion.div>
+[TARGET]         {/* Profile + Timetable Row */}
+[TARGET]         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+[TARGET]           {/* Student Profile Card */}
+[TARGET]           <motion.div
+[TARGET]             initial={{ opacity: 0, y: 12 }}
+[TARGET]             animate={{ opacity: 1, y: 0 }}
+[TARGET]             transition={{ duration: 0.4, delay: 0.2 }}
+[TARGET]             className="lg:col-span-3"
+[TARGET]           >
+[TARGET]             <div className="bg-[#151D2E] rounded-2xl border border-white/[0.06] p-6 h-full">
+[TARGET]               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+[TARGET]                 <UserCircle className="h-3.5 w-3.5" />
+[TARGET]                 Profile
+[TARGET]               <div className="flex flex-col items-center mb-5">
+[TARGET]                 <div className="w-20 h-20 rounded-xl overflow-hidden ring-2 ring-brand-gold/20 mb-3">
+[TARGET]                   {profile?.photo ? (
+[TARGET]                     <img
+[TARGET]                       src={profile.photo.startsWith('http') ? profile.photo : `${API_BASE_URL}${profile.photo}`}
+[TARGET]                       alt={profile.name}
+[TARGET]                       className="w-full h-full object-cover"
+[TARGET]                   ) : (
+[TARGET]                     <img
+[TARGET]                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.studentId}`}
+[TARGET]                       alt={profile?.name}
+[TARGET]                       className="w-full h-full object-cover bg-slate-800"
+[TARGET]                     />
+[TARGET]                   )}
+[TARGET]                 <p className="text-base font-bold text-white text-center">{profile?.name}</p>
+[TARGET]                 <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+[TARGET]                   {profile?.barcodeId || profile?.studentId}
+[TARGET]                 </p>
+[TARGET]               </div>
+[TARGET]               <div className="space-y-2">
+[TARGET]                 {[
+[TARGET]                   { label: "Father", value: profile?.fatherName },
+[TARGET]                   { label: "Session", value: profile?.session?.name || "Not Assigned" },
+[TARGET]                   { label: "Class", value: `${profile?.class} - ${profile?.group}` },
+[TARGET]                 ].map((item) => (
+[TARGET]                   <div key={item.label} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-2.5 border border-white/[0.04]">
+[TARGET]                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{item.label}</span>
+[TARGET]                     <span className="text-xs font-medium text-slate-300">{item.value}</span>
+[TARGET]                 ))}
+[TARGET]                 <div className="flex items-center justify-between bg-white/[0.03] rounded-lg p-2.5 border border-white/[0.04]">
+[TARGET]                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</span>
+[TARGET]                   <div className="flex items-center gap-1">
+[TARGET]                     <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+[TARGET]                     <span className="text-xs font-semibold text-emerald-400">{profile?.studentStatus}</span>
+[TARGET]               </div>
+[TARGET]             </div>
+[TARGET]           </motion.div>
+[TARGET]           {/* Weekly Timetable */}
+[TARGET]           <motion.div
+[TARGET]             initial={{ opacity: 0, y: 12 }}
+[TARGET]             animate={{ opacity: 1, y: 0 }}
+[TARGET]             transition={{ duration: 0.4, delay: 0.25 }}
+[TARGET]             id="timetable-section"
+[TARGET]             className="lg:col-span-9"
+[TARGET]           >
+[TARGET]             <div className="bg-[#151D2E] rounded-2xl border border-white/[0.06] p-6">
+[TARGET]               <div className="flex items-center justify-between mb-6">
+[TARGET]                 <h3 className="text-lg font-bold text-white flex items-center gap-3">
+[TARGET]                   <Calendar className="h-5 w-5 text-brand-gold" />
+[TARGET]                   Weekly Schedule
+[TARGET]                 </h3>
+[TARGET]                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+[TARGET]                   {timetable.length} session{timetable.length !== 1 ? 's' : ''} this week
+[TARGET]               </div>
+[TARGET]               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+[TARGET]                 {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => {
+[TARGET]                   const daySchedule = timetable.filter((s) => s.day === day);
+[TARGET]                   const isScheduled = daySchedule.length > 0;
+[TARGET]                   const today = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
+[TARGET]                   const isToday = day === today;
+[TARGET]                   return (
+[TARGET]                       key={day}
+[TARGET]                         "rounded-xl p-4 transition-all min-h-[140px] relative",
+[TARGET]                         isScheduled
+[TARGET]                           ? "bg-white/[0.04] border border-white/[0.08]"
+[TARGET]                           : "bg-white/[0.02] border border-white/[0.04] opacity-40",
+[TARGET]                         isToday && "ring-2 ring-brand-gold/50 ring-offset-2 ring-offset-[#151D2E] opacity-100",
+[TARGET]                       <div className={cn(
+[TARGET]                         "text-[11px] font-bold uppercase tracking-wider mb-3 flex items-center justify-between",
+[TARGET]                         isToday ? "text-brand-gold" : isScheduled ? "text-slate-300" : "text-slate-600",
+[TARGET]                       )}>
+[TARGET]                         {day.substring(0, 3)}
+[TARGET]                         {isToday && (
+[TARGET]                           <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
+[TARGET]                       {isScheduled ? (
+[TARGET]                         <div className="space-y-3">
+[TARGET]                           {daySchedule.map((entry, idx) => {
+[TARGET]                             const subjectColor = SUBJECT_COLORS[entry.subject];
+[TARGET]                             return (
+[TARGET]                               <div key={idx} className={cn("", idx !== 0 && "pt-3 border-t border-white/[0.06]")}>
+[TARGET]                                 <p className="text-sm font-bold text-white leading-tight">
+[TARGET]                                 <p className="text-[10px] text-slate-400 font-medium mt-1">
+[TARGET]                                   {entry.startTime} â€” {entry.endTime}
+[TARGET]                                   <p className="text-[10px] text-slate-500 mt-0.5">
+[TARGET]                                 {entry.room && (
+[TARGET]                                   <p className="text-[9px] text-slate-600 mt-0.5">
+[TARGET]                                     Room {entry.room}
+[TARGET]                                   </p>
+[TARGET]                             );
+[TARGET]                           })}
+[TARGET]                         <div className="flex flex-col items-center justify-center h-20 text-center">
+[TARGET]                           <span className="text-[10px] text-slate-600 font-medium">
+[TARGET]                             No classes
+[TARGET]                   );
+[TARGET]                 })}
+[TARGET]               </div>
+[TARGET]             </div>
+[TARGET]           </motion.div>
+[TARGET]         </div>
+[TARGET]         {/* Subjects Grid */}
+[TARGET]         <motion.div
+[TARGET]           initial={{ opacity: 0, y: 12 }}
+[TARGET]           animate={{ opacity: 1, y: 0 }}
+[TARGET]           transition={{ duration: 0.4, delay: 0.3 }}
+[TARGET]         >
+[TARGET]           <div className="flex items-center justify-between mb-5">
+[TARGET]             <h3 className="text-lg font-bold text-white flex items-center gap-3">
+[TARGET]               <BookOpen className="h-5 w-5 text-brand-gold" />
+[TARGET]               Your Subjects
+[TARGET]             </h3>
+[TARGET]             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+[TARGET]               {profile?.subjects?.length || 0} Enrolled
+[TARGET]             </span>
+[TARGET]           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+[TARGET]             {profile?.subjects?.map((subject, index) => {
+[TARGET]               const colors = SUBJECT_COLORS[subject.name] || {
+[TARGET]                 icon: "ðŸ“–",
+[TARGET]                 glow: "",
+[TARGET]                 gradient: "from-slate-500/10 via-slate-500/5 to-slate-500/5",
+[TARGET]               };
+[TARGET]               return (
+[TARGET]                 <motion.div
+[TARGET]                   key={subject.name}
+[TARGET]                   initial={{ opacity: 0, y: 10 }}
+[TARGET]                   animate={{ opacity: 1, y: 0 }}
+[TARGET]                   transition={{ duration: 0.3, delay: index * 0.05 }}
+[TARGET]                   whileHover={{ y: -2 }}
+[TARGET]                   className="group"
+[TARGET]                 >
+[TARGET]                   <div className="bg-[#151D2E] rounded-xl border border-white/[0.06] p-5 transition-all group-hover:border-white/[0.12] group-hover:bg-[#1A2540] h-full">
+[TARGET]                     <div className="flex items-center justify-between mb-4">
+[TARGET]                       <div className="w-11 h-11 rounded-lg bg-white/[0.06] flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
+[TARGET]                         {colors.icon}
+[TARGET]                       <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] font-bold uppercase">
+[TARGET]                         Enrolled
+[TARGET]                       </Badge>
+[TARGET]                     <h4 className="text-lg font-bold text-white group-hover:text-brand-gold transition-colors">
+[TARGET]                       {subject.name}
+[TARGET]                     </h4>
+[TARGET]                     <div className="flex items-center gap-1.5 mt-2">
+[TARGET]                       <ShieldCheck className="h-3 w-3 text-emerald-400" />
+[TARGET]                       <p className="text-[10px] text-emerald-400/70 font-semibold uppercase tracking-wider">
+[TARGET]                         Active
+[TARGET]               );
+[TARGET]             })}
+[TARGET]         </motion.div>
+[SOURCE] import { useState, useEffect, useRef } from "react";
+[SOURCE] import { motion, useMotionValue, useSpring } from "framer-motion";
+[SOURCE] import { Card, CardContent } from "@/components/ui/card";
+[SOURCE]   Moon,
+[SOURCE]   Sun,
+[SOURCE]   TrendingUp,
+[SOURCE]   Sparkles,
+[SOURCE]   Timer,
+[SOURCE]   ArrowRight,
+[SOURCE]   FileQuestion,
+[SOURCE]   Armchair,
+[SOURCE]   FileText,
+[SOURCE]   Camera,
+[SOURCE]   Upload,
+[SOURCE]   ImageIcon,
+[SOURCE]   profilePictureChangeCount?: number;
+[SOURCE]   profilePictureSettings?: {
+[SOURCE]     maxChangesPerStudent: number;
+[SOURCE]     allowStudentPictureChanges: boolean;
+[SOURCE]     changesRemaining: number;
+[SOURCE] // Motion Variants
+[SOURCE] const waterfall = {
+[SOURCE]   initial: { y: 40, opacity: 0 },
+[SOURCE]   animate: {
+[SOURCE]     y: 0,
+[SOURCE]     opacity: 1,
+[SOURCE]     transition: {
+[SOURCE]       type: "spring" as const,
+[SOURCE]       stiffness: 40,
+[SOURCE]       damping: 15,
+[SOURCE]       mass: 1,
+[SOURCE]   },
+[SOURCE] };
+[SOURCE] const ripple = {
+[SOURCE]   whileHover: {
+[SOURCE]     scale: 1.01,
+[SOURCE]     transition: { type: "spring" as const, stiffness: 400, damping: 10 },
+[SOURCE]   },
+[SOURCE]   whileTap: { scale: 0.99 },
+[SOURCE] };
+[SOURCE] // Spotlight effect component - Warm Gold Glow
+[SOURCE] const Spotlight = ({ mouseX, mouseY }: { mouseX: any; mouseY: any }) => {
+[SOURCE]     <motion.div
+[SOURCE]       className="pointer-events-none absolute inset-0 z-0 transition duration-300"
+[SOURCE]       style={{
+[SOURCE]         background: `radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(180, 83, 9, 0.1), transparent 40%)`,
+[SOURCE]       }}
+[SOURCE]     />
+[SOURCE] };
+[SOURCE]   const [activeSubject, setActiveSubject] = useState<string | null>(null);
+[SOURCE]   // Profile Picture Upload State
+[SOURCE]   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+[SOURCE]   const [showPhotoDialog, setShowPhotoDialog] = useState(false);
+[SOURCE]   const photoInputRef = useRef<HTMLInputElement>(null);
+[SOURCE]   // Mouse position for spotlight effect
+[SOURCE]   const mouseX = useMotionValue(0);
+[SOURCE]   const mouseY = useMotionValue(0);
+[SOURCE]   const smoothMouseX = useSpring(mouseX, { stiffness: 100, damping: 20 });
+[SOURCE]   const smoothMouseY = useSpring(mouseY, { stiffness: 100, damping: 20 });
+[SOURCE]   const handleMouseMove = (e: React.MouseEvent) => {
+[SOURCE]     const rect = e.currentTarget.getBoundingClientRect();
+[SOURCE]     mouseX.set(e.clientX - rect.left);
+[SOURCE]     mouseY.set(e.clientY - rect.top);
+[SOURCE]   // Fetch full profile (with profilePictureSettings) after login
+[SOURCE]   useQuery({
+[SOURCE]     queryKey: ["student-full-profile", token],
+[SOURCE]       if (!res.ok) throw new Error("Failed to fetch profile");
+[SOURCE]       const result = await res.json();
+[SOURCE]       if (result.success && result.data) {
+[SOURCE]         setProfile(result.data);
+[SOURCE]       return result;
+[SOURCE]     },
+[SOURCE]   // Fetch student schedule/timetable from student portal endpoint
+[SOURCE]     queryFn: async () => {
+[SOURCE]     },
+[SOURCE]     enabled: isLoggedIn && !!token,
+[SOURCE]   });
+[SOURCE]     } catch {}
+[SOURCE]   };
+[SOURCE]       const res = await fetch(`${API_BASE_URL}/api/student-portal/me`, {
+[SOURCE]         credentials: "include",
+[SOURCE]         headers: { Authorization: `Bearer ${token}` },
+[SOURCE]       });
+[SOURCE]       }
+[SOURCE]   };
+[SOURCE]   // Handle profile picture upload
+[SOURCE]   const handleProfilePictureUpload = async (file: File) => {
+[SOURCE]     if (!file || !token) return;
+[SOURCE]     // Validate file type
+[SOURCE]     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+[SOURCE]     if (!allowedTypes.includes(file.type)) {
+[SOURCE]       toast.error("Invalid file type", {
+[SOURCE]         description: "Only JPEG, PNG and WebP images are allowed.",
+[SOURCE]       });
+[SOURCE]       return;
+[SOURCE]     }
+[SOURCE]     // Validate file size (5MB)
+[SOURCE]     const maxSize = 5 * 1024 * 1024;
+[SOURCE]     if (file.size > maxSize) {
+[SOURCE]       toast.error("File too large", {
+[SOURCE]         description: "Maximum file size is 5MB. Please compress your image.",
+[SOURCE]       });
+[SOURCE]       return;
+[SOURCE]     }
+[SOURCE]     setIsUploadingPhoto(true);
+[SOURCE]     try {
+[SOURCE]       const formData = new FormData();
+[SOURCE]       formData.append("photo", file);
+[SOURCE]       const res = await fetch(
+[SOURCE]         `${API_BASE_URL}/api/student-portal/profile-picture`,
+[SOURCE]         {
+[SOURCE]           method: "POST",
+[SOURCE]           credentials: "include",
+[SOURCE]           headers: { Authorization: `Bearer ${token}` },
+[SOURCE]           body: formData,
+[SOURCE]         },
+[SOURCE]       );
+[SOURCE]       const data = await res.json();
+[SOURCE]       if (res.ok && data.success) {
+[SOURCE]         toast.success("Profile picture updated!", {
+[SOURCE]           description: `${data.data.changesRemaining} change${data.data.changesRemaining !== 1 ? "s" : ""} remaining.`,
+[SOURCE]         });
+[SOURCE]         // Update profile with new photo
+[SOURCE]         if (profile) {
+[SOURCE]           setProfile({
+[SOURCE]             ...profile,
+[SOURCE]             photo: data.data.photoUrl,
+[SOURCE]             profilePictureChangeCount: data.data.changesUsed,
+[SOURCE]             profilePictureSettings: profile.profilePictureSettings
+[SOURCE]               ? {
+[SOURCE]                   ...profile.profilePictureSettings,
+[SOURCE]                   changesRemaining: data.data.changesRemaining,
+[SOURCE]               : undefined,
+[SOURCE]           });
+[SOURCE]         }
+[SOURCE]         setShowPhotoDialog(false);
+[SOURCE]       } else {
+[SOURCE]         toast.error("Upload failed", {
+[SOURCE]           description: data.message || "Please try again.",
+[SOURCE]         });
+[SOURCE]       }
+[SOURCE]     } catch (error) {
+[SOURCE]       toast.error("Upload failed", {
+[SOURCE]         description: "Network error. Please try again.",
+[SOURCE]       });
+[SOURCE]     } finally {
+[SOURCE]       setIsUploadingPhoto(false);
+[SOURCE]     }
+[SOURCE]   };
+[SOURCE]   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+[SOURCE]     const file = e.target.files?.[0];
+[SOURCE]     if (file) handleProfilePictureUpload(file);
+[SOURCE]     // Reset input so the same file can be re-selected
+[SOURCE]     if (e.target) e.target.value = "";
+[SOURCE]   };
+[SOURCE]   const picSettings = profile?.profilePictureSettings;
+[SOURCE]   const canChangePicture =
+[SOURCE]     picSettings?.allowStudentPictureChanges &&
+[SOURCE]     (picSettings?.changesRemaining ?? 0) > 0;
+[SOURCE]   // --- UI HELPERS ---
+[SOURCE]   const MagneticWrapper = ({ children }: { children: React.ReactNode }) => {
+[SOURCE]     const x = useMotionValue(0);
+[SOURCE]     const y = useMotionValue(0);
+[SOURCE]     const mouseX = useSpring(x, { stiffness: 150, damping: 15 });
+[SOURCE]     const mouseY = useSpring(y, { stiffness: 150, damping: 15 });
+[SOURCE]     function onMouseMove(event: React.MouseEvent<HTMLDivElement>) {
+[SOURCE]       const { left, top, width, height } =
+[SOURCE]         event.currentTarget.getBoundingClientRect();
+[SOURCE]       const offsetX = event.clientX - left - width / 2;
+[SOURCE]       const offsetY = event.clientY - top - height / 2;
+[SOURCE]       x.set(offsetX / 8);
+[SOURCE]       y.set(offsetY / 8);
+[SOURCE]     }
+[SOURCE]     function onMouseLeave() {
+[SOURCE]       x.set(0);
+[SOURCE]       y.set(0);
+[SOURCE]     }
+[SOURCE]       <motion.div
+[SOURCE]         onMouseMove={onMouseMove}
+[SOURCE]         onMouseLeave={onMouseLeave}
+[SOURCE]         style={{ x: mouseX, y: mouseY }}
+[SOURCE]         className="h-full w-full"
+[SOURCE]       >
+[SOURCE]         {children}
+[SOURCE]       </motion.div>
+[SOURCE]   };
+[SOURCE]           {...waterfall}
+[SOURCE]                     alt="Genius Islamian's Academy"
+[SOURCE]                 <motion.div {...ripple}>
+[SOURCE]                     type="submit"
+[SOURCE]                     disabled={loginMutation.isPending}
+[SOURCE]                     className="w-full h-16 bg-brand-gold hover:bg-brand-gold/90 text-white text-lg font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-2xl shadow-brand-gold/20"
+[SOURCE]                     {loginMutation.isPending ? (
+[SOURCE]                       <>
+[SOURCE]                         <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+[SOURCE]                         Verifying...
+[SOURCE]                       </>
+[SOURCE]                       "Access Portal"
+[SOURCE]             Institutional Access Only â€¢ Protected by Genius Islamian's Security
+[SOURCE]     return (
+[SOURCE]           {...waterfall}
+[SOURCE]                   <motion.div {...ripple}>
+[SOURCE]                     <Button
+[SOURCE]                       onClick={handleRefreshStatus}
+[SOURCE]                       className="w-full h-16 bg-brand-gold hover:bg-brand-gold/90 text-white font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-brand-gold/20"
+[SOURCE]                       <RefreshCw className="mr-3 h-5 w-5" />
+[SOURCE]                       Check Status
+[SOURCE]                     </Button>
+[SOURCE]                   </motion.div>
+[SOURCE]                   <motion.div {...ripple}>
+[SOURCE]                     <Button
+[SOURCE]                       onClick={handleLogout}
+[SOURCE]                       variant="outline"
+[SOURCE]                       className="w-full h-16 border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 font-black uppercase tracking-[0.2em] rounded-2xl transition-all"
+[SOURCE]                       <LogOut className="mr-3 h-5 w-5" />
+[SOURCE]                       Sign Out
+[SOURCE]                     </Button>
+[SOURCE]                   </motion.div>
+[SOURCE]             Admissions Department â€¢ Genius Islamian's Academy Executive Office
+[SOURCE]     );
+[SOURCE]   const feePercentage =
+[SOURCE]     profile && profile.totalFee > 0
+[SOURCE]       ? Math.min(100, Math.round((profile.paidAmount / profile.totalFee) * 100))
+[SOURCE]       : 0;
+[SOURCE]   // MAIN DASHBOARD - LUXURY ACADEMIC AESTHETIC
+[SOURCE]   return (
+[SOURCE]       className="min-h-screen bg-brand-primary text-white relative overflow-hidden font-sans selection:bg-brand-gold/30"
+[SOURCE]       onMouseMove={handleMouseMove}
+[SOURCE]       {/* Liquid Mesh Background */}
+[SOURCE]       <div className="fixed inset-0 liquid-mesh opacity-40" />
+[SOURCE]       <div className="fixed inset-0 bg-brand-primary/60 backdrop-blur-[2px]" />
+[SOURCE]       {/* Spotlight Effect */}
+[SOURCE]       <Spotlight mouseX={smoothMouseX} mouseY={smoothMouseY} />
+[SOURCE]       {/* Glass Header with Gold Border */}
+[SOURCE]       <header className="sticky top-0 z-50 glass-ethereal border-b border-white/10">
+[SOURCE]         <div className="max-w-[1800px] mx-auto px-6 py-5 flex items-center justify-between">
+[SOURCE]             {/* Logo */}
+[SOURCE]             <div className="p-2 rounded-xl bg-brand-primary border border-white/10 shadow-2xl">
+[SOURCE]                 alt="Genius Islamian's Academy"
+[SOURCE]                 className="h-10 w-auto object-contain drop-shadow-[0_0_8px_rgba(180,83,9,0.3)]"
+[SOURCE]               <p className="text-[10px] font-black text-brand-gold uppercase tracking-[0.3em]">
+[SOURCE]               <p className="text-xs text-slate-400 font-serif italic">
+[SOURCE]                 Institutional Access
+[SOURCE]           <div className="flex items-center gap-6">
+[SOURCE]             <div className="hidden lg:flex items-center gap-8 mr-4">
+[SOURCE]               <div className="flex flex-col items-end">
+[SOURCE]                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+[SOURCE]                   Current Status
+[SOURCE]                 <span className="text-sm font-bold text-brand-gold flex items-center gap-2">
+[SOURCE]                   <div className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
+[SOURCE]                   Verified Student
+[SOURCE]                 </span>
+[SOURCE]                   className="flex items-center gap-3 hover:bg-white/5 h-14 px-4 rounded-2xl border border-transparent hover:border-white/10 transition-all"
+[SOURCE]                   <div className="w-10 h-10 rounded-xl bg-brand-gold overflow-hidden flex items-center justify-center shadow-lg shadow-brand-gold/20">
+[SOURCE]                         src={
+[SOURCE]                           profile.photo.startsWith("data:") ||
+[SOURCE]                           profile.photo.startsWith("http")
+[SOURCE]                             ? profile.photo
+[SOURCE]                             : `${API_BASE_URL}${profile.photo}`
+[SOURCE]                         }
+[SOURCE]                     ) : (
+[SOURCE]                     )}
+[SOURCE]                     <p className="text-sm font-bold text-white leading-none">
+[SOURCE]                     <p className="text-[10px] text-brand-gold/70 font-mono tracking-wider mt-1">
+[SOURCE]                 className="w-64 bg-brand-primary/95 backdrop-blur-2xl border-white/10 rounded-2xl p-2 shadow-2xl"
+[SOURCE]                 <DropdownMenuLabel className="text-slate-400 text-[10px] font-black uppercase tracking-widest px-3 py-2">
+[SOURCE]                   Academy Account
+[SOURCE]                 <DropdownMenuItem className="text-slate-200 focus:bg-brand-gold/10 focus:text-brand-gold rounded-xl py-3 cursor-pointer">
+[SOURCE]                   <User className="mr-3 h-4 w-4" />
+[SOURCE]                   <span className="font-bold">Institutional Profile</span>
+[SOURCE]                   onClick={() => {
+[SOURCE]                     // Save student info to localStorage for seat selection page
+[SOURCE]                     if (profile) {
+[SOURCE]                       const studentInfo = {
+[SOURCE]                         _id: profile._id,
+[SOURCE]                         name: profile.name || (profile as any).studentName,
+[SOURCE]                         studentId: profile.studentId,
+[SOURCE]                         gender: (profile as any).gender || "Male",
+[SOURCE]                         class: profile.class,
+[SOURCE]                         classId: profile.classRef?._id || profile.classRef,
+[SOURCE]                         session: profile.session
+[SOURCE]                           ? {
+[SOURCE]                               _id:
+[SOURCE]                                 typeof profile.session === "string"
+[SOURCE]                                   ? profile.session
+[SOURCE]                                   : (profile.session as any)?._id,
+[SOURCE]                               name:
+[SOURCE]                                 typeof profile.session === "string"
+[SOURCE]                                   ? profile.session
+[SOURCE]                                   : (profile.session as any)?.name ||
+[SOURCE]                                     (profile.session as any)?.sessionName,
+[SOURCE]                             }
+[SOURCE]                           : undefined,
+[SOURCE]                       };
+[SOURCE]                       localStorage.setItem(
+[SOURCE]                         "studentInfo",
+[SOURCE]                         JSON.stringify(studentInfo),
+[SOURCE]                       );
+[SOURCE]                     }
+[SOURCE]                     navigate("/student-portal/seat-selection");
+[SOURCE]                   }}
+[SOURCE]                   className="text-slate-200 focus:bg-brand-gold/10 focus:text-brand-gold rounded-xl py-3 cursor-pointer"
+[SOURCE]                   <Armchair className="mr-3 h-4 w-4" />
+[SOURCE]                   <span className="font-bold">Book Seat</span>
+[SOURCE]                 <DropdownMenuItem className="text-slate-200 focus:bg-brand-gold/10 focus:text-brand-gold rounded-xl py-3 cursor-pointer">
+[SOURCE]                   <CreditCard className="mr-3 h-4 w-4" />
+[SOURCE]                   <span className="font-bold">
+[SOURCE]                     Fee Status: {profile?.feeStatus}
+[SOURCE]                 <DropdownMenuItem
+[SOURCE]                   className="text-red-400 focus:bg-red-500/10 focus:text-red-400 rounded-xl py-3 cursor-pointer"
+[SOURCE]                   <span className="font-bold">Secure Logout</span>
+[SOURCE]                 </DropdownMenuItem>
+[SOURCE]       <main className="max-w-[1800px] mx-auto px-6 py-10 relative z-10">
+[SOURCE]         {/* Bento Grid Layout */}
+[SOURCE]         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+[SOURCE]           {/* Hero Section - Span 8 */}
+[SOURCE]             initial={{ opacity: 0, y: 20 }}
+[SOURCE]             transition={{ duration: 0.6 }}
+[SOURCE]             className="md:col-span-8"
+[SOURCE]             <Card className="h-full glass-ethereal border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.4)] relative overflow-hidden rounded-[3rem]">
+[SOURCE]               <div className="absolute top-0 left-0 w-full h-1 bg-brand-gold opacity-50" />
+[SOURCE]               <CardContent className="p-10 md:p-14 h-full flex flex-col justify-between relative z-10">
+[SOURCE]                 <div>
+[SOURCE]                   <div className="flex items-center gap-3 mb-6">
+[SOURCE]                     <div className="p-2 rounded-lg bg-brand-gold/10 border border-brand-gold/20">
+[SOURCE]                       <Sparkles className="h-4 w-4 text-brand-gold" />
+[SOURCE]                     <span className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">
+[SOURCE]                       {getGreeting()}
+[SOURCE]                   <h2 className="text-5xl md:text-7xl font-serif font-black mb-6 tracking-tight leading-[1.1]">
+[SOURCE]                     <span className="text-white">Welcome, </span>
+[SOURCE]                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold via-brand-gold/80 to-brand-gold shadow-sm">
+[SOURCE]                       {profile?.name?.split(" ")[0] || "Scholar"}
+[SOURCE]                     <span className="text-brand-gold">.</span>
+[SOURCE]                   </h2>
+[SOURCE]                   <p className="text-xl text-slate-400 mb-12 max-w-2xl leading-relaxed">
+[SOURCE]                     Your portal to excellence is ready. Continue your academic
+[SOURCE]                     journey with the Genius Islamian's Academy elite curriculum.
+[SOURCE]                   {/* Quick Stats Grid */}
+[SOURCE]                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+[SOURCE]                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 transition-all hover:bg-white/10 group">
+[SOURCE]                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 group-hover:text-brand-gold transition-colors">
+[SOURCE]                         Current Enrollment
+[SOURCE]                       <p className="text-2xl font-serif font-bold text-white">
+[SOURCE]                         {profile?.class}{" "}
+[SOURCE]                         <span className="text-brand-gold mx-2">â€¢</span>{" "}
+[SOURCE]                         {profile?.group}
+[SOURCE]                       </p>
+[SOURCE]                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 transition-all hover:bg-white/10 group">
+[SOURCE]                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 group-hover:text-brand-gold transition-colors">
+[SOURCE]                         Active Courses
+[SOURCE]                       </p>
+[SOURCE]                       <p className="text-2xl font-serif font-bold text-white">
+[SOURCE]                         {profile?.subjects?.length || 0} Professional Subjects
+[SOURCE]                       </p>
+[SOURCE]                 {/* Session Card - Dynamic from Schedule API */}
+[SOURCE]                 <div className="mt-10 bg-brand-gold/10 border border-brand-gold/20 rounded-[2rem] p-8 transition-all hover:bg-brand-gold/15 group">
+[SOURCE]                   <div className="flex flex-col md:flex-row items-center gap-6">
+[SOURCE]                         "w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl",
+[SOURCE]                         currentSession
+[SOURCE]                           ? "bg-emerald-500 shadow-emerald-500/20"
+[SOURCE]                           : "bg-brand-gold shadow-brand-gold/20",
+[SOURCE]                     >
+[SOURCE]                       {currentSession ? (
+[SOURCE]                         <Play className="h-8 w-8 text-white animate-pulse" />
+[SOURCE]                         <Clock className="h-8 w-8 text-brand-primary" />
+[SOURCE]                     </div>
+[SOURCE]                     <div className="flex-1 text-center md:text-left">
+[SOURCE]                       <p className="text-[10px] font-black text-brand-gold uppercase tracking-[0.3em] mb-1">
+[SOURCE]                         {currentSession
+[SOURCE]                           ? "Live Now: Ongoing Session"
+[SOURCE]                           : "Up Next in Your Schedule"}
+[SOURCE]                       </p>
+[SOURCE]                       {currentSession || nextSession ? (
+[SOURCE]                         <div>
+[SOURCE]                           <p className="text-2xl font-serif font-bold text-white">
+[SOURCE]                             {(currentSession || nextSession)?.subject}
+[SOURCE]                             {currentSession && (
+[SOURCE]                               <span className="ml-3 px-3 py-1 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+[SOURCE]                                 Active
+[SOURCE]                               </span>
+[SOURCE]                             )}
+[SOURCE]                           </p>
+[SOURCE]                           <p className="text-slate-400 font-medium mt-1">
+[SOURCE]                             {(currentSession || nextSession)?.startTime} â€”{" "}
+[SOURCE]                             {(currentSession || nextSession)?.endTime}
+[SOURCE]                             <span className="mx-2 opacity-30">|</span>
+[SOURCE]                             {(currentSession || nextSession)?.room || "TBA"}
+[SOURCE]                             <span className="mx-2 opacity-30">|</span>
+[SOURCE]                             {(currentSession || nextSession)?.teacherId?.name ||
+[SOURCE]                               "Academic Expert"}
+[SOURCE]                           </p>
+[SOURCE]                       ) : (
+[SOURCE]                         <p className="text-2xl font-serif font-bold text-slate-500">
+[SOURCE]                           No upcoming sessions scheduled
+[SOURCE]                         </p>
+[SOURCE]                     </div>
+[SOURCE]                     <Button
+[SOURCE]                       onClick={() =>
+[SOURCE]                         document
+[SOURCE]                           .getElementById("timetable-section")
+[SOURCE]                           ?.scrollIntoView({ behavior: "smooth" })
+[SOURCE]                       }
+[SOURCE]                       className="bg-brand-gold hover:bg-brand-gold/90 text-brand-primary font-black uppercase tracking-widest h-14 px-8 rounded-2xl shadow-lg shadow-brand-gold/20"
+[SOURCE]                     >
+[SOURCE]                       View Timetable
+[SOURCE]                     </Button>
+[SOURCE]               </CardContent>
+[SOURCE]               {/* Background Watermark */}
+[SOURCE]               <div className="absolute -bottom-20 -right-20 opacity-[0.03] pointer-events-none rotate-12">
+[SOURCE]                 <GraduationCap className="h-96 w-96 text-white" />
+[SOURCE]             </Card>
+[SOURCE]           {/* Stats Column - Span 4 */}
+[SOURCE]           <div className="md:col-span-4 space-y-6">
+[SOURCE]             {/* Finance Widget with Glowing Shield */}
+[SOURCE]             <motion.div
+[SOURCE]               initial={{ opacity: 0, y: 20 }}
+[SOURCE]               animate={{ opacity: 1, y: 0 }}
+[SOURCE]               transition={{ duration: 0.5, delay: 0.1 }}
+[SOURCE]             >
+[SOURCE]               <Card className="glass-ethereal border-white/10 rounded-[2rem] overflow-hidden">
+[SOURCE]                 <CardContent className="p-8">
+[SOURCE]                   <div className="flex items-center justify-between mb-8">
+[SOURCE]                     <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+[SOURCE]                       Financial Standing
+[SOURCE]                     </h3>
+[SOURCE]                     {profile?.feeStatus === "paid" ? (
+[SOURCE]                       <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+[SOURCE]                         <ShieldCheck className="h-4 w-4 text-emerald-400" />
+[SOURCE]                         <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+[SOURCE]                           Cleared
+[SOURCE]                     ) : (
+[SOURCE]                       <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/10 border border-brand-gold/20">
+[SOURCE]                         <Clock className="h-4 w-4 text-brand-gold" />
+[SOURCE]                         <span className="text-[10px] font-black text-brand-gold uppercase tracking-widest">
+[SOURCE]                           Pending
+[SOURCE]                         </span>
+[SOURCE]                     )}
+[SOURCE]                   <div className="flex items-center justify-center mb-8 relative">
+[SOURCE]                     <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
+[SOURCE]                       <p className="text-4xl font-serif font-black text-white">
+[SOURCE]                         {feePercentage}%
+[SOURCE]                       </p>
+[SOURCE]                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+[SOURCE]                         Paid
+[SOURCE]                       </p>
+[SOURCE]                     </div>
+[SOURCE]                     <ResponsiveContainer width="100%" height={160}>
+[SOURCE]                       <PieChart>
+[SOURCE]                         <Pie
+[SOURCE]                           data={[
+[SOURCE]                             { value: feePercentage },
+[SOURCE]                             { value: 100 - feePercentage },
+[SOURCE]                           ]}
+[SOURCE]                           cx="50%"
+[SOURCE]                           cy="50%"
+[SOURCE]                           innerRadius={60}
+[SOURCE]                           outerRadius={75}
+[SOURCE]                           paddingAngle={8}
+[SOURCE]                           dataKey="value"
+[SOURCE]                           stroke="none"
+[SOURCE]                         >
+[SOURCE]                           <Cell
+[SOURCE]                             fill={
+[SOURCE]                               profile?.feeStatus === "paid"
+[SOURCE]                                 ? "#10b981"
+[SOURCE]                                 : "#B45309"
+[SOURCE]                             }
+[SOURCE]                             className="drop-shadow-[0_0_10px_rgba(180,83,9,0.3)]"
+[SOURCE]                           />
+[SOURCE]                           <Cell fill="rgba(255,255,255,0.05)" />
+[SOURCE]                         </Pie>
+[SOURCE]                       </PieChart>
+[SOURCE]                     </ResponsiveContainer>
+[SOURCE] 
+[SOURCE]                   <div className="text-center space-y-4">
+[SOURCE]                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+[SOURCE]                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+[SOURCE]                         Account Balance
+[SOURCE]                       </p>
+[SOURCE]                       <p className="text-2xl font-serif font-bold text-white">
+[SOURCE]                         PKR {profile?.balance?.toLocaleString() || 0}
+[SOURCE]                       </p>
+[SOURCE]                     </div>
+[SOURCE]                     {profile?.feeStatus !== "paid" && (
+[SOURCE]                       <Button className="w-full h-12 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black uppercase tracking-widest text-xs rounded-xl">
+[SOURCE]                         View Statement
+[SOURCE]                       </Button>
+[SOURCE]                     )}
+[SOURCE]                 </CardContent>
+[SOURCE]               </Card>
+[SOURCE]             </motion.div>
+[SOURCE] 
+[SOURCE]             {/* Student Profile Card */}
+[SOURCE]             <motion.div
+[SOURCE]               initial={{ opacity: 0, y: 20 }}
+[SOURCE]               animate={{ opacity: 1, y: 0 }}
+[SOURCE]               transition={{ duration: 0.5, delay: 0.2 }}
+[SOURCE]             >
+[SOURCE]               <Card className="glass-ethereal border-white/10 rounded-[2rem] overflow-hidden">
+[SOURCE]                 <CardContent className="p-8">
+[SOURCE]                   <div className="flex items-center gap-3 mb-6">
+[SOURCE]                     <div className="p-2 rounded-lg bg-brand-gold/10">
+[SOURCE]                       <UserCircle className="h-4 w-4 text-brand-gold" />
+[SOURCE]                     </div>
+[SOURCE]                     <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+[SOURCE]                       Student Profile
+[SOURCE]                     </h3>
+[SOURCE] 
+[SOURCE]                   {/* Profile Photo */}
+[SOURCE]                   <div className="flex flex-col items-center mb-6">
+[SOURCE]                     <div className="relative group/photo mb-4">
+[SOURCE]                       <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden border-2 border-brand-gold/30 shadow-xl shadow-brand-gold/10">
+[SOURCE]                         {profile?.photo ? (
+[SOURCE]                           <img
+[SOURCE]                             src={
+[SOURCE]                               profile.photo.startsWith("data:") ||
+[SOURCE]                               profile.photo.startsWith("http")
+[SOURCE]                                 ? profile.photo
+[SOURCE]                                 : `${API_BASE_URL}${profile.photo}`
+[SOURCE]                             }
+[SOURCE]                             alt={profile.name}
+[SOURCE]                             className="w-full h-full object-cover"
+[SOURCE]                           />
+[SOURCE]                         ) : (
+[SOURCE]                           <img
+[SOURCE]                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.studentId}`}
+[SOURCE]                             alt={profile?.name}
+[SOURCE]                             className="w-full h-full object-cover bg-brand-gold/5"
+[SOURCE]                           />
+[SOURCE]                       </div>
+[SOURCE]                       {/* Camera overlay for changing photo */}
+[SOURCE]                       {canChangePicture && (
+[SOURCE]                         <button
+[SOURCE]                           onClick={() => photoInputRef.current?.click()}
+[SOURCE]                           disabled={isUploadingPhoto}
+[SOURCE]                           className="absolute inset-0 rounded-[1.5rem] bg-black/50 opacity-0 group-hover/photo:opacity-100 transition-all duration-300 flex items-center justify-center cursor-pointer"
+[SOURCE]                         >
+[SOURCE]                           {isUploadingPhoto ? (
+[SOURCE]                             <Loader2 className="h-6 w-6 text-white animate-spin" />
+[SOURCE]                           ) : (
+[SOURCE]                             <Camera className="h-6 w-6 text-white" />
+[SOURCE]                           )}
+[SOURCE]                         </button>
+[SOURCE]                     </div>
+[SOURCE]                     {/* Hidden file input */}
+[SOURCE]                     <input
+[SOURCE]                       ref={photoInputRef}
+[SOURCE]                       type="file"
+[SOURCE]                       accept="image/jpeg,image/jpg,image/png,image/webp"
+[SOURCE]                       onChange={handleFileSelect}
+[SOURCE]                       className="hidden"
+[SOURCE]                       aria-label="Upload profile picture"
+[SOURCE]                     <p className="text-lg font-serif font-bold text-white text-center">
+[SOURCE]                       {profile?.name}
+[SOURCE]                     <p className="text-[10px] font-black text-brand-gold/70 uppercase tracking-widest mt-1 font-mono">
+[SOURCE]                       {profile?.barcodeId || profile?.studentId}
+[SOURCE]                     {/* Change photo info */}
+[SOURCE]                     {picSettings?.allowStudentPictureChanges && (
+[SOURCE]                       <div className="mt-2 flex items-center gap-1.5">
+[SOURCE]                         {canChangePicture ? (
+[SOURCE]                           <button
+[SOURCE]                             onClick={() => photoInputRef.current?.click()}
+[SOURCE]                             disabled={isUploadingPhoto}
+[SOURCE]                             className="flex items-center gap-1.5 text-[10px] font-bold text-brand-gold/60 hover:text-brand-gold transition-colors uppercase tracking-widest"
+[SOURCE]                           >
+[SOURCE]                             <Camera className="h-3 w-3" />
+[SOURCE]                             Change Photo
+[SOURCE]                             <span className="text-brand-gold/40">
+[SOURCE]                               ({picSettings.changesRemaining} left)
+[SOURCE]                             </span>
+[SOURCE]                           </button>
+[SOURCE]                         ) : (
+[SOURCE]                           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+[SOURCE]                             No photo changes remaining
+[SOURCE]                         )}
+[SOURCE]                       </div>
+[SOURCE]                     )}
+[SOURCE] 
+[SOURCE]                   {/* Quick Info */}
+[SOURCE]                   <div className="space-y-3 mb-6">
+[SOURCE]                     <div className="flex items-center justify-between bg-white/5 rounded-xl p-3 border border-white/5">
+[SOURCE]                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+[SOURCE]                         Father
+[SOURCE]                       </span>
+[SOURCE]                       <span className="text-xs font-bold text-slate-300">
+[SOURCE]                         {profile?.fatherName}
+[SOURCE]                       </span>
+[SOURCE]                     </div>
+[SOURCE]                     <div className="flex items-center justify-between bg-white/5 rounded-xl p-3 border border-white/5">
+[SOURCE]                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+[SOURCE]                         Session
+[SOURCE]                       </span>
+[SOURCE]                       <span className="text-xs font-bold text-slate-300">
+[SOURCE]                         {profile?.session?.name || "Not Assigned"}
+[SOURCE]                       </span>
+[SOURCE]                     </div>
+[SOURCE]                     <div className="flex items-center justify-between bg-white/5 rounded-xl p-3 border border-white/5">
+[SOURCE]                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+[SOURCE]                         Status
+[SOURCE]                       </span>
+[SOURCE]                       <div className="flex items-center gap-1.5">
+[SOURCE]                         <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+[SOURCE]                         <span className="text-xs font-bold text-emerald-400">
+[SOURCE]                           {profile?.studentStatus}
+[SOURCE]                         </span>
+[SOURCE]                       </div>
+[SOURCE]                     </div>
+[SOURCE]                   </div>
+[SOURCE] 
+[SOURCE]                   {/* Admission Slip Button */}
+[SOURCE]                     onClick={() => {
+[SOURCE]                       toast.info("Admission Slip", {
+[SOURCE]                         description:
+[SOURCE]                           "Please visit the administration office or contact your class coordinator to obtain your official admission slip.",
+[SOURCE]                       });
+[SOURCE]                     }}
+[SOURCE]                     className="w-full h-12 bg-brand-gold/10 hover:bg-brand-gold/20 border border-brand-gold/20 text-brand-gold font-black uppercase tracking-widest text-xs rounded-xl transition-all group"
+[SOURCE]                     <FileText className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+[SOURCE]                     View Admission Slip
+[SOURCE]                 </CardContent>
+[SOURCE]               </Card>
+[SOURCE]             </motion.div>
+[SOURCE] 
+[SOURCE]           {/* Weekly Timetable - Full Width */}
+[SOURCE]           <div id="timetable-section" className="md:col-span-12 mt-4">
+[SOURCE]             <div className="flex items-center justify-between mb-8">
+[SOURCE]               <h3 className="text-3xl font-serif font-black text-white flex items-center gap-4">
+[SOURCE]                 <div className="p-3 rounded-2xl bg-brand-gold/10 border border-brand-gold/20">
+[SOURCE]                   <Calendar className="h-6 w-6 text-brand-gold" />
+[SOURCE]                 Academic <span className="text-brand-gold">Schedule</span>
+[SOURCE]               <p className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">
+[SOURCE]                 Week of Excellence
+[SOURCE]               </p>
+[SOURCE] 
+[SOURCE]             <Card className="glass-ethereal border-white/10 rounded-[3rem] overflow-hidden">
+[SOURCE]               <CardContent className="p-8">
+[SOURCE]                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+[SOURCE]                   {[
+[SOURCE]                     "Monday",
+[SOURCE]                     "Tuesday",
+[SOURCE]                     "Wednesday",
+[SOURCE]                     "Thursday",
+[SOURCE]                     "Friday",
+[SOURCE]                     "Saturday",
+[SOURCE]                     "Sunday",
+[SOURCE]                   ].map((day) => {
+[SOURCE]                     const daySchedule = timetable.filter((s) => s.day === day);
+[SOURCE]                     const isScheduled = daySchedule.length > 0;
+[SOURCE]                     const today = [
+[SOURCE]                       "Sunday",
+[SOURCE]                       "Monday",
+[SOURCE]                       "Tuesday",
+[SOURCE]                       "Wednesday",
+[SOURCE]                       "Thursday",
+[SOURCE]                       "Friday",
+[SOURCE]                       "Saturday",
+[SOURCE]                     ][new Date().getDay()];
+[SOURCE]                     const isToday = day === today;
+[SOURCE] 
+[SOURCE]                     return (
+[SOURCE]                       <div
+[SOURCE]                         key={day}
+[SOURCE]                         className={cn(
+[SOURCE]                           "relative rounded-3xl p-6 transition-all duration-500 min-h-[160px] group",
+[SOURCE]                           isScheduled
+[SOURCE]                             ? "bg-brand-gold/10 border border-brand-gold/20 shadow-xl shadow-brand-gold/5"
+[SOURCE]                             : "bg-white/5 border border-white/5 opacity-50 hover:opacity-100",
+[SOURCE]                           isToday &&
+[SOURCE]                             "ring-2 ring-brand-gold ring-offset-4 ring-offset-brand-primary scale-105 z-10",
+[SOURCE]                         )}
+[SOURCE]                       >
+[SOURCE]                         {/* Day Header */}
+[SOURCE]                         <div
+[SOURCE]                           className={cn(
+[SOURCE]                             "text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex items-center justify-between",
+[SOURCE]                             isScheduled ? "text-brand-gold" : "text-slate-500",
+[SOURCE]                           )}
+[SOURCE]                         >
+[SOURCE]                           {day.substring(0, 3)}
+[SOURCE]                           {isToday && (
+[SOURCE]                             <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" />
+[SOURCE]                           )}
+[SOURCE] 
+[SOURCE]                         {isScheduled ? (
+[SOURCE]                           <div className="space-y-4">
+[SOURCE]                             {daySchedule.map((entry, idx) => (
+[SOURCE]                               <div
+[SOURCE]                                 key={idx}
+[SOURCE]                                 className={cn(
+[SOURCE]                                   "pt-3",
+[SOURCE]                                   idx !== 0 && "border-t border-white/5",
+[SOURCE]                               >
+[SOURCE]                                 <p className="text-lg font-serif font-bold text-white leading-none">
+[SOURCE]                                   {entry.startTime}
+[SOURCE]                                 <p className="text-[10px] text-brand-gold/80 font-bold uppercase tracking-widest mt-1">
+[SOURCE]                                   <p className="text-[9px] text-slate-300/70 font-medium mt-1">
+[SOURCE]                                 <div className="flex items-center gap-2 mt-2 opacity-60">
+[SOURCE]                                   <Clock className="h-2.5 w-2.5 text-slate-400" />
+[SOURCE]                                   <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+[SOURCE]                                     {entry.startTime} â€” {entry.endTime} | Room{" "}
+[SOURCE]                                     {entry.room || "TBA"}
+[SOURCE]                                   </span>
+[SOURCE]                                 </div>
+[SOURCE]                             ))}
+[SOURCE]                           </div>
+[SOURCE]                         ) : (
+[SOURCE]                           <div className="flex flex-col items-center justify-center h-24 opacity-20 group-hover:opacity-40 transition-opacity">
+[SOURCE]                             <Sparkles className="h-8 w-8 text-slate-500 mb-2" />
+[SOURCE]                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+[SOURCE]                               Self Study
+[SOURCE]                             </span>
+[SOURCE]                           </div>
+[SOURCE]                         )}
+[SOURCE]                       </div>
+[SOURCE]                     );
+[SOURCE]                   })}
+[SOURCE]               </CardContent>
+[SOURCE]             </Card>
+[SOURCE] 
+[SOURCE]           {/* Subject Cards - Full Width */}
+[SOURCE]           <div className="md:col-span-12 mt-12">
+[SOURCE]             <div className="flex items-center justify-between mb-8">
+[SOURCE]               <h3 className="text-3xl font-serif font-black text-white flex items-center gap-4">
+[SOURCE]                 <div className="p-3 rounded-2xl bg-brand-gold/10 border border-brand-gold/20">
+[SOURCE]                   <BookOpen className="h-6 w-6 text-brand-gold" />
+[SOURCE]                 </div>
+[SOURCE]                 Your <span className="text-brand-gold">Curriculum</span>
+[SOURCE]               </h3>
+[SOURCE]               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+[SOURCE]                 Institutional Subjects
+[SOURCE]               </p>
+[SOURCE] 
+[SOURCE]             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+[SOURCE]               {/* All Courses Card */}
+[SOURCE]               <motion.div
+[SOURCE]                 initial={{ opacity: 0, scale: 0.95 }}
+[SOURCE]                 animate={{ opacity: 1, scale: 1 }}
+[SOURCE]                 transition={{ duration: 0.3 }}
+[SOURCE]                 whileHover={{ scale: 1.02, y: -4 }}
+[SOURCE]                 whileTap={{ scale: 0.98 }}
+[SOURCE]                 onClick={() => setActiveSubject(null)}
+[SOURCE]                 className="cursor-pointer"
+[SOURCE]                 <MagneticWrapper>
+[SOURCE]                   <Card
+[SOURCE]                     className={cn(
+[SOURCE]                       "glass-ethereal border transition-all duration-500 rounded-[2rem] overflow-hidden group h-full",
+[SOURCE]                       activeSubject === null
+[SOURCE]                         ? "border-brand-gold/50 shadow-2xl shadow-brand-gold/10 bg-brand-gold/5"
+[SOURCE]                         : "border-white/10 hover:border-white/20",
+[SOURCE]                     )}
+[SOURCE]                   >
+[SOURCE]                     <CardContent className="p-8">
+[SOURCE]                       <div className="flex items-center justify-between mb-6">
+[SOURCE]                         <div className="w-14 h-14 rounded-2xl bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center group-hover:bg-brand-gold transition-colors duration-500 shadow-lg">
+[SOURCE]                           <span className="text-3xl group-hover:scale-110 transition-transform">
+[SOURCE]                             ðŸ“š
+[SOURCE]                           </span>
+[SOURCE]                         </div>
+[SOURCE]                         <Badge
+[SOURCE]                           variant="secondary"
+[SOURCE]                           className="font-black bg-white/5 text-white border-white/10 px-3 h-6 uppercase tracking-widest text-[10px]"
+[SOURCE]                         >
+[SOURCE]                           All Subjects
+[SOURCE]                         </Badge>
+[SOURCE]                       </div>
+[SOURCE]                       <h4 className="font-serif font-bold text-2xl text-white mb-2 group-hover:text-brand-gold transition-colors">
+[SOURCE]                         Full Library
+[SOURCE]                       </h4>
+[SOURCE]                       <p className="text-xs text-slate-500 font-medium uppercase tracking-widest">
+[SOURCE]                         Complete Academic Content
+[SOURCE]                       </p>
+[SOURCE]                     </CardContent>
+[SOURCE]                   </Card>
+[SOURCE]                 </MagneticWrapper>
+[SOURCE]               </motion.div>
+[SOURCE] 
+[SOURCE]               {/* Subject Cards */}
+[SOURCE]               {profile?.subjects?.map((subject, index) => {
+[SOURCE]                 const colors =
+[SOURCE]                   SUBJECT_COLORS[subject.name] || SUBJECT_COLORS.Mathematics;
+[SOURCE]                 return (
+[SOURCE]                   <motion.div
+[SOURCE]                     key={subject.name}
+[SOURCE]                     initial={{ opacity: 0, scale: 0.95 }}
+[SOURCE]                     animate={{ opacity: 1, scale: 1 }}
+[SOURCE]                     transition={{ duration: 0.3, delay: index * 0.05 }}
+[SOURCE]                     whileHover={{ scale: 1.02, y: -4 }}
+[SOURCE]                     whileTap={{ scale: 0.98 }}
+[SOURCE]                     onClick={() => setActiveSubject(subject.name)}
+[SOURCE]                     className="cursor-pointer group"
+[SOURCE]                   >
+[SOURCE]                     <MagneticWrapper>
+[SOURCE]                       <Card
+[SOURCE]                         className={cn(
+[SOURCE]                           "glass-ethereal border transition-all duration-500 rounded-[2rem] overflow-hidden h-full",
+[SOURCE]                           activeSubject === subject.name
+[SOURCE]                             ? "border-brand-gold/50 shadow-2xl shadow-brand-gold/10 bg-brand-gold/5"
+[SOURCE]                             : "border-white/10 hover:border-white/20",
+[SOURCE]                           colors.glow,
+[SOURCE]                         )}
+[SOURCE]                       >
+[SOURCE]                         <CardContent className="p-8 relative overflow-hidden">
+[SOURCE]                           <div className="flex items-center justify-between mb-6 relative z-10">
+[SOURCE]                             <div className="w-14 h-14 rounded-2xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10 group-hover:bg-brand-gold transition-colors duration-500 shadow-lg">
+[SOURCE]                               <span className="text-3xl group-hover:scale-110 transition-transform">
+[SOURCE]                                 {colors.icon}
+[SOURCE]                               </span>
+[SOURCE]                             </div>
+[SOURCE]                             <Badge
+[SOURCE]                               variant="secondary"
+[SOURCE]                               className="font-black bg-white/5 text-white border-white/10 px-3 h-6 uppercase tracking-widest text-[10px]"
+[SOURCE]                             >
+[SOURCE]                               Enrolled
+[SOURCE]                             </Badge>
+[SOURCE]                           </div>
+[SOURCE]                           <h4 className="font-serif font-bold text-2xl text-white mb-2 relative z-10 group-hover:text-brand-gold transition-colors">
+[SOURCE]                             {subject.name}
+[SOURCE]                           </h4>
+[SOURCE]                           <div className="flex items-center gap-2 relative z-10">
+[SOURCE]                             <ShieldCheck className="h-3 w-3 text-emerald-400" />
+[SOURCE]                             <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest">
+[SOURCE]                               Course Verified
+[SOURCE]                             </p>
+[SOURCE]                           </div>
+[SOURCE] 
+[SOURCE]                           {/* Watermark Icon */}
+[SOURCE]                           <div className="absolute -bottom-6 -right-6 opacity-[0.05] group-hover:opacity-10 transition-opacity duration-700 pointer-events-none">
+[SOURCE]                             <span className="text-9xl">{colors.icon}</span>
+[SOURCE]                           </div>
+[SOURCE]                         </CardContent>
+[SOURCE]                       </Card>
+[SOURCE]                     </MagneticWrapper>
+[SOURCE]                   </motion.div>
+[SOURCE]                 );
+[SOURCE]               })}
+[SOURCE]   );
+[SOURCE] 
+
+====== components\dashboard\ViewEditStudentModal.tsx ======
+Lines differ: 74
+[SOURCE]   // Seat Number (admin override)
+[SOURCE]   const [seatNumber, setSeatNumber] = useState("");
+[SOURCE]   // Student status
+[SOURCE]   const [studentStatus, setStudentStatus] = useState("active");
+[SOURCE]       setSeatNumber(student.seatNumber || "");
+[SOURCE]       setStudentStatus(student.status || "active");
+[SOURCE]       seatNumber: seatNumber || undefined,
+[SOURCE]       status: studentStatus,
+[SOURCE]       // Keep studentStatus in sync: active â†’ Active, inactive â†’ leave as-is (could be Withdrawn/Suspended)
+[SOURCE]       ...(studentStatus === "active" ? { studentStatus: "Active" } : {}),
+[SOURCE]                   {seatNumber && (
+[SOURCE]                     <div className="flex justify-between items-center py-2.5 border-t border-slate-100 dark:border-slate-800">
+[SOURCE]                       <span className="text-sm text-muted-foreground">
+[SOURCE]                         Seat Number
+[SOURCE]                       </span>
+[SOURCE]                       <span
+[SOURCE]                         className={`px-2.5 py-1 rounded-md text-xs font-bold font-mono ${
+[SOURCE]                           seatNumber.startsWith("L")
+[SOURCE]                             ? "bg-pink-100 text-pink-700 border border-pink-200"
+[SOURCE]                             : "bg-sky-100 text-sky-700 border border-sky-200"
+[SOURCE]                         }`}
+[SOURCE]                         {seatNumber}
+[SOURCE]                       </span>
+[SOURCE]                   )}
+[SOURCE]                   <div className="flex justify-between items-center py-2.5 border-t border-slate-100 dark:border-slate-800">
+[SOURCE]                       Status
+[SOURCE]                       className={`px-2.5 py-1 rounded-md text-xs font-bold ${
+[SOURCE]                         studentStatus === "active"
+[SOURCE]                           ? "bg-green-100 text-green-700 border border-green-200"
+[SOURCE]                           : "bg-red-100 text-red-700 border border-red-200"
+[SOURCE]                       {studentStatus === "active" ? "ðŸŸ¢ Active" : "ðŸ”´ Inactive"}
+[SOURCE]                     <span className="text-sm text-muted-foreground">
+[SOURCE]                     </span>
+[SOURCE]                     <span
+[SOURCE]                     </span>
+[SOURCE]                     <Label htmlFor="seatNumber">Seat Number (Override)</Label>
+[SOURCE]                       id="seatNumber"
+[SOURCE]                       value={seatNumber}
+[SOURCE]                       onChange={(e) => setSeatNumber(e.target.value)}
+[SOURCE]                       placeholder="e.g. R-001"
+[SOURCE]                       className="bg-background font-mono"
+[SOURCE]                     <p className="text-[11px] text-muted-foreground">
+[SOURCE]                       Auto-assigned at admission. Override only if needed.
+[SOURCE]                     <Label htmlFor="studentStatus">Student Status</Label>
+[SOURCE]                     <Select value={studentStatus} onValueChange={setStudentStatus}>
+[SOURCE]                       <SelectTrigger className="bg-background">
+[SOURCE]                         <SelectValue placeholder="Select status" />
+[SOURCE]                       </SelectTrigger>
+[SOURCE]                       <SelectContent className="bg-popover">
+[SOURCE]                         <SelectItem value="active">
+[SOURCE]                           <span className="flex items-center gap-2">ðŸŸ¢ Active</span>
+[SOURCE]                         </SelectItem>
+[SOURCE]                         <SelectItem value="inactive">
+[SOURCE]                           <span className="flex items-center gap-2">ðŸ”´ Inactive</span>
+[SOURCE]                         </SelectItem>
+[SOURCE]                       </SelectContent>
+[SOURCE]                     </Select>
+[SOURCE]                     <p className="text-[11px] text-muted-foreground">
+[SOURCE]                       Inactive students are excluded from class revenue.
+[SOURCE]                     </p>
+[SOURCE]                       >
+[SOURCE]                   </div>
+[SOURCE]                   <div className="space-y-2">
+[SOURCE]                     <Input
+[SOURCE]                     />
+[SOURCE]                     </p>
+[SOURCE]                   </div>
+[SOURCE]                   <div className="space-y-2">
+[SOURCE]                       }`}
+[SOURCE]                     >
+[SOURCE]                     </div>
+[SOURCE]                   </div>
+[SOURCE] 
+[SOURCE] 
+
+====== components\dashboard\TeacherPaymentReceipt.tsx ======
+Lines differ: 4
+[TARGET]                 alt="SCIENCES COACHING ACADEMY"
+[TARGET]               SCIENCES COACHING ACADEMY
+[SOURCE]                 alt="Genius Islamian's Academy"
+[SOURCE]               GENIUS ISLAMIAN'S ACADEMY
+
+====== components\finance\FeeReceipt.tsx ======
+Lines differ: 54
+[TARGET] // Printable Fee Receipt - Matches SCIENCES COACHING ACADEMY physical paper format EXACTLY
+[TARGET]           <div className="h-2 bg-blue-700" />
+[TARGET]             <div className="w-2 bg-blue-700" />
+[TARGET]                 <div className="w-64 h-64 rounded-full border-[10px] border-blue-700 flex items-center justify-center">
+[TARGET]                     <span className="text-2xl font-serif italic text-blue-700">
+[TARGET]                       Sciences
+[TARGET]                     <span className="text-3xl font-bold text-blue-700">
+[TARGET]                       COACHING
+[TARGET]                   <div className="w-16 h-16 rounded-full border-2 border-blue-700 flex items-center justify-center bg-gradient-to-b from-blue-50 to-white flex-shrink-0">
+[TARGET]                       alt="SCIENCES COACHING ACADEMY"
+[TARGET]                       <span className="text-blue-700 font-serif italic">
+[TARGET]                         Sciences{" "}
+[TARGET]                       <span className="text-blue-700 tracking-wide">
+[TARGET]                         COACHING{" "}
+[TARGET]                     <p className="text-blue-600 font-semibold text-sm mt-0.5">
+[TARGET]                     <span className="flex-1 border-b border-gray-400 px-2 py-0.5 uppercase font-bold text-blue-800">
+[TARGET]                   {/* Roll No Row */}
+[TARGET]                       Roll No.:
+[TARGET]                       {studentId || "â€”"}
+[TARGET]                 <div className="relative z-10 mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+[TARGET]                 <div className="border-2 border-blue-600 px-3 py-2 bg-blue-50">
+[TARGET]                   <p className="text-[10px] font-bold text-blue-700 uppercase leading-tight">
+[TARGET]                   <p className="text-[10px] font-bold text-blue-700 uppercase leading-tight">
+[TARGET]                   Email: info@sca.edu.pk |
+[TARGET]                   www.facebook.com/sciencescoachingacademy
+[TARGET]           <div className="h-1 bg-blue-600" />
+[SOURCE]   seatNo?: string;
+[SOURCE] // Printable Fee Receipt - Matches Genius Islamian's Academy physical paper format EXACTLY
+[SOURCE]       seatNo,
+[SOURCE]           <div className="h-2 bg-red-700" />
+[SOURCE]             <div className="w-2 bg-red-700" />
+[SOURCE]                 <div className="w-64 h-64 rounded-full border-[10px] border-red-700 flex items-center justify-center">
+[SOURCE]                     <span className="text-2xl font-serif italic text-red-700">
+[SOURCE]                       Genius
+[SOURCE]                     <span className="text-3xl font-bold text-red-700">
+[SOURCE]                       ISLAMIAN'S
+[SOURCE]                   <div className="w-16 h-16 rounded-full border-2 border-red-700 flex items-center justify-center bg-gradient-to-b from-red-50 to-white flex-shrink-0">
+[SOURCE]                       alt="Genius Islamian's Academy"
+[SOURCE]                       <span className="text-red-700 font-serif italic">
+[SOURCE]                         Genius{" "}
+[SOURCE]                       <span className="text-red-700 tracking-wide">
+[SOURCE]                         ISLAMIAN'S{" "}
+[SOURCE]                     <p className="text-red-600 font-semibold text-sm mt-0.5">
+[SOURCE]                     <span className="flex-1 border-b border-gray-400 px-2 py-0.5 uppercase font-bold text-red-800">
+[SOURCE]                   {/* Seat No Row */}
+[SOURCE]                       Seat No.:
+[SOURCE]                       {seatNo || studentId || "â€”"}
+[SOURCE]                 <div className="relative z-10 mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs">
+[SOURCE]                 <div className="border-2 border-red-600 px-3 py-2 bg-red-50">
+[SOURCE]                   <p className="text-[10px] font-bold text-red-700 uppercase leading-tight">
+[SOURCE]                   <p className="text-[10px] font-bold text-red-700 uppercase leading-tight">
+[SOURCE]                   Email: geniusislamians@gmail.com |
+[SOURCE]                   www.facebook.com/geniusislamians
+[SOURCE]           <div className="h-1 bg-red-600" />
+
+====== components\print\MiscPaymentPDF.tsx ======
+Lines differ: 236
+[TARGET]     color: "rgba(37, 99, 235, 0.12)",
+[TARGET]     marginBottom: 10,
+[TARGET]     position: "relative",
+[TARGET]     color: "#0056b3",
+[TARGET]   // ==================== MAIN CONTENT ====================
+[TARGET]     gap: 10,
+[TARGET]     height: "calc(100% - 120px)",
+[TARGET]   // Left Section - Student & Payment Details
+[TARGET]   leftSection: {
+[TARGET]     paddingRight: 8,
+[TARGET]   detailsGrid: {
+[TARGET]     height: "calc(100% - 60px)",
+[TARGET]     marginBottom: 5,
+[TARGET]     height: 20,
+[TARGET]     width: 65,
+[TARGET]     color: "#374151",
+[TARGET]     flex: 1,
+[TARGET]     borderBottom: "1pt solid #d1d5db",
+[TARGET]     paddingBottom: 3,
+[TARGET]     marginTop: 6,
+[TARGET]     flex: 1,
+[TARGET]     color: "#374151",
+[TARGET]     marginBottom: 4,
+[TARGET]     alignSelf: "flex-start",
+[TARGET]     marginBottom: 4,
+[TARGET]     fontSize: 9,
+[TARGET]     marginTop: 3,
+[TARGET]   // Center Section - Receipt Ref
+[TARGET]   centerSection: {
+[TARGET]     flex: 1,
+[TARGET]     justifyContent: "center",
+[TARGET]     borderLeft: "1pt dashed #9ca3af",
+[TARGET]     borderRight: "1pt dashed #9ca3af",
+[TARGET]     height: "100%",
+[TARGET]   centerLabel: {
+[TARGET]     marginBottom: 5,
+[TARGET]   centerValue: {
+[TARGET]     fontSize: 9,
+[TARGET]     textAlign: "center",
+[TARGET]     marginBottom: 8,
+[TARGET]   centerHint: {
+[TARGET]     marginTop: 4,
+[TARGET]   studentIdBox: {
+[TARGET]     marginTop: 14,
+[TARGET]     paddingTop: 10,
+[TARGET]   studentIdLabel: {
+[TARGET]     color: "#4b5563",
+[TARGET]     marginBottom: 2,
+[TARGET]   studentIdValue: {
+[TARGET]     color: "#1a365d",
+[TARGET]   // Right Section - Payment Box
+[TARGET]   rightSection: {
+[TARGET]     flex: 1,
+[TARGET]     height: "100%",
+[TARGET]     marginBottom: 8,
+[TARGET]     paddingVertical: 5,
+[TARGET]     fontSize: 14,
+[TARGET]     padding: 8,
+[TARGET]     color: "#4b5563",
+[TARGET]     fontWeight: 700,
+[TARGET]     marginTop: 4,
+[TARGET]     paddingTop: 4,
+[TARGET]   methodColor: {
+[TARGET]     marginTop: "auto",
+[TARGET]     marginBottom: 18,
+[TARGET]     width: 120,
+[TARGET]     alignItems: "flex-end",
+[TARGET]     fontSize: 7,
+[TARGET]     color: "#2563eb",
+[TARGET]   },
+[TARGET]   footerReceipt: {
+[TARGET]     fontSize: 7,
+[TARGET]     color: "#9ca3af",
+[TARGET]   },
+[TARGET]     fontSize: 7,
+[TARGET]     maxWidth: 200,
+[TARGET]   },
+[TARGET]             {/* Left: Logo & Academy Name */}
+[TARGET]                   SCIENCES COACHING ACADEMY
+[TARGET]             {/* Right: Title Badge, Receipt No & Date */}
+[TARGET]             {/* Left Section - Student & Payment Details */}
+[TARGET]             <View style={styles.leftSection}>
+[TARGET]               <View style={styles.detailsGrid}>
+[TARGET]                 {/* Row 1: Student Name */}
+[TARGET]                     <Text style={styles.detailLabel}>Name:</Text>
+[TARGET]                   <View style={[styles.detailItem, { marginLeft: 14 }]}>
+[TARGET]                     <Text style={styles.detailLabel}>Father:</Text>
+[TARGET]                 {/* Row 2: Class | Contact */}
+[TARGET]                     <Text style={styles.detailLabel}>Class:</Text>
+[TARGET]                     <Text style={styles.detailValue}>{data.class}</Text>
+[TARGET]                   <View style={[styles.detailItem, { marginLeft: 14 }]}>
+[TARGET]                     <Text style={styles.detailLabel}>Contact:</Text>
+[TARGET]                 {/* Row 3: Collected By */}
+[TARGET]                 <View style={styles.detailRow}>
+[TARGET]                     <Text style={styles.detailLabel}>Received By:</Text>
+[TARGET]                     <Text style={styles.detailValue}>{data.collectedBy}</Text>
+[TARGET]                 <Text style={styles.purposeTitle}>Payment For:</Text>
+[TARGET]                 <View style={styles.purposeBadge}>
+[TARGET]                   <Text style={styles.purposeBadgeText}>
+[TARGET]                     {data.paymentType}
+[TARGET]                   </Text>
+[TARGET]             {/* Center Section - Receipt Ref & Student ID */}
+[TARGET]             <View style={styles.centerSection}>
+[TARGET]               <Text style={styles.centerLabel}>RECEIPT REF</Text>
+[TARGET]               <Text style={styles.centerValue}>{data.receiptId}</Text>
+[TARGET]               <Text style={styles.centerHint}>For record verification</Text>
+[TARGET]               <View style={styles.studentIdBox}>
+[TARGET]                 <Text style={styles.studentIdLabel}>STUDENT ID</Text>
+[TARGET]                 <Text style={styles.studentIdValue}>{data.studentId}</Text>
+[TARGET]             {/* Right Section - Payment Box */}
+[TARGET]             <View style={styles.rightSection}>
+[TARGET]                 {/* Status Header */}
+[TARGET]                 {/* Payment Details */}
+[TARGET]                     <Text style={[styles.paymentRowValue, styles.methodColor]}>
+[TARGET]                   <View
+[TARGET]                     style={[styles.paymentRow, styles.paymentRowDivider]}
+[TARGET]                   >
+[TARGET]                     <Text
+[TARGET]                       style={[styles.paymentRowLabel, { fontWeight: 700 }]}
+[TARGET]                     >
+[TARGET]                       Amount Paid:
+[TARGET]                     <Text style={[styles.paymentRowValue, styles.amountColor]}>
+[TARGET]                       {formatCurrency(data.amount)}
+[TARGET]                     </Text>
+[TARGET]                 </View>
+[TARGET]               {/* Signature */}
+[TARGET]             </View>
+[TARGET]             <Text style={styles.footerWarning}>
+[TARGET]               Non-refundable payment
+[TARGET]             <Text style={styles.footerReceipt}>Ref: {data.receiptId}</Text>
+[TARGET]             </Text>
+[TARGET]           {/* Watermark - rendered last to appear on top */}
+[TARGET]           <Text style={styles.academyWatermark}>SCIENCES COACHING ACADEMY</Text>
+[TARGET] 
+[SOURCE]     color: "rgba(37, 99, 235, 0.08)",
+[SOURCE]     marginBottom: 16,
+[SOURCE]     color: "#dc2626",
+[SOURCE]   // ==================== MAIN CONTENT (2-column) ====================
+[SOURCE]     gap: 20,
+[SOURCE]   // Left Column â€” Person details + Payment purpose
+[SOURCE]   leftColumn: {
+[SOURCE]     flex: 3,
+[SOURCE]     gap: 12,
+[SOURCE]   
+[SOURCE]   // Details Section
+[SOURCE]   detailsSection: {
+[SOURCE]     flexDirection: "column",
+[SOURCE]     gap: 8,
+[SOURCE]     gap: 20,
+[SOURCE]     flexDirection: "column",
+[SOURCE]     gap: 2,
+[SOURCE]     paddingBottom: 2,
+[SOURCE]     flexDirection: "column",
+[SOURCE]     gap: 6,
+[SOURCE]   purposeRow: {
+[SOURCE]     gap: 8,
+[SOURCE]     textTransform: "uppercase",
+[SOURCE]     lineHeight: 1.4,
+[SOURCE]   // Student/Walk-in Info
+[SOURCE]   personInfoSection: {
+[SOURCE]     gap: 8,
+[SOURCE]   infoLabel: {
+[SOURCE]   infoValue: {
+[SOURCE]     fontSize: 11,
+[SOURCE]   walkInBadge: {
+[SOURCE]     backgroundColor: "#fef3c7",
+[SOURCE]     borderRadius: 3,
+[SOURCE]   walkInText: {
+[SOURCE]     fontSize: 8,
+[SOURCE]     color: "#92400e",
+[SOURCE]   // Right Column â€” Payment box + Signature
+[SOURCE]   rightColumn: {
+[SOURCE]     flexDirection: "column",
+[SOURCE]     marginBottom: 12,
+[SOURCE]     paddingVertical: 6,
+[SOURCE]     letterSpacing: 0.5,
+[SOURCE]     padding: 10,
+[SOURCE]     gap: 6,
+[SOURCE]     fontSize: 8,
+[SOURCE]     fontWeight: 600,
+[SOURCE]     marginTop: 2,
+[SOURCE]     fontSize: 11,
+[SOURCE]     paddingTop: 8,
+[SOURCE]     color: "#6b7280",
+[SOURCE]     marginBottom: 20,
+[SOURCE]     textTransform: "uppercase",
+[SOURCE]     letterSpacing: 0.5,
+[SOURCE]     width: 140,
+[SOURCE]     flexDirection: "row",
+[SOURCE]     alignItems: "center",
+[SOURCE]     paddingTop: 5,
+[SOURCE]     backgroundColor: "#ffffff",
+[SOURCE]     color: "#6b7280",
+[SOURCE]     maxWidth: 220,
+[SOURCE]   const isWalkIn = data.studentId === "WALK-IN";
+[SOURCE]                   GENIUS ISLAMIAN'S ACADEMY
+[SOURCE]             {/* Left Column â€” Person Details & Payment Info */}
+[SOURCE]             <View style={styles.leftColumn}>
+[SOURCE]               {/* Person Details */}
+[SOURCE]               <View style={styles.detailsSection}>
+[SOURCE]                     <Text style={styles.detailLabel}>Name</Text>
+[SOURCE]                     <Text style={styles.detailLabel}>Father's Name</Text>
+[SOURCE]                     <Text style={styles.detailLabel}>Contact</Text>
+[SOURCE]                 <View style={styles.purposeRow}>
+[SOURCE]                   <Text style={styles.purposeTitle}>Payment For</Text>
+[SOURCE]                   <View style={styles.purposeBadge}>
+[SOURCE]                     <Text style={styles.purposeBadgeText}>
+[SOURCE]               {/* Student ID or Walk-in Indicator */}
+[SOURCE]               <View style={styles.personInfoSection}>
+[SOURCE]                 <Text style={styles.infoLabel}>
+[SOURCE]                   {isWalkIn ? "TYPE:" : "STUDENT ID:"}
+[SOURCE]                 </Text>
+[SOURCE]                 {isWalkIn ? (
+[SOURCE]                   <View style={styles.walkInBadge}>
+[SOURCE]                     <Text style={styles.walkInText}>WALK-IN / OUTSIDER</Text>
+[SOURCE]                 ) : (
+[SOURCE]                   <Text style={styles.infoValue}>{data.studentId}</Text>
+[SOURCE]                 )}
+[SOURCE]             {/* Right Column â€” Payment Box & Signature */}
+[SOURCE]             <View style={styles.rightColumn}>
+[SOURCE]                       {data.paymentType}
+[SOURCE]                     <Text style={styles.paymentRowValue}>
+[SOURCE]                   <View style={styles.paymentRowDivider}>
+[SOURCE]                     <View style={styles.paymentRow}>
+[SOURCE]                       <Text
+[SOURCE]                         style={[styles.paymentRowLabel, { fontWeight: 700 }]}
+[SOURCE]                       >
+[SOURCE]                         Amount Paid:
+[SOURCE]                       </Text>
+[SOURCE]                       <Text style={[styles.paymentRowValue, styles.amountColor]}>
+[SOURCE]                         {formatCurrency(data.amount)}
+[SOURCE]                       </Text>
+[SOURCE]                     </View>
+[SOURCE]             <Text style={styles.footerWarning}>Non-refundable payment</Text>
+[SOURCE]           {/* Watermark */}
+[SOURCE]           <Text style={styles.academyWatermark}>GENIUS ISLAMIAN'S ACADEMY</Text>
+
+====== components\print\ReceiptPDF.tsx ======
+Lines differ: 582
+[TARGET] // Academy Logo - using public path
+[TARGET] const LOGO_URL = "/logo.png";
+[TARGET] // Using built-in Helvetica font (no registration needed)
+[TARGET]   // Page container
+[TARGET]     padding: 24,
+[TARGET]     borderRadius: 4,
+[TARGET]     padding: 16,
+[TARGET]   // Watermark for copies
+[TARGET]     top: "45%",
+[TARGET]     transform: "translate(-50%, -50%) rotate(-25deg)",
+[TARGET]     fontSize: 52,
+[TARGET]     color: "rgba(220, 38, 38, 0.06)",
+[TARGET]     letterSpacing: 4,
+[TARGET]   // Subtle academy background watermark
+[TARGET]     color: "rgba(26, 54, 93, 0.13)",
+[TARGET]     letterSpacing: 10,
+[TARGET]     zIndex: 10,
+[TARGET]   // ==================== HEADER ====================
+[TARGET]   header: {
+[TARGET]     borderBottom: "2pt solid #1a365d",
+[TARGET]     paddingBottom: 10,
+[TARGET]     marginBottom: 14,
+[TARGET]     gap: 12,
+[TARGET]     width: 52,
+[TARGET]     height: 52,
+[TARGET]   logoFallback: {
+[TARGET]     height: 48,
+[TARGET]     borderRadius: 24,
+[TARGET]     border: "2pt solid #1a365d",
+[TARGET]   logoText: {
+[TARGET]     fontSize: 16,
+[TARGET]     color: "#1a365d",
+[TARGET]   academyInfo: {
+[TARGET]     flexDirection: "column",
+[TARGET]     fontSize: 18,
+[TARGET]     color: "#1a365d",
+[TARGET]   contactText: {
+[TARGET]     color: "#0056b3",
+[TARGET]     marginTop: 3,
+[TARGET]   headerCenter: {
+[TARGET]   versionBadge: {
+[TARGET]     borderRadius: 4,
+[TARGET]   originalBadge: {
+[TARGET]     backgroundColor: "#16a34a",
+[TARGET]   copyBadge: {
+[TARGET]     backgroundColor: "#0056b3",
+[TARGET]   serialBox: {
+[TARGET]     border: "2pt solid #1a365d",
+[TARGET]     backgroundColor: "#f8fafc",
+[TARGET]     paddingHorizontal: 12,
+[TARGET]     marginBottom: 4,
+[TARGET]   serialText: {
+[TARGET]     fontSize: 14,
+[TARGET]     color: "#1a365d",
+[TARGET]   dateText: {
+[TARGET]     color: "#4b5563",
+[TARGET]   // ==================== MAIN CONTENT ====================
+[TARGET]   mainContent: {
+[TARGET]     gap: 16,
+[TARGET]   // Left Section - Student Details + Subjects
+[TARGET]   leftSection: {
+[TARGET]     flex: 1.4,
+[TARGET]     flexDirection: "column",
+[TARGET]   // Student Details Grid (2 columns)
+[TARGET]     marginBottom: 12,
+[TARGET]     marginBottom: 6,
+[TARGET]     width: 58,
+[TARGET]     fontSize: 9,
+[TARGET]     color: "#374151",
+[TARGET]     fontSize: 10,
+[TARGET]     color: "#111827",
+[TARGET]     borderBottom: "1pt solid #d1d5db",
+[TARGET]     paddingBottom: 3,
+[TARGET]     paddingHorizontal: 8,
+[TARGET]   medicalGroup: {
+[TARGET]     backgroundColor: "#0056b3",
+[TARGET]   nonMedicalGroup: {
+[TARGET]     backgroundColor: "#2563eb",
+[TARGET]   // Subjects Section (Vertical List)
+[TARGET]   subjectsSection: {
+[TARGET]     marginTop: 10,
+[TARGET]     borderTop: "1pt solid #e5e7eb",
+[TARGET]   subjectsTitle: {
+[TARGET]     fontSize: 9,
+[TARGET]     color: "#374151",
+[TARGET]     marginBottom: 6,
+[TARGET]     flexDirection: "column",
+[TARGET]     gap: 3,
+[TARGET]   subjectItem: {
+[TARGET]     gap: 6,
+[TARGET]   subjectBullet: {
+[TARGET]     fontSize: 10,
+[TARGET]     color: "#2563eb",
+[TARGET]   subjectName: {
+[TARGET]     fontSize: 9,
+[TARGET]     color: "#1f2937",
+[TARGET]   // Center Section - Student ID
+[TARGET]   centerSection: {
+[TARGET]     flex: 0.6,
+[TARGET]     borderLeft: "1pt dashed #9ca3af",
+[TARGET]     borderRight: "1pt dashed #9ca3af",
+[TARGET]     paddingHorizontal: 12,
+[TARGET]   barcodeLabel: {
+[TARGET]     color: "#4b5563",
+[TARGET]     marginBottom: 6,
+[TARGET]   barcodeId: {
+[TARGET]     fontSize: 16,
+[TARGET]     color: "#1a365d",
+[TARGET]   barcodeHint: {
+[TARGET]     color: "#6b7280",
+[TARGET]   // Right Section - Financial Box
+[TARGET]   rightSection: {
+[TARGET]     flex: 0.8,
+[TARGET]   feeBox: {
+[TARGET]     width: "100%",
+[TARGET]     border: "2pt solid #16a34a",
+[TARGET]     borderRadius: 4,
+[TARGET]   feeBoxPending: {
+[TARGET]     borderColor: "#0056b3",
+[TARGET]   feeStatusHeader: {
+[TARGET]     backgroundColor: "#16a34a",
+[TARGET]     paddingVertical: 6,
+[TARGET]   feeStatusHeaderPending: {
+[TARGET]     backgroundColor: "#0056b3",
+[TARGET]   feeStatusLabel: {
+[TARGET]     fontWeight: 700,
+[TARGET]   feeStatusValue: {
+[TARGET]     fontSize: 16,
+[TARGET]     fontWeight: 700,
+[TARGET]     color: "#ffffff",
+[TARGET]   feeDetails: {
+[TARGET]     backgroundColor: "#f9fafb",
+[TARGET]   feeRowLabel: {
+[TARGET]     fontSize: 9,
+[TARGET]     color: "#4b5563",
+[TARGET]   feeRowValue: {
+[TARGET]     fontSize: 10,
+[TARGET]     fontWeight: 700,
+[TARGET]     color: "#111827",
+[TARGET]   feeRowTotal: {
+[TARGET]     borderTop: "1pt solid #d1d5db",
+[TARGET]     paddingTop: 4,
+[TARGET]   discountText: {
+[TARGET]     color: "#16a34a",
+[TARGET]   balancePositive: {
+[TARGET]     color: "#0056b3",
+[TARGET]   balanceZero: {
+[TARGET]     color: "#16a34a",
+[TARGET]   },
+[TARGET]   signatureSection: {
+[TARGET]     paddingTop: 10,
+[TARGET]   },
+[TARGET]     color: "#6b7280",
+[TARGET]     marginBottom: 20,
+[TARGET]     width: 120,
+[TARGET]     borderBottom: "1.5pt solid #1a365d",
+[TARGET]     height: 1,
+[TARGET]   },
+[TARGET]   // ==================== FOOTER ====================
+[TARGET]     position: "absolute",
+[TARGET]     bottom: 10,
+[TARGET]     left: 16,
+[TARGET]     right: 16,
+[TARGET]     alignItems: "flex-end",
+[TARGET]     borderTop: "1pt solid #e5e7eb",
+[TARGET]   },
+[TARGET]     fontSize: 8,
+[TARGET]     fontWeight: "bold",
+[TARGET]     color: "#0056b3",
+[TARGET]   },
+[TARGET]   footerReceipt: {
+[TARGET]     color: "#9ca3af",
+[TARGET]   },
+[TARGET]     color: "#6b7280",
+[TARGET]     maxWidth: 200,
+[TARGET]   },
+[TARGET]   barcodeDataUrl?: string; // Base64 barcode image from JsBarcode
+[TARGET]   logoDataUrl?: string; // Optional logo data URL for PDF
+[TARGET]   // Clean and format as 0313-911053389
+[TARGET] // Format class name - replace hyphens with spaces and clean up
+[TARGET]   // Replace hyphens with spaces, collapse multiple spaces
+[TARGET]   barcodeDataUrl,
+[TARGET]   logoDataUrl, // Optional logo data URL
+[TARGET]           {/* ==================== HEADER ==================== */}
+[TARGET]           <View style={styles.header}>
+[TARGET]             {/* Left: Logo & Academy Name */}
+[TARGET]               <View style={styles.academyInfo}>
+[TARGET]                   SCIENCES COACHING ACADEMY
+[TARGET]                 <Text style={styles.contactText}>
+[TARGET]                   Contact: 091-5601600 / 0334-5852326
+[TARGET]             {/* Center: Version Badge */}
+[TARGET]             <View style={styles.headerCenter}>
+[TARGET]                   styles.versionBadge,
+[TARGET]                   receiptConfig.isOriginal
+[TARGET]                     ? styles.originalBadge
+[TARGET]                     : styles.copyBadge,
+[TARGET]                 <Text style={styles.versionText}>
+[TARGET]                   {receiptConfig.isOriginal
+[TARGET]                     ? "ORIGINAL RECEIPT"
+[TARGET]                     : `COPY #${receiptConfig.version}`}
+[TARGET]                 </Text>
+[TARGET]             {/* Right: Date & S.No */}
+[TARGET]               <View style={styles.serialBox}>
+[TARGET]                 <Text style={styles.serialText}>S.No: {student.studentId}</Text>
+[TARGET]               <Text style={styles.dateText}>
+[TARGET]                 Date: {formatDate(receiptConfig.printedAt)}
+[TARGET]           {/* ==================== MAIN CONTENT ==================== */}
+[TARGET]           <View style={styles.mainContent}>
+[TARGET]             {/* Left Section - Student Details + Subjects */}
+[TARGET]             <View style={styles.leftSection}>
+[TARGET]               {/* Student Details Grid */}
+[TARGET]                 {/* Row 1: Name | Father */}
+[TARGET]                     <Text style={styles.detailLabel}>Name:</Text>
+[TARGET]                       {student.studentName}
+[TARGET]                   <View style={[styles.detailItem, { marginLeft: 16 }]}>
+[TARGET]                     <Text style={styles.detailLabel}>Father:</Text>
+[TARGET]                 {/* Row 2: Class | Group */}
+[TARGET]                     <Text style={styles.detailLabel}>Class:</Text>
+[TARGET]                   <View style={[styles.detailItem, { marginLeft: 16 }]}>
+[TARGET]                     <Text style={styles.detailLabel}>Group:</Text>
+[TARGET]                     <View
+[TARGET]                         styles.groupBadge,
+[TARGET]                           ? styles.medicalGroup
+[TARGET]                           : styles.nonMedicalGroup,
+[TARGET]                       <Text>{student.group}</Text>
+[TARGET]                 {/* Row 3: Contact */}
+[TARGET]                 <View style={styles.detailRow}>
+[TARGET]                   <View style={styles.detailItem}>
+[TARGET]                     <Text style={styles.detailLabel}>Contact:</Text>
+[TARGET]                     <Text style={styles.detailValue}>
+[TARGET]               {/* Subjects - Vertical Bullet List */}
+[TARGET]                 <View style={styles.subjectsSection}>
+[TARGET]                   <Text style={styles.subjectsTitle}>Enrolled Subjects:</Text>
+[TARGET]                     {student.subjects.map((s, idx) => (
+[TARGET]                       <View key={idx} style={styles.subjectItem}>
+[TARGET]                         <Text style={styles.subjectBullet}>â€¢</Text>
+[TARGET]                         <Text style={styles.subjectName}>{s.name}</Text>
+[TARGET]             {/* Center Section - Smart Gate Barcode */}
+[TARGET]             <View style={styles.centerSection}>
+[TARGET]               <Text style={styles.barcodeLabel}>SMART GATE ID</Text>
+[TARGET]               {barcodeDataUrl ? (
+[TARGET]                 <Image src={barcodeDataUrl} style={{ width: 120, height: 50, objectFit: "contain" }} />
+[TARGET]               ) : (
+[TARGET]                 <Text style={styles.barcodeId}>{student.studentId}</Text>
+[TARGET]               )}
+[TARGET]               <Text style={styles.barcodeId}>{student.studentId}</Text>
+[TARGET]               <Text style={styles.barcodeHint}>Scan for verification</Text>
+[TARGET]             </View>
+[TARGET]             {/* Right Section - Financial Box */}
+[TARGET]             <View style={styles.rightSection}>
+[TARGET]               <View style={[styles.feeBox, !isPaid && styles.feeBoxPending]}>
+[TARGET]                 {/* Status Header */}
+[TARGET]                     styles.feeStatusHeader,
+[TARGET]                     !isPaid && styles.feeStatusHeaderPending,
+[TARGET]                   <Text style={styles.feeStatusLabel}>FEE STATUS</Text>
+[TARGET]                   <Text style={styles.feeStatusValue}>
+[TARGET]                     {isPaid ? "PAID" : "PENDING"}
+[TARGET]                 <View style={styles.feeDetails}>
+[TARGET]                         <Text style={styles.feeRowLabel}>Session Rate:</Text>
+[TARGET]                         <Text style={styles.feeRowValue}>
+[TARGET]                           <Text
+[TARGET]                             style={[styles.feeRowLabel, styles.discountText]}
+[TARGET]                           >
+[TARGET]                             Discount:
+[TARGET]                           <Text
+[TARGET]                             style={[styles.feeRowValue, styles.discountText]}
+[TARGET]                           >
+[TARGET]                         <Text style={styles.feeRowLabel}>Net Payable:</Text>
+[TARGET]                         <Text style={styles.feeRowValue}>
+[TARGET]                       <Text style={styles.feeRowLabel}>Total Fee:</Text>
+[TARGET]                       <Text style={styles.feeRowValue}>
+[TARGET]                     </View>
+[TARGET]                     <Text style={styles.feeRowLabel}>Paid:</Text>
+[TARGET]                     <Text style={styles.feeRowValue}>
+[TARGET]                   <View style={[styles.feeRow, styles.feeRowTotal]}>
+[TARGET]                     <Text style={[styles.feeRowLabel, { fontWeight: 700 }]}>
+[TARGET]                       Balance:
+[TARGET]                         styles.feeRowValue,
+[TARGET]                         balance > 0
+[TARGET]                           ? styles.balancePositive
+[TARGET]                           : styles.balanceZero,
+[TARGET]                   </View>
+[TARGET]               <View style={styles.signatureSection}>
+[TARGET]               </View>
+[TARGET]             </View>
+[TARGET]           {/* ==================== FOOTER ==================== */}
+[TARGET]             <Text style={styles.footerWarning}>
+[TARGET]               âš  Fee is non-refundable in any case
+[TARGET]             <Text style={styles.footerReceipt}>
+[TARGET] 
+[TARGET]           {/* Watermarks - rendered last to appear on top */}
+[TARGET]           <Text style={styles.academyWatermark}>SCIENCES COACHING ACADEMY</Text>
+[TARGET] 
+[SOURCE]     padding: 20,
+[SOURCE]   // ===== HEADER BAR =====
+[SOURCE]   headerBar: {
+[SOURCE]     backgroundColor: "#1a365d",
+[SOURCE]     paddingVertical: 8,
+[SOURCE]     paddingHorizontal: 14,
+[SOURCE]     gap: 10,
+[SOURCE]     width: 38,
+[SOURCE]     height: 38,
+[SOURCE]     fontSize: 13,
+[SOURCE]     letterSpacing: 0.3,
+[SOURCE]   academyContact: {
+[SOURCE]     color: "#93c5fd",
+[SOURCE]   receiptLabel: {
+[SOURCE]     color: "#93c5fd",
+[SOURCE]   serialNo: {
+[SOURCE]     fontSize: 12,
+[SOURCE]     marginTop: 1,
+[SOURCE]   dateStamp: {
+[SOURCE]     color: "#93c5fd",
+[SOURCE]     marginTop: 2,
+[SOURCE]   // ===== VERSION STRIP =====
+[SOURCE]   versionStrip: {
+[SOURCE]     paddingHorizontal: 14,
+[SOURCE]   versionOriginal: {
+[SOURCE]     backgroundColor: "#dcfce7",
+[SOURCE]   versionCopy: {
+[SOURCE]     backgroundColor: "#fee2e2",
+[SOURCE]   versionOriginalText: {
+[SOURCE]     color: "#166534",
+[SOURCE]   versionCopyText: {
+[SOURCE]     color: "#991b1b",
+[SOURCE]   // ===== BODY =====
+[SOURCE]   body: {
+[SOURCE]     paddingBottom: 6,
+[SOURCE]   // Left column: student info + photo
+[SOURCE]   leftCol: {
+[SOURCE]     paddingRight: 14,
+[SOURCE]   studentHeader: {
+[SOURCE]     gap: 10,
+[SOURCE]   photoBox: {
+[SOURCE]     width: 64,
+[SOURCE]     height: 64,
+[SOURCE]     border: "1.5pt solid #cbd5e1",
+[SOURCE]     overflow: "hidden",
+[SOURCE]   studentPhoto: {
+[SOURCE]     width: 64,
+[SOURCE]     height: 64,
+[SOURCE]     objectFit: "cover",
+[SOURCE]   photoPlaceholder: {
+[SOURCE]     color: "#94a3b8",
+[SOURCE]     textAlign: "center",
+[SOURCE]   studentBasicInfo: {
+[SOURCE]   studentName: {
+[SOURCE]     fontSize: 13,
+[SOURCE]     color: "#0f172a",
+[SOURCE]     marginBottom: 3,
+[SOURCE]   studentId: {
+[SOURCE]     color: "#64748b",
+[SOURCE]     marginBottom: 2,
+[SOURCE]     paddingHorizontal: 6,
+[SOURCE]     borderRadius: 2,
+[SOURCE]     alignSelf: "flex-start",
+[SOURCE]     marginTop: 2,
+[SOURCE]   groupMedical: { backgroundColor: "#fef2f2", border: "0.5pt solid #fecaca" },
+[SOURCE]   groupEngineering: {
+[SOURCE]     backgroundColor: "#eff6ff",
+[SOURCE]     border: "0.5pt solid #bfdbfe",
+[SOURCE]   groupText: { fontSize: 7, fontWeight: 700 },
+[SOURCE]   groupMedicalText: { color: "#dc2626" },
+[SOURCE]   groupEngineeringText: { color: "#2563eb" },
+[SOURCE]   // Details grid
+[SOURCE]     flex: 1,
+[SOURCE]     fontSize: 7,
+[SOURCE]     color: "#64748b",
+[SOURCE]     textTransform: "uppercase",
+[SOURCE]     letterSpacing: 0.3,
+[SOURCE]     flex: 1,
+[SOURCE]     color: "#1e293b",
+[SOURCE]   // Subjects
+[SOURCE]   subjectsRow: {
+[SOURCE]     marginTop: 6,
+[SOURCE]     paddingTop: 6,
+[SOURCE]     borderTop: "0.5pt solid #e2e8f0",
+[SOURCE]   subjectsLabel: {
+[SOURCE]     width: 48,
+[SOURCE]     fontSize: 7,
+[SOURCE]     color: "#64748b",
+[SOURCE]     textTransform: "uppercase",
+[SOURCE]     letterSpacing: 0.3,
+[SOURCE]     paddingTop: 1,
+[SOURCE]     flex: 1,
+[SOURCE]     flexDirection: "row",
+[SOURCE]     flexWrap: "wrap",
+[SOURCE]     gap: 4,
+[SOURCE]   subjectChip: {
+[SOURCE]     backgroundColor: "#f1f5f9",
+[SOURCE]     border: "0.5pt solid #e2e8f0",
+[SOURCE]     borderRadius: 2,
+[SOURCE]     paddingVertical: 2,
+[SOURCE]     paddingHorizontal: 6,
+[SOURCE]   subjectChipText: {
+[SOURCE]     fontSize: 7,
+[SOURCE]     color: "#334155",
+[SOURCE]   // Divider
+[SOURCE]   verticalDivider: {
+[SOURCE]     width: 1,
+[SOURCE]     backgroundColor: "#e2e8f0",
+[SOURCE]   // Right column: financial summary
+[SOURCE]   rightCol: {
+[SOURCE]     width: 185,
+[SOURCE]     paddingLeft: 14,
+[SOURCE]   feeCard: {
+[SOURCE]     border: "1.5pt solid #e2e8f0",
+[SOURCE]     borderRadius: 3,
+[SOURCE]     overflow: "hidden",
+[SOURCE]   feeCardPaid: { borderColor: "#86efac" },
+[SOURCE]   feeCardPending: { borderColor: "#fca5a5" },
+[SOURCE]   feeStatusBar: {
+[SOURCE]     paddingHorizontal: 10,
+[SOURCE]   feeStatusBarPaid: { backgroundColor: "#166534" },
+[SOURCE]   feeStatusBarPending: { backgroundColor: "#991b1b" },
+[SOURCE]   feeStatusText: {
+[SOURCE]   feeBody: {
+[SOURCE]     flexDirection: "row",
+[SOURCE]     paddingVertical: 3,
+[SOURCE]   feeLabel: {
+[SOURCE]     color: "#64748b",
+[SOURCE]     fontWeight: 500,
+[SOURCE]   feeValue: {
+[SOURCE]     color: "#1e293b",
+[SOURCE]   feeTotalRow: {
+[SOURCE]     borderTop: "1pt solid #e2e8f0",
+[SOURCE]     paddingTop: 5,
+[SOURCE]   discountLabel: { color: "#16a34a" },
+[SOURCE]   discountValue: { color: "#16a34a" },
+[SOURCE]   balanceDue: { color: "#dc2626" },
+[SOURCE]   balanceClear: { color: "#16a34a" },
+[SOURCE]   signatureArea: {
+[SOURCE]     width: 110,
+[SOURCE]     borderBottom: "1pt solid #334155",
+[SOURCE]     marginBottom: 3,
+[SOURCE]     fontSize: 6,
+[SOURCE]     color: "#94a3b8",
+[SOURCE]     textTransform: "uppercase",
+[SOURCE]   // ===== FOOTER =====
+[SOURCE]     flexDirection: "row",
+[SOURCE]     justifyContent: "space-between",
+[SOURCE]     alignItems: "center",
+[SOURCE]     paddingHorizontal: 14,
+[SOURCE]     borderTop: "1pt solid #e2e8f0",
+[SOURCE]     backgroundColor: "#fafafa",
+[SOURCE]     fontSize: 7,
+[SOURCE]     color: "#dc2626",
+[SOURCE]     fontSize: 6,
+[SOURCE]     color: "#94a3b8",
+[SOURCE]     maxWidth: 190,
+[SOURCE]   // Watermark
+[SOURCE]     top: "48%",
+[SOURCE]     color: "rgba(220, 38, 38, 0.05)",
+[SOURCE]     letterSpacing: 6,
+[SOURCE]     transform: "translate(-50%, -50%) rotate(-30deg)",
+[SOURCE]     fontSize: 36,
+[SOURCE]     color: "rgba(26, 54, 93, 0.04)",
+[SOURCE]     letterSpacing: 8,
+[SOURCE]   photo?: string | null;
+[SOURCE]   barcodeDataUrl?: string;
+[SOURCE]   logoDataUrl?: string;
+[SOURCE]   studentPhotoDataUrl?: string;
+[SOURCE]   logoDataUrl,
+[SOURCE]   studentPhotoDataUrl,
+[SOURCE]           {/* ===== HEADER BAR ===== */}
+[SOURCE]           <View style={styles.headerBar}>
+[SOURCE]               <View>
+[SOURCE]                   GENIUS ISLAMIAN'S ACADEMY
+[SOURCE]                 <Text style={styles.academyContact}>
+[SOURCE]                   091-5601600 / 0334-5852326
+[SOURCE]               <Text style={styles.receiptLabel}>Admission Receipt</Text>
+[SOURCE]               <Text style={styles.serialNo}>S.No: {student.studentId}</Text>
+[SOURCE]               <Text style={styles.dateStamp}>
+[SOURCE]                 {formatDate(receiptConfig.printedAt)}
+[SOURCE]           {/* ===== VERSION STRIP ===== */}
+[SOURCE]           <View
+[SOURCE]             style={[
+[SOURCE]               styles.versionStrip,
+[SOURCE]               receiptConfig.isOriginal
+[SOURCE]                 ? styles.versionOriginal
+[SOURCE]                 : styles.versionCopy,
+[SOURCE]             ]}
+[SOURCE]           >
+[SOURCE]             <Text
+[SOURCE]               style={[
+[SOURCE]                 styles.versionText,
+[SOURCE]                 receiptConfig.isOriginal
+[SOURCE]                   ? styles.versionOriginalText
+[SOURCE]                   : styles.versionCopyText,
+[SOURCE]               ]}
+[SOURCE]             >
+[SOURCE]               {receiptConfig.isOriginal
+[SOURCE]                 ? "ORIGINAL COPY"
+[SOURCE]                 : `DUPLICATE â€” COPY #${receiptConfig.version}`}
+[SOURCE]             <Text
+[SOURCE]               style={[
+[SOURCE]                 styles.versionText,
+[SOURCE]                 { fontSize: 6, fontWeight: 500 },
+[SOURCE]                 receiptConfig.isOriginal
+[SOURCE]                   ? styles.versionOriginalText
+[SOURCE]                   : styles.versionCopyText,
+[SOURCE]               ]}
+[SOURCE]             >
+[SOURCE]           {/* ===== BODY ===== */}
+[SOURCE]           <View style={styles.body}>
+[SOURCE]             {/* LEFT COLUMN â€” Student Info */}
+[SOURCE]             <View style={styles.leftCol}>
+[SOURCE]               {/* Student photo + name row */}
+[SOURCE]               <View style={styles.studentHeader}>
+[SOURCE]                 {/* Photo â€” squared */}
+[SOURCE]                 <View style={styles.photoBox}>
+[SOURCE]                   {studentPhotoDataUrl ? (
+[SOURCE]                     <Image
+[SOURCE]                       src={studentPhotoDataUrl}
+[SOURCE]                       style={styles.studentPhoto}
+[SOURCE]                     />
+[SOURCE]                     <Text style={styles.photoPlaceholder}>No{"\n"}Photo</Text>
+[SOURCE]                 <View style={styles.studentBasicInfo}>
+[SOURCE]                   <Text style={styles.studentName}>{student.studentName}</Text>
+[SOURCE]                   <Text style={styles.studentId}>ID: {student.studentId}</Text>
+[SOURCE]                   <View
+[SOURCE]                     style={[
+[SOURCE]                       styles.groupBadge,
+[SOURCE]                       isMedical ? styles.groupMedical : styles.groupEngineering,
+[SOURCE]                     ]}
+[SOURCE]                   >
+[SOURCE]                         styles.groupText,
+[SOURCE]                           ? styles.groupMedicalText
+[SOURCE]                           : styles.groupEngineeringText,
+[SOURCE]                       {student.group || "General"}
+[SOURCE]               {/* Details */}
+[SOURCE]                     <Text style={styles.detailLabel}>Father</Text>
+[SOURCE]                     <Text style={styles.detailLabel}>Class</Text>
+[SOURCE]                   <View style={[styles.detailItem, { marginLeft: 10 }]}>
+[SOURCE]                     <Text style={styles.detailLabel}>Contact</Text>
+[SOURCE]               {/* Subjects as chips */}
+[SOURCE]                 <View style={styles.subjectsRow}>
+[SOURCE]                   <Text style={styles.subjectsLabel}>Subjects</Text>
+[SOURCE]                     {student.subjects.map((s, i) => (
+[SOURCE]                       <View key={i} style={styles.subjectChip}>
+[SOURCE]                         <Text style={styles.subjectChipText}>{s.name}</Text>
+[SOURCE]             {/* VERTICAL DIVIDER */}
+[SOURCE]             <View style={styles.verticalDivider} />
+[SOURCE]             {/* RIGHT COLUMN â€” Financial Summary */}
+[SOURCE]             <View style={styles.rightCol}>
+[SOURCE]                   styles.feeCard,
+[SOURCE]                   isPaid ? styles.feeCardPaid : styles.feeCardPending,
+[SOURCE]                 {/* Status bar */}
+[SOURCE]                     styles.feeStatusBar,
+[SOURCE]                     isPaid
+[SOURCE]                       ? styles.feeStatusBarPaid
+[SOURCE]                       : styles.feeStatusBarPending,
+[SOURCE]                   <Text style={styles.feeStatusText}>
+[SOURCE]                     {isPaid ? "FULLY PAID" : "PAYMENT PENDING"}
+[SOURCE]                 <View style={styles.feeBody}>
+[SOURCE]                         <Text style={styles.feeLabel}>Session Rate</Text>
+[SOURCE]                         <Text style={styles.feeValue}>
+[SOURCE]                           <Text style={[styles.feeLabel, styles.discountLabel]}>
+[SOURCE]                             Discount
+[SOURCE]                           <Text style={[styles.feeValue, styles.discountValue]}>
+[SOURCE]                         <Text style={styles.feeLabel}>Net Payable</Text>
+[SOURCE]                         <Text style={styles.feeValue}>
+[SOURCE]                   ) : (
+[SOURCE]                       <Text style={styles.feeLabel}>Total Fee</Text>
+[SOURCE]                       <Text style={styles.feeValue}>
+[SOURCE]                   )}
+[SOURCE]                     <Text style={styles.feeLabel}>Paid</Text>
+[SOURCE]                     <Text style={styles.feeValue}>
+[SOURCE]                   <View style={[styles.feeRow, styles.feeTotalRow]}>
+[SOURCE]                     <Text style={[styles.feeLabel, { fontWeight: 700 }]}>
+[SOURCE]                       Balance
+[SOURCE]                     <Text
+[SOURCE]                         styles.feeValue,
+[SOURCE]                         { fontSize: 11 },
+[SOURCE]                         balance > 0 ? styles.balanceDue : styles.balanceClear,
+[SOURCE]                 </View>
+[SOURCE]               <View style={styles.signatureArea}>
+[SOURCE]           {/* ===== FOOTER ===== */}
+[SOURCE]             <Text style={styles.footerWarning}>Fee is non-refundable</Text>
+[SOURCE]           </View>
+[SOURCE]           {/* Watermarks */}
+[SOURCE]           <Text style={styles.academyWatermark}>GIA</Text>
+
+====== components\print\ReceiptTemplate.tsx ======
+Lines differ: 14
+[TARGET]                 color: "rgba(0, 86, 179, 0.15)",
+[TARGET]                 alt="SCIENCES COACHING ACADEMY"
+[TARGET]                   SCIENCES COACHING ACADEMY
+[TARGET]                 <div style={{ fontSize: "9px", color: "#0056b3" }}>
+[TARGET]                             ? "#0056b3"
+[TARGET]             <div style={{ color: "#0056b3", fontWeight: "bold" }}>
+[TARGET]               <div>facebook.com/sciencescoachingacademy</div>
+[SOURCE]                 color: "rgba(255, 0, 0, 0.15)",
+[SOURCE]                 alt="Genius Islamian's Academy"
+[SOURCE]                   GENIUS ISLAMIAN'S ACADEMY
+[SOURCE]                 <div style={{ fontSize: "9px", color: "#c53030" }}>
+[SOURCE]                             ? "#c53030"
+[SOURCE]             <div style={{ color: "#c53030", fontWeight: "bold" }}>
+[SOURCE]               <div>facebook.com/geniusislamians</div>
+
+====== components\print\StudentIDCardPDF.tsx ======
+Lines differ: 4
+[TARGET]     color: "#0056b3",
+[TARGET]                 <Text style={styles.academyName}>SCIENCES COACHING ACADEMY</Text>
+[SOURCE]     color: "#dc2626",
+[SOURCE]                 <Text style={styles.academyName}>GENIUS ISLAMIAN'S ACADEMY</Text>
+
+====== components\print\TeacherPaymentPDF.tsx ======
+Lines differ: 6
+[TARGET]     color: "#0056b3",
+[TARGET]                   SCIENCES COACHING ACADEMY
+[TARGET]           <Text style={styles.academyWatermark}>SCIENCES COACHING ACADEMY</Text>
+[SOURCE]     color: "#dc2626",
+[SOURCE]                   GENIUS ISLAMIAN'S ACADEMY
+[SOURCE]           <Text style={styles.academyWatermark}>GENIUS ISLAMIAN'S</Text>
+
+====== components\print\TeacherPaymentVoucherPDF.tsx ======
+Lines differ: 2
+[TARGET]             <Text style={styles.title}>SCIENCES COACHING ACADEMY</Text>
+[SOURCE]             <Text style={styles.title}>Genius Islamian's Academy</Text>
+
+====== components\student\DigitalIDCard.tsx ======
+Lines differ: 2
+[TARGET]                   SCIENCES COACHING ACADEMY
+[SOURCE]                   GENIUS ISLAMIAN'S

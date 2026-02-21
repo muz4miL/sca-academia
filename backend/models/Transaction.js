@@ -120,6 +120,11 @@ const transactionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
     },
+    // Outsider (non-enrolled) person details for misc collections
+    outsiderName: { type: String },
+    outsiderFatherName: { type: String },
+    outsiderContact: { type: String },
+    outsiderClass: { type: String },
     // For refund tracking
     originalTransactionId: {
       type: mongoose.Schema.Types.ObjectId,

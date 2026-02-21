@@ -3,6 +3,7 @@ const router = express.Router();
 const Class = require("../models/Class");
 const Student = require("../models/Student");
 const Timetable = require("../models/Timetable");
+const Configuration = require("../models/Configuration");
 
 // Helper: Remove duplicate subjects (case-insensitive), keeping the one with highest fee
 const deduplicateSubjects = (subjects) => {
@@ -97,10 +98,15 @@ const checkScheduleConflict = async (
 // @access  Public
 router.get("/", async (req, res) => {
   try {
-    const { status, search, assignedTeacher } = req.query;
+    const { status, search, assignedTeacher, session } = req.query;
 
     // Build query object
     let query = {};
+
+    // Filter by academic session
+    if (session && session !== "all") {
+      query.session = session;
+    }
 
     // Filter by assigned teacher (used by Teacher Profile page)
     if (assignedTeacher) {
@@ -137,26 +143,33 @@ router.get("/", async (req, res) => {
       .lean();
 
     // TASK 2: Virtual Count & Revenue Handshake
-    // For each class, aggregate student count and revenue
+    // For each class, aggregate student count and revenue (active students only)
+    const config = await Configuration.findOne();
+    const teacherSharePct = config?.salaryConfig?.teacherShare ?? 70;
+
     const classesWithStats = await Promise.all(
       classes.map(async (cls) => {
-        // Count students with this classRef
-        const studentCount = await Student.countDocuments({
+        // Only count students who are truly active (both fields must agree, excludes Withdrawn)
+        const activeFilter = {
           classRef: cls._id,
-        });
+          status: "active",
+          studentStatus: { $nin: ["Withdrawn", "Expelled", "Suspended"] },
+        };
 
-        // Calculate total revenue (sum of paidAmount from all linked students)
+        const studentCount = await Student.countDocuments(activeFilter);
+
+        // Calculate total revenue from active students only
         const revenueResult = await Student.aggregate([
-          { $match: { classRef: cls._id } },
+          { $match: activeFilter },
           { $group: { _id: null, totalRevenue: { $sum: "$paidAmount" } } },
         ]);
 
         const currentRevenue =
           revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
 
-        // TASK 2: Calculate totalExpected (sum of totalFee) and totalPending
+        // Calculate totalExpected and totalPending (active only)
         const expectedResult = await Student.aggregate([
-          { $match: { classRef: cls._id } },
+          { $match: activeFilter },
           { $group: { _id: null, totalExpected: { $sum: "$totalFee" } } },
         ]);
 
@@ -167,9 +180,11 @@ router.get("/", async (req, res) => {
         return {
           ...cls,
           studentCount,
+          enrolledStudents: studentCount,
           currentRevenue,
           totalRevenueCollected: currentRevenue,
-          estimatedTeacherShare: Math.round(currentRevenue * 0.7),
+          estimatedTeacherShare: Math.round(currentRevenue * (teacherSharePct / 100)),
+          teacherSharePct,
           totalExpected,
           totalPending,
         };

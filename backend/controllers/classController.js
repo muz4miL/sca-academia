@@ -1,6 +1,7 @@
 const Class = require("../models/Class");
 const Session = require("../models/Session");
 const Student = require("../models/Student");
+const Configuration = require("../models/Configuration");
 
 // Create a new class
 exports.createClass = async (req, res) => {
@@ -38,14 +39,26 @@ exports.getClasses = async (req, res) => {
       "sessionName status startDate endDate",
     );
 
+    // Read dynamic teacher share from Configuration
+    let teacherSharePct = 70; // default
+    try {
+      const config = await Configuration.findOne();
+      if (config?.salaryConfig?.teacherShare) {
+        teacherSharePct = config.salaryConfig.teacherShare;
+      }
+    } catch (e) {
+      console.log("Config read skipped, using default 70%:", e.message);
+    }
+
     // Aggregate revenue for each class
     const classesWithRevenue = await Promise.all(
       classes.map(async (classDoc) => {
-        // Get all students enrolled in this class
-        const students = await Student.find({
+        // Get all active students enrolled in this class (exclude withdrawn/expelled/suspended)
+        const activeFilter = {
           classRef: classDoc._id,
-          studentStatus: "Active",
-        }).lean();
+          studentStatus: { $nin: ["Withdrawn", "Expelled", "Suspended"] },
+        };
+        const students = await Student.find(activeFilter).lean();
 
         // Sum up paid amounts
         const totalRevenueCollected = students.reduce(
@@ -53,14 +66,15 @@ exports.getClasses = async (req, res) => {
           0,
         );
 
-        // Calculate estimated teacher share (70%)
-        const estimatedTeacherShare = Math.round(totalRevenueCollected * 0.7);
+        // Calculate estimated teacher share using dynamic percentage
+        const estimatedTeacherShare = Math.round(totalRevenueCollected * (teacherSharePct / 100));
 
         return {
           ...classDoc.toObject(),
           totalRevenueCollected,
           estimatedTeacherShare,
           enrolledStudents: students.length,
+          teacherSharePct,
         };
       }),
     );

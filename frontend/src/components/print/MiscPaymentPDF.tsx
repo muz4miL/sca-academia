@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     transform: "translate(-50%, -50%) rotate(-30deg)",
     fontSize: 48,
     fontWeight: 700,
-    color: "rgba(37, 99, 235, 0.12)",
+    color: "rgba(37, 99, 235, 0.08)",
     letterSpacing: 10,
     zIndex: 10,
   },
@@ -45,8 +45,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     borderBottom: "2pt solid #1a365d",
     paddingBottom: 8,
-    marginBottom: 10,
-    position: "relative",
+    marginBottom: 16,
   },
   headerLeft: {
     flexDirection: "row",
@@ -69,7 +68,7 @@ const styles = StyleSheet.create({
   },
   contactText: {
     fontSize: 8,
-    color: "#0056b3",
+    color: "#dc2626",
     marginTop: 2,
     fontWeight: 500,
   },
@@ -112,67 +111,73 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
 
-  // ==================== MAIN CONTENT ====================
+  // ==================== MAIN CONTENT (2-column) ====================
   mainContent: {
     flexDirection: "row",
-    gap: 10,
+    gap: 20,
     flex: 1,
-    height: "calc(100% - 120px)",
+    marginBottom: 8,
   },
 
-  // Left Section - Student & Payment Details
-  leftSection: {
-    flex: 2,
+  // Left Column — Person details + Payment purpose
+  leftColumn: {
+    flex: 3,
     flexDirection: "column",
-    paddingRight: 8,
+    gap: 12,
   },
-  detailsGrid: {
-    marginBottom: 8,
-    height: "calc(100% - 60px)",
+
+  // Details Section
+  detailsSection: {
+    flexDirection: "column",
+    gap: 8,
   },
   detailRow: {
     flexDirection: "row",
-    marginBottom: 5,
-    height: 20,
+    gap: 20,
   },
   detailItem: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: "column",
+    gap: 2,
   },
   detailLabel: {
-    width: 65,
     fontSize: 8,
     fontWeight: 700,
-    color: "#374151",
+    color: "#6b7280",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   detailValue: {
-    flex: 1,
     fontSize: 10,
     color: "#111827",
-    borderBottom: "1pt solid #d1d5db",
-    paddingBottom: 3,
+    fontWeight: 600,
+    paddingBottom: 2,
   },
 
-  // Payment purpose section
+  // Payment Purpose Section
   purposeSection: {
-    marginTop: 6,
+    flexDirection: "column",
+    gap: 6,
     paddingTop: 8,
     borderTop: "1pt solid #e5e7eb",
-    flex: 1,
+  },
+  purposeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   purposeTitle: {
     fontSize: 8,
     fontWeight: 700,
-    color: "#374151",
-    marginBottom: 4,
+    color: "#6b7280",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   purposeBadge: {
     backgroundColor: "#dbeafe",
     paddingVertical: 3,
     paddingHorizontal: 10,
     borderRadius: 3,
-    alignSelf: "flex-start",
-    marginBottom: 4,
   },
   purposeBadgeText: {
     fontSize: 9,
@@ -180,65 +185,47 @@ const styles = StyleSheet.create({
     color: "#1e40af",
   },
   purposeDescription: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#4b5563",
-    marginTop: 3,
+    lineHeight: 1.4,
   },
 
-  // Center Section - Receipt Ref
-  centerSection: {
-    flex: 1,
+  // Student/Walk-in Info
+  personInfoSection: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    borderLeft: "1pt dashed #9ca3af",
-    borderRight: "1pt dashed #9ca3af",
-    paddingHorizontal: 10,
-    height: "100%",
-  },
-  centerLabel: {
-    fontSize: 7,
-    fontWeight: 700,
-    color: "#4b5563",
-    marginBottom: 5,
-    letterSpacing: 1,
-  },
-  centerValue: {
-    fontSize: 9,
-    fontWeight: 700,
-    color: "#1a365d",
-    letterSpacing: 0.5,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  centerHint: {
-    fontSize: 7,
-    color: "#6b7280",
-    marginTop: 4,
-  },
-  studentIdBox: {
-    marginTop: 14,
-    paddingTop: 10,
+    gap: 8,
+    paddingTop: 8,
     borderTop: "1pt dashed #d1d5db",
-    alignItems: "center",
   },
-  studentIdLabel: {
+  infoLabel: {
     fontSize: 7,
     fontWeight: 700,
-    color: "#4b5563",
+    color: "#6b7280",
     letterSpacing: 1,
-    marginBottom: 2,
   },
-  studentIdValue: {
-    fontSize: 14,
+  infoValue: {
+    fontSize: 11,
     fontWeight: 700,
     color: "#1a365d",
   },
+  walkInBadge: {
+    backgroundColor: "#fef3c7",
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 3,
+  },
+  walkInText: {
+    fontSize: 8,
+    fontWeight: 700,
+    color: "#92400e",
+    letterSpacing: 0.5,
+  },
 
-  // Right Section - Payment Box
-  rightSection: {
-    flex: 1,
-    alignItems: "center",
-    height: "100%",
+  // Right Column — Payment box + Signature
+  rightColumn: {
+    flex: 2,
+    flexDirection: "column",
     justifyContent: "space-between",
   },
   paymentBox: {
@@ -246,32 +233,34 @@ const styles = StyleSheet.create({
     border: "2pt solid #2563eb",
     borderRadius: 4,
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   paymentHeader: {
     backgroundColor: "#2563eb",
-    paddingVertical: 5,
+    paddingVertical: 6,
     alignItems: "center",
   },
   paymentHeaderLabel: {
     fontSize: 7,
     fontWeight: 700,
     color: "#ffffff",
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   paymentHeaderValue: {
     fontSize: 14,
     fontWeight: 700,
     color: "#ffffff",
+    letterSpacing: 0.5,
   },
   paymentDetails: {
-    padding: 8,
+    padding: 10,
     backgroundColor: "#eff6ff",
+    gap: 6,
   },
   paymentRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 3,
+    alignItems: "center",
   },
   paymentRowLabel: {
     fontSize: 8,
@@ -285,31 +274,28 @@ const styles = StyleSheet.create({
   },
   paymentRowDivider: {
     borderTop: "1pt solid #bfdbfe",
-    marginTop: 4,
-    paddingTop: 4,
+    paddingTop: 6,
+    marginTop: 2,
   },
   amountColor: {
     color: "#16a34a",
-  },
-  methodColor: {
-    color: "#2563eb",
+    fontSize: 11,
   },
 
   // Signature
   signatureSection: {
-    marginTop: "auto",
     alignItems: "flex-end",
     paddingTop: 8,
   },
   signatureLabel: {
     fontSize: 7,
     color: "#6b7280",
-    marginBottom: 18,
+    marginBottom: 20,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   signatureLine: {
-    width: 120,
+    width: 140,
     borderBottom: "1.5pt solid #1a365d",
     height: 1,
   },
@@ -322,24 +308,21 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
     borderTop: "1pt solid #e5e7eb",
-    paddingTop: 6,
+    paddingTop: 5,
+    backgroundColor: "#ffffff",
   },
   footerWarning: {
     fontSize: 7,
     fontWeight: "bold",
     color: "#2563eb",
   },
-  footerReceipt: {
-    fontSize: 7,
-    color: "#9ca3af",
-  },
   footerAddress: {
     fontSize: 7,
     color: "#6b7280",
     textAlign: "right",
-    maxWidth: 200,
+    maxWidth: 220,
   },
 });
 
@@ -384,13 +367,14 @@ export const MiscPaymentPDF = ({
   data,
   logoDataUrl,
 }: MiscPaymentPDFProps) => {
+  const isWalkIn = data.studentId === "WALK-IN";
+
   return (
     <Document>
       <Page size={[612, 396]} style={styles.page}>
         <View style={styles.container}>
           {/* ==================== HEADER ==================== */}
           <View style={styles.header}>
-            {/* Left: Logo & Academy Name */}
             <View style={styles.headerLeft}>
               {logoDataUrl ? (
                 <Image src={logoDataUrl} style={styles.logo} />
@@ -407,7 +391,6 @@ export const MiscPaymentPDF = ({
               </View>
             </View>
 
-            {/* Right: Title Badge, Receipt No & Date */}
             <View style={styles.headerRight}>
               <View style={styles.titleBadge}>
                 <Text style={styles.titleBadgeText}>PAYMENT RECEIPT</Text>
@@ -423,49 +406,38 @@ export const MiscPaymentPDF = ({
 
           {/* ==================== MAIN CONTENT ==================== */}
           <View style={styles.mainContent}>
-            {/* Left Section - Student & Payment Details */}
-            <View style={styles.leftSection}>
-              <View style={styles.detailsGrid}>
-                {/* Row 1: Student Name */}
+            {/* Left Column — Person Details & Payment Info */}
+            <View style={styles.leftColumn}>
+              {/* Person Details */}
+              <View style={styles.detailsSection}>
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Name:</Text>
+                    <Text style={styles.detailLabel}>Name</Text>
                     <Text style={styles.detailValue}>{data.studentName}</Text>
                   </View>
-                  <View style={[styles.detailItem, { marginLeft: 14 }]}>
-                    <Text style={styles.detailLabel}>Father:</Text>
+                  <View style={styles.detailItem}>
+                    <Text style={styles.detailLabel}>Father's Name</Text>
                     <Text style={styles.detailValue}>{data.fatherName}</Text>
                   </View>
                 </View>
 
-                {/* Row 2: Class | Contact */}
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Class:</Text>
-                    <Text style={styles.detailValue}>{data.class}</Text>
-                  </View>
-                  <View style={[styles.detailItem, { marginLeft: 14 }]}>
-                    <Text style={styles.detailLabel}>Contact:</Text>
+                    <Text style={styles.detailLabel}>Contact</Text>
                     <Text style={styles.detailValue}>{data.contact}</Text>
-                  </View>
-                </View>
-
-                {/* Row 3: Collected By */}
-                <View style={styles.detailRow}>
-                  <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Received By:</Text>
-                    <Text style={styles.detailValue}>{data.collectedBy}</Text>
                   </View>
                 </View>
               </View>
 
               {/* Payment Purpose */}
               <View style={styles.purposeSection}>
-                <Text style={styles.purposeTitle}>Payment For:</Text>
-                <View style={styles.purposeBadge}>
-                  <Text style={styles.purposeBadgeText}>
-                    {data.paymentType}
-                  </Text>
+                <View style={styles.purposeRow}>
+                  <Text style={styles.purposeTitle}>Payment For</Text>
+                  <View style={styles.purposeBadge}>
+                    <Text style={styles.purposeBadgeText}>
+                      {data.paymentType}
+                    </Text>
+                  </View>
                 </View>
                 {data.description && (
                   <Text style={styles.purposeDescription}>
@@ -473,34 +445,34 @@ export const MiscPaymentPDF = ({
                   </Text>
                 )}
               </View>
-            </View>
 
-            {/* Center Section - Receipt Ref & Student ID */}
-            <View style={styles.centerSection}>
-              <Text style={styles.centerLabel}>RECEIPT REF</Text>
-              <Text style={styles.centerValue}>{data.receiptId}</Text>
-              <Text style={styles.centerHint}>For record verification</Text>
-
-              <View style={styles.studentIdBox}>
-                <Text style={styles.studentIdLabel}>STUDENT ID</Text>
-                <Text style={styles.studentIdValue}>{data.studentId}</Text>
+              {/* Student ID or Walk-in Indicator */}
+              <View style={styles.personInfoSection}>
+                <Text style={styles.infoLabel}>
+                  {isWalkIn ? "TYPE:" : "STUDENT ID:"}
+                </Text>
+                {isWalkIn ? (
+                  <View style={styles.walkInBadge}>
+                    <Text style={styles.walkInText}>WALK-IN / OUTSIDER</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.infoValue}>{data.studentId}</Text>
+                )}
               </View>
             </View>
 
-            {/* Right Section - Payment Box */}
-            <View style={styles.rightSection}>
+            {/* Right Column — Payment Box & Signature */}
+            <View style={styles.rightColumn}>
               <View style={styles.paymentBox}>
-                {/* Status Header */}
                 <View style={styles.paymentHeader}>
                   <Text style={styles.paymentHeaderLabel}>PAYMENT STATUS</Text>
                   <Text style={styles.paymentHeaderValue}>RECEIVED</Text>
                 </View>
 
-                {/* Payment Details */}
                 <View style={styles.paymentDetails}>
                   <View style={styles.paymentRow}>
                     <Text style={styles.paymentRowLabel}>Type:</Text>
-                    <Text style={[styles.paymentRowValue, styles.methodColor]}>
+                    <Text style={styles.paymentRowValue}>
                       {data.paymentType}
                     </Text>
                   </View>
@@ -512,22 +484,21 @@ export const MiscPaymentPDF = ({
                     </Text>
                   </View>
 
-                  <View
-                    style={[styles.paymentRow, styles.paymentRowDivider]}
-                  >
-                    <Text
-                      style={[styles.paymentRowLabel, { fontWeight: 700 }]}
-                    >
-                      Amount Paid:
-                    </Text>
-                    <Text style={[styles.paymentRowValue, styles.amountColor]}>
-                      {formatCurrency(data.amount)}
-                    </Text>
+                  <View style={styles.paymentRowDivider}>
+                    <View style={styles.paymentRow}>
+                      <Text
+                        style={[styles.paymentRowLabel, { fontWeight: 700 }]}
+                      >
+                        Amount Paid:
+                      </Text>
+                      <Text style={[styles.paymentRowValue, styles.amountColor]}>
+                        {formatCurrency(data.amount)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
 
-              {/* Signature */}
               <View style={styles.signatureSection}>
                 <Text style={styles.signatureLabel}>Authorized Signature</Text>
                 <View style={styles.signatureLine} />
@@ -537,16 +508,13 @@ export const MiscPaymentPDF = ({
 
           {/* ==================== FOOTER ==================== */}
           <View style={styles.footer}>
-            <Text style={styles.footerWarning}>
-              Non-refundable payment
-            </Text>
-            <Text style={styles.footerReceipt}>Ref: {data.receiptId}</Text>
+            <Text style={styles.footerWarning}>Non-refundable payment</Text>
             <Text style={styles.footerAddress}>
               Opp. Islamia College, Danishabad, University Road, Peshawar
             </Text>
           </View>
 
-          {/* Watermark - rendered last to appear on top */}
+          {/* Watermark */}
           <Text style={styles.academyWatermark}>SCIENCES COACHING ACADEMY</Text>
         </View>
       </Page>

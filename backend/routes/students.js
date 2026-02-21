@@ -485,28 +485,172 @@ router.put("/:id", async (req, res) => {
 });
 
 // @route   DELETE /api/students/:id
-// @desc    Delete a student
-// @access  Public
+// @desc    Withdraw a student (soft delete) with optional refund
+// @access  Protected
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedStudent = await Student.findByIdAndDelete(req.params.id);
+    const { refundAmount, refundReason } = req.body || {};
 
-    if (!deletedStudent) {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
       return res.status(404).json({
         success: false,
         message: "Student not found",
       });
     }
 
+    // Already withdrawn?
+    if (student.studentStatus === "Withdrawn") {
+      return res.status(400).json({
+        success: false,
+        message: "Student is already withdrawn.",
+      });
+    }
+
+    const previousStatus = student.studentStatus;
+    const refundNum = Number(refundAmount) || 0;
+
+    // Validate refund
+    if (refundNum > 0 && refundNum > student.paidAmount) {
+      return res.status(400).json({
+        success: false,
+        message: `Refund amount (${refundNum}) cannot exceed amount paid (${student.paidAmount}).`,
+      });
+    }
+
+    // 1) Soft-delete: set status to Withdrawn
+    student.studentStatus = "Withdrawn";
+    student.status = "inactive";
+
+    // 2) Process refund if requested
+    let refundTransaction = null;
+    if (refundNum > 0) {
+      // Deduct from student's paid amount
+      student.paidAmount = Math.max(0, student.paidAmount - refundNum);
+
+      // Recalculate fee status
+      const totalFee = Number(student.totalFee) || 0;
+      const paidAmount = Number(student.paidAmount) || 0;
+      if (paidAmount >= totalFee && totalFee > 0) {
+        student.feeStatus = "paid";
+      } else if (paidAmount > 0 && paidAmount < totalFee) {
+        student.feeStatus = "partial";
+      } else {
+        student.feeStatus = "pending";
+      }
+
+      // Create REFUND transaction in the finance ledger
+      const Transaction = require("../models/Transaction");
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const refundReceiptId = `REF-${student.studentId}-${dateStr}-${randomSuffix}`;
+
+      refundTransaction = await Transaction.create({
+        type: "REFUND",
+        category: "Refund",
+        amount: refundNum,
+        description: `Refund to ${student.studentName} (${student.studentId}) — ${refundReason || "Student withdrawn"}. Previous status: ${previousStatus}. Paid before refund: PKR ${(student.paidAmount + refundNum).toLocaleString()}`,
+        date: now,
+        collectedBy: req.user?._id || undefined,
+        status: "VERIFIED",
+        studentId: student._id,
+      });
+
+      // Mark related FeeRecords as REFUNDED if full refund
+      const FeeRecord = require("../models/FeeRecord");
+      if (refundNum >= (student.paidAmount + refundNum)) {
+        // Full refund — mark all fee records
+        await FeeRecord.updateMany(
+          { student: student._id, status: "PAID" },
+          {
+            $set: {
+              status: "REFUNDED",
+              refundAmount: refundNum,
+              refundDate: now,
+              refundReason: refundReason || "Student withdrawn — full refund",
+            },
+          }
+        );
+      } else {
+        // Partial refund — just record it on the latest fee record
+        const latestFeeRecord = await FeeRecord.findOne({ student: student._id, status: "PAID" }).sort({ createdAt: -1 });
+        if (latestFeeRecord) {
+          latestFeeRecord.refundAmount = refundNum;
+          latestFeeRecord.refundDate = now;
+          latestFeeRecord.refundReason = refundReason || "Student withdrawn — partial refund";
+          await latestFeeRecord.save();
+        }
+      }
+
+      // Deduct refund from collector's totalCash (if applicable)
+      if (req.user?._id) {
+        try {
+          const User = require("../models/User");
+          const collector = await User.findById(req.user._id);
+          if (collector) {
+            collector.totalCash = Math.max(0, (collector.totalCash || 0) - refundNum);
+            await collector.save();
+          }
+        } catch (e) {
+          console.log("TotalCash refund deduction skipped:", e.message);
+        }
+      }
+
+      // Send refund notification
+      try {
+        const Notification = require("../models/Notification");
+        const User = require("../models/User");
+        const owner = await User.findOne({ role: "OWNER" });
+        if (owner) {
+          await Notification.create({
+            recipient: owner._id,
+            recipientRole: "OWNER",
+            message: `Student ${student.studentName} (${student.studentId}) withdrawn. Refund of PKR ${refundNum.toLocaleString()} processed.`,
+            type: "FINANCE",
+            relatedId: refundTransaction._id.toString(),
+          });
+        }
+      } catch (notifErr) {
+        console.log("Refund notification skipped:", notifErr.message);
+      }
+    } else {
+      // No refund — just withdrawal notification
+      try {
+        const Notification = require("../models/Notification");
+        const User = require("../models/User");
+        const owner = await User.findOne({ role: "OWNER" });
+        if (owner) {
+          await Notification.create({
+            recipient: owner._id,
+            recipientRole: "OWNER",
+            message: `Student ${student.studentName} (${student.studentId}) has been withdrawn. No refund issued. Total paid: PKR ${student.paidAmount.toLocaleString()}`,
+            type: "FINANCE",
+          });
+        }
+      } catch (notifErr) {
+        console.log("Withdrawal notification skipped:", notifErr.message);
+      }
+    }
+
+    await student.save();
+
     res.json({
       success: true,
-      message: "Student deleted successfully",
-      data: deletedStudent,
+      message: refundNum > 0
+        ? `${student.studentName} withdrawn. Refund of PKR ${refundNum.toLocaleString()} processed.`
+        : `${student.studentName} withdrawn successfully. No refund issued.`,
+      data: {
+        student,
+        refundTransaction,
+        refundAmount: refundNum,
+      },
     });
   } catch (error) {
+    console.error("Student Withdrawal Error:", error);
     res.status(500).json({
       success: false,
-      message: "Error deleting student",
+      message: "Error processing student withdrawal",
       error: error.message,
     });
   }

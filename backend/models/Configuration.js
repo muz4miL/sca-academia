@@ -58,6 +58,34 @@ const configurationSchema = new mongoose.Schema(
     // Financial Policies
     defaultLateFee: { type: Number, default: 500 },
     feeDueDay: { type: Number, enum: [1, 5, 10, 15], default: 10 },
+
+    // Student Profile Picture Settings
+    studentProfilePictureSettings: {
+      maxChangesPerStudent: {
+        type: Number,
+        default: 3,
+        min: 0,
+        max: 999,
+      },
+      allowStudentPictureChanges: {
+        type: Boolean,
+        default: true,
+      },
+      pictureDisplayOnSlip: {
+        type: Boolean,
+        default: true,
+      },
+      fallbackEmoji: {
+        type: String,
+        default: "🎓",
+      },
+      maxFileSizeMB: {
+        type: Number,
+        default: 5,
+        min: 1,
+        max: 20,
+      },
+    },
   },
   { timestamps: true },
 );

@@ -271,6 +271,21 @@ export const studentApi = {
         }
         return data;
     },
+
+    // Withdraw student (soft delete) with optional refund
+    withdraw: async (id: string, payload?: { refundAmount?: number; refundReason?: string }) => {
+        const response = await fetch(`${API_BASE_URL}/students/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload || {}),
+        });
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to withdraw student');
+        }
+        return data;
+    },
 };
 
 // Class API Endpoints

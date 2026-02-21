@@ -51,7 +51,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 // Import CRUD Modals
 import { ViewEditStudentModal } from "@/components/dashboard/ViewEditStudentModal";
-import { DeleteStudentDialog } from "@/components/dashboard/DeleteStudentDialog";
+import { WithdrawStudentDialog } from "@/components/dashboard/WithdrawStudentDialog";
 // Import PDF Receipt System (replaces react-to-print)
 import { usePDFReceipt } from "@/hooks/usePDFReceipt";
 
@@ -154,21 +154,25 @@ const Students = () => {
 
   const students = data?.data || [];
 
-  // Delete mutation
-  const deleteStudentMutation = useMutation({
-    mutationFn: studentApi.delete,
-    onSuccess: () => {
+  // Withdraw mutation (soft-delete with optional refund)
+  const withdrawStudentMutation = useMutation({
+    mutationFn: ({ id, refundAmount, refundReason }: { id: string; refundAmount?: number; refundReason?: string }) =>
+      studentApi.withdraw(id, { refundAmount, refundReason }),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
-      toast.success("Student Deleted", {
-        description: "Student record has been removed successfully",
+      queryClient.invalidateQueries({ queryKey: ["classes"] });
+      toast.success("Student Withdrawn", {
+        description: variables.refundAmount
+          ? `Student withdrawn and PKR ${variables.refundAmount.toLocaleString()} refunded`
+          : "Student has been withdrawn successfully",
         duration: 3000,
       });
       setIsDeleteDialogOpen(false);
       setSelectedStudent(null);
     },
     onError: (error: any) => {
-      toast.error("Delete Failed", {
-        description: error.message || "Failed to delete student",
+      toast.error("Withdraw Failed", {
+        description: error.message || "Failed to withdraw student",
         duration: 4000,
       });
     },
@@ -251,9 +255,13 @@ const Students = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmWithdraw = (refundAmount?: number, refundReason?: string) => {
     if (selectedStudent?._id) {
-      deleteStudentMutation.mutate(selectedStudent._id);
+      withdrawStudentMutation.mutate({
+        id: selectedStudent._id,
+        refundAmount,
+        refundReason,
+      });
     }
   };
 
@@ -401,7 +409,7 @@ const Students = () => {
             .footer { margin-top: 24px; font-size: 10px; color: #aaa; }
           </style></head>
           <body>
-            <div class="header">SCIENCES COACHING ACADEMY</div>
+            <div class="header">Sciences Coaching Academy</div>
             <div class="sub">Student Portal Login Credentials</div>
             <hr/>
             <div class="field"><div class="label">Student Name</div><div class="value">${credentialStudent.studentName}</div></div>
@@ -423,7 +431,7 @@ const Students = () => {
     <DashboardLayout title="Students">
       <HeaderBanner
         title="Student Management"
-        subtitle={`Total Students: ${students.length} | Active: ${students.filter((s: any) => s.status === "active").length}`}
+        subtitle={`Total Students: ${students.length} | Active: ${students.filter((s: any) => s.status === "active" && s.studentStatus !== "Withdrawn").length}`}
       >
         <Button
           className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
@@ -533,6 +541,7 @@ const Students = () => {
               <TableRow className="bg-secondary hover:bg-secondary">
                 <TableHead className="font-semibold">ID</TableHead>
                 <TableHead className="font-semibold">Student</TableHead>
+                <TableHead className="font-semibold">Seat</TableHead>
                 <TableHead className="font-semibold">Class</TableHead>
                 <TableHead className="font-semibold">Group</TableHead>
                 <TableHead className="font-semibold">Subjects</TableHead>
@@ -557,14 +566,30 @@ const Students = () => {
                     return (
                       <TableRow
                         key={student?._id || Math.random()}
-                        className="hover:bg-secondary/50"
+                        className={`hover:bg-secondary/50 ${student.studentStatus === "Withdrawn" ? "opacity-50" : ""}`}
                       >
                         <TableCell className="font-medium font-mono text-xs text-muted-foreground">
                           {student.studentId}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white font-bold text-sm shadow-md">
+                            {(student.photo || student.imageUrl) ? (
+                              <img
+                                src={
+                                  (student.photo || student.imageUrl).startsWith("data:") ||
+                                  (student.photo || student.imageUrl).startsWith("http")
+                                    ? (student.photo || student.imageUrl)
+                                    : `${API_BASE_URL}${student.photo || student.imageUrl}`
+                                }
+                                alt={student.studentName}
+                                className="h-10 w-10 shrink-0 rounded-full object-cover shadow-md"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                  (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null}
+                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white font-bold text-sm shadow-md ${(student.photo || student.imageUrl) ? 'hidden' : ''}`}>
                               <span className="flex items-center justify-center">
                                 {initials}
                               </span>
@@ -584,6 +609,23 @@ const Students = () => {
                               )}
                             </div>
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {student.seatNumber ? (
+                            <span
+                              className={`px-2 py-1 rounded-md text-xs font-bold font-mono ${
+                                student.seatNumber?.startsWith("L")
+                                  ? "bg-pink-100 text-pink-700 border border-pink-200"
+                                  : "bg-sky-100 text-sky-700 border border-sky-200"
+                              }`}
+                            >
+                              {student.seatNumber}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              —
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="font-medium">
                           {student.class}
@@ -626,12 +668,20 @@ const Students = () => {
                             className="inline-flex items-center justify-center"
                             style={{
                               filter:
-                                student.status === "active"
-                                  ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.3))"
-                                  : "drop-shadow(0 0 8px rgba(148, 163, 184, 0.2))",
+                                student.studentStatus === "Withdrawn"
+                                  ? "drop-shadow(0 0 8px rgba(234, 88, 12, 0.3))"
+                                  : student.status === "active"
+                                    ? "drop-shadow(0 0 8px rgba(34, 197, 94, 0.3))"
+                                    : "drop-shadow(0 0 8px rgba(148, 163, 184, 0.2))",
                             }}
                           >
-                            <StatusBadge status={student.status} />
+                            {student.studentStatus === "Withdrawn" ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                                Withdrawn
+                              </span>
+                            ) : (
+                              <StatusBadge status={student.status} />
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
@@ -671,15 +721,17 @@ const Students = () => {
                             >
                               <Printer className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-green-50 hover:text-green-600"
-                              onClick={() => handleCollectFee(student)}
-                              title="Collect Fee"
-                            >
-                              <DollarSign className="h-4 w-4" />
-                            </Button>
+                            {student.studentStatus !== "Withdrawn" && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-green-50 hover:text-green-600"
+                                onClick={() => handleCollectFee(student)}
+                                title="Collect Fee"
+                              >
+                                <DollarSign className="h-4 w-4" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"
@@ -689,25 +741,29 @@ const Students = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
-                              onClick={() => handleEdit(student)}
-                              title="Edit Student"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
-                              onClick={() => handleDelete(student)}
-                              disabled={deleteStudentMutation.isPending}
-                              title="Delete Student"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {student.studentStatus !== "Withdrawn" && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
+                                  onClick={() => handleEdit(student)}
+                                  title="Edit Student"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
+                                  onClick={() => handleDelete(student)}
+                                  disabled={withdrawStudentMutation.isPending}
+                                  title="Withdraw Student"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -743,13 +799,14 @@ const Students = () => {
         mode={viewEditMode}
       />
 
-      <DeleteStudentDialog
+      <WithdrawStudentDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={confirmDelete}
+        onConfirm={confirmWithdraw}
         studentName={selectedStudent?.studentName || ""}
         studentId={selectedStudent?.studentId || ""}
-        isDeleting={deleteStudentMutation.isPending}
+        paidAmount={selectedStudent?.paidAmount || 0}
+        isProcessing={withdrawStudentMutation.isPending}
       />
 
       {/* Fee Collection Modal */}

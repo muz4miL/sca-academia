@@ -1,13 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const { protectStudent } = require("../middleware/auth");
+const { handleStudentProfilePhotoUpload } = require("../middleware/upload");
 const {
-    studentLogin,
-    getStudentProfile,
-    getStudentVideos,
-    recordVideoView,
-    studentLogout,
-    getStudentSchedule,
+  studentLogin,
+  getStudentProfile,
+  getStudentVideos,
+  recordVideoView,
+  studentLogout,
+  getStudentSchedule,
+  getProfilePictureStatus,
+  updateProfilePicture,
 } = require("../controllers/studentPortalController");
 
 /**
@@ -36,6 +39,15 @@ router.get("/schedule", protectStudent, getStudentSchedule);
 
 // Record video view
 router.post("/videos/:id/view", protectStudent, recordVideoView);
+
+// Profile Picture Management
+router.get("/profile-picture/status", protectStudent, getProfilePictureStatus);
+router.post(
+  "/profile-picture",
+  protectStudent,
+  handleStudentProfilePhotoUpload,
+  updateProfilePicture,
+);
 
 // Logout
 router.post("/logout", protectStudent, studentLogout);

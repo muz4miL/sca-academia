@@ -1,6 +1,9 @@
 const Student = require("../models/Student");
 const Video = require("../models/Video");
 const Lecture = require("../models/Lecture");
+const Configuration = require("../models/Configuration");
+const path = require("path");
+const fs = require("fs");
 
 /**
  * Student Portal Controller - LMS Module
@@ -121,6 +124,13 @@ exports.getStudentProfile = async (req, res) => {
       });
     }
 
+    // Get config for profile picture settings
+    const config = await Configuration.findOne().lean();
+    const pictureSettings = config?.studentProfilePictureSettings || {};
+
+    // Use live class subjects if available, falling back to student's frozen snapshot
+    const liveSubjects = student.classRef?.subjects || student.subjects || [];
+
     return res.status(200).json({
       success: true,
       data: {
@@ -132,8 +142,8 @@ exports.getStudentProfile = async (req, res) => {
         gender: student.gender,
         class: student.class,
         group: student.group,
-        subjects: student.subjects,
-        photo: student.imageUrl || student.photo,
+        subjects: liveSubjects,
+        photo: student.photo || student.imageUrl,
         email: student.email,
         feeStatus: student.feeStatus,
         totalFee: student.totalFee,
@@ -142,6 +152,17 @@ exports.getStudentProfile = async (req, res) => {
         session: student.sessionRef,
         classRef: student.classRef,
         studentStatus: student.studentStatus,
+        profilePictureChangeCount: student.profilePictureChangeCount || 0,
+        profilePictureSettings: {
+          maxChangesPerStudent: pictureSettings.maxChangesPerStudent ?? 3,
+          allowStudentPictureChanges:
+            pictureSettings.allowStudentPictureChanges !== false,
+          changesRemaining: Math.max(
+            0,
+            (pictureSettings.maxChangesPerStudent ?? 3) -
+              (student.profilePictureChangeCount || 0),
+          ),
+        },
       },
     });
   } catch (error) {
@@ -298,8 +319,8 @@ exports.studentLogout = async (req, res) => {
 // @access  Protected (Student)
 exports.getStudentSchedule = async (req, res) => {
   try {
-    const Timetable = require("../models/Timetable");
     const Class = require("../models/Class");
+    const Timetable = require("../models/Timetable");
 
     const student = await Student.findById(req.student._id).lean();
 
@@ -310,54 +331,239 @@ exports.getStudentSchedule = async (req, res) => {
       });
     }
 
-    // Resolve classId for the student
-    let classId = student.classRef;
+    // Find the class the student is enrolled in
+    let classData = null;
 
-    if (!classId && student.class) {
-      const classDoc = await Class.findOne({
+    if (student.classRef) {
+      classData = await Class.findById(student.classRef).lean();
+    } else if (student.class) {
+      classData = await Class.findOne({
         $or: [
-          { classTitle: { $regex: student.class, $options: 'i' } },
-          { gradeLevel: { $regex: student.class, $options: 'i' } }
+          { classTitle: { $regex: student.class, $options: "i" } },
+          { gradeLevel: { $regex: student.class, $options: "i" } },
         ],
-        status: 'active'
+        status: "active",
       }).lean();
-      classId = classDoc?._id;
     }
 
-    if (!classId) {
+    if (!classData) {
       return res.status(200).json({
         success: true,
         data: [],
-        count: 0,
-        message: "No class assigned",
+        className: student.class || "Not Enrolled",
+        message: "No schedule found for your class",
       });
     }
 
-    // Query Timetable model directly — same data the admin Timetable page creates
-    const entries = await Timetable.find({ classId, status: 'active' })
-      .populate('classId', 'classTitle gradeLevel classId')
-      .populate('teacherId', 'name teacherId subject')
-      .sort({ day: 1, startTime: 1 })
-      .lean();
+    // Query the Timetable model for actual scheduled entries
+    const timetableEntries = await Timetable.find({
+      classId: classData._id,
+      status: "active",
+    })
+      .populate(
+        "classId",
+        "classTitle gradeLevel classId subjects subjectTeachers",
+      )
+      .populate("teacherId", "name teacherId subject")
+      .sort({ day: 1, startTime: 1 });
 
     // Sort by day order then time
-    const DAY_ORDER = { Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6, Sunday: 7 };
-    entries.sort((a, b) => {
+    const DAY_ORDER = {
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+      Sunday: 7,
+    };
+    timetableEntries.sort((a, b) => {
       const dayDiff = (DAY_ORDER[a.day] || 8) - (DAY_ORDER[b.day] || 8);
       if (dayDiff !== 0) return dayDiff;
-      return 0;
+      // Parse time for comparison
+      const parseTime = (t) => {
+        if (!t) return 0;
+        const m12 = t.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+        if (m12) {
+          let h = parseInt(m12[1]);
+          const min = parseInt(m12[2]);
+          const p = m12[3].toUpperCase();
+          if (p === "PM" && h !== 12) h += 12;
+          if (p === "AM" && h === 12) h = 0;
+          return h * 60 + min;
+        }
+        const m24 = t.match(/(\d{1,2}):(\d{2})/);
+        if (m24) return parseInt(m24[1]) * 60 + parseInt(m24[2]);
+        return 0;
+      };
+      return parseTime(a.startTime) - parseTime(b.startTime);
     });
 
     return res.status(200).json({
       success: true,
-      count: entries.length,
-      data: entries,
+      count: timetableEntries.length,
+      data: timetableEntries,
+      className: classData.classTitle || classData.displayName,
+      group: classData.group,
     });
   } catch (error) {
     console.error("❌ Error in getStudentSchedule:", error);
     return res.status(500).json({
       success: false,
       message: "Server error fetching schedule",
+      error: error.message,
+    });
+  }
+};
+
+// ========================================
+// PROFILE PICTURE MANAGEMENT
+// ========================================
+
+// @desc    Get profile picture change status
+// @route   GET /api/student-portal/profile-picture/status
+// @access  Protected (Student)
+exports.getProfilePictureStatus = async (req, res) => {
+  try {
+    const student = await Student.findById(req.student._id).lean();
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    // Get config for max changes
+    const config = await Configuration.findOne().lean();
+    const settings = config?.studentProfilePictureSettings || {};
+    const maxChanges = settings.maxChangesPerStudent ?? 3;
+    const allowChanges = settings.allowStudentPictureChanges !== false;
+
+    const changesUsed = student.profilePictureChangeCount || 0;
+    const changesRemaining = Math.max(0, maxChanges - changesUsed);
+    const canChangeNow = allowChanges && changesRemaining > 0;
+
+    // Get current photo (priority: photo > imageUrl)
+    const currentPhoto = student.photo || student.imageUrl || null;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        currentPhotoUrl: currentPhoto,
+        changesUsed,
+        changesRemaining,
+        maxChangesAllowed: maxChanges,
+        canChangeNow,
+        allowStudentPictureChanges: allowChanges,
+        lastChangeDate:
+          student.profilePictureChangeLog?.length > 0
+            ? student.profilePictureChangeLog[
+                student.profilePictureChangeLog.length - 1
+              ].changedAt
+            : null,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error in getProfilePictureStatus:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error fetching profile picture status",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Upload/change student profile picture
+// @route   POST /api/student-portal/profile-picture
+// @access  Protected (Student)
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    const student = await Student.findById(req.student._id);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    // Get config limits
+    const config = await Configuration.findOne().lean();
+    const settings = config?.studentProfilePictureSettings || {};
+    const maxChanges = settings.maxChangesPerStudent ?? 3;
+    const allowChanges = settings.allowStudentPictureChanges !== false;
+
+    if (!allowChanges) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Profile picture changes are currently disabled by administration.",
+      });
+    }
+
+    const changesUsed = student.profilePictureChangeCount || 0;
+    if (changesUsed >= maxChanges) {
+      return res.status(403).json({
+        success: false,
+        message: `You have reached the maximum number of profile picture changes (${maxChanges}). Please contact administration for assistance.`,
+      });
+    }
+
+    // Check if file was uploaded (multer middleware)
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file provided. Please select a photo to upload.",
+      });
+    }
+
+    // Save old photo URL for change log
+    const oldPhotoUrl = student.photo || student.imageUrl || null;
+
+    // Build new photo URL
+    const newPhotoUrl = `/uploads/students/${req.file.filename}`;
+
+    // Update student record
+    student.photo = newPhotoUrl;
+    student.imageUrl = newPhotoUrl;
+    student.profilePictureChangeCount = changesUsed + 1;
+
+    // Add to change log
+    if (!student.profilePictureChangeLog) {
+      student.profilePictureChangeLog = [];
+    }
+    student.profilePictureChangeLog.push({
+      changedAt: new Date(),
+      oldPhotoUrl: oldPhotoUrl,
+      newPhotoUrl: newPhotoUrl,
+      changedBy: "student",
+    });
+
+    await student.save();
+
+    const newChangesRemaining = Math.max(0, maxChanges - (changesUsed + 1));
+
+    console.log(
+      `📸 Student ${student.studentId} changed profile picture (${changesUsed + 1}/${maxChanges})`,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile picture updated successfully!",
+      data: {
+        photoUrl: newPhotoUrl,
+        changesUsed: changesUsed + 1,
+        changesRemaining: newChangesRemaining,
+        maxChangesAllowed: maxChanges,
+        canChangeNow: newChangesRemaining > 0,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error in updateProfilePicture:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error updating profile picture",
       error: error.message,
     });
   }

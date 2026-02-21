@@ -210,7 +210,15 @@ router.get("/stats/overview", protect, async (req, res) => {
       { $match: { type: "INCOME", date: { $gte: startOfMonth, $lte: endOfMonth } } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
-    const totalIncome = monthlyIncomeResult[0]?.total || 0;
+    const grossIncome = monthlyIncomeResult[0]?.total || 0;
+
+    // Monthly Refunds — subtract from income for accurate reporting
+    const monthlyRefundResult = await Transaction.aggregate([
+      { $match: { type: "REFUND", date: { $gte: startOfMonth, $lte: endOfMonth } } },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]);
+    const totalRefunds = monthlyRefundResult[0]?.total || 0;
+    const totalIncome = grossIncome - totalRefunds;
 
     // Monthly Expenses from Transactions (consistent with Dashboard)
     const monthlyExpensesResult = await Transaction.aggregate([

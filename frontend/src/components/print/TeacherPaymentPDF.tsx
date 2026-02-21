@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     borderBottom: "2pt solid #1a365d",
     paddingBottom: 8,
-    marginBottom: 10,
+    marginBottom: 16,
   },
   headerLeft: {
     flexDirection: "row",
@@ -72,8 +72,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: 500,
   },
-  headerCenter: {
-    alignItems: "center",
+  headerRight: {
+    alignItems: "flex-end",
+    gap: 4,
   },
   voucherBadge: {
     backgroundColor: "#b8860b",
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 3,
     marginBottom: 3,
+    alignSelf: "flex-end",
   },
   voucherBadgeText: {
     fontSize: 9,
@@ -88,15 +90,13 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     letterSpacing: 2,
   },
-  headerRight: {
-    alignItems: "flex-end",
-  },
   voucherBox: {
     border: "2pt solid #1a365d",
     backgroundColor: "#f8fafc",
     paddingVertical: 4,
     paddingHorizontal: 10,
     marginBottom: 3,
+    alignSelf: "flex-end",
   },
   voucherIdText: {
     fontSize: 11,
@@ -108,170 +108,154 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: "#4b5563",
     marginTop: 2,
+    alignSelf: "flex-end",
   },
 
-  // ==================== MAIN CONTENT ====================
+  // ==================== MAIN CONTENT (2-column) ====================
   mainContent: {
     flexDirection: "row",
-    gap: 14,
+    gap: 20,
     flex: 1,
+    marginBottom: 8,
   },
 
-  // Left Section - Teacher Details
-  leftSection: {
-    flex: 1.2,
+  // Left Column — Payment Details
+  leftColumn: {
+    flex: 3,
     flexDirection: "column",
+    gap: 12,
   },
-  detailsGrid: {
-    marginBottom: 10,
+  
+  // Details Section
+  detailsSection: {
+    flexDirection: "column",
+    gap: 8,
   },
   detailRow: {
     flexDirection: "row",
-    marginBottom: 5,
+    gap: 20,
   },
   detailItem: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: "column",
+    gap: 2,
   },
   detailLabel: {
-    width: 58,
     fontSize: 8,
     fontWeight: 700,
-    color: "#374151",
+    color: "#6b7280",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   detailValue: {
-    flex: 1,
     fontSize: 10,
     color: "#111827",
-    borderBottom: "1pt solid #d1d5db",
-    paddingBottom: 3,
+    fontWeight: 600,
+    paddingBottom: 2,
   },
 
-  // Notes section
+  // Notes Section
   notesSection: {
-    marginTop: 8,
+    flexDirection: "column",
+    gap: 6,
     paddingTop: 8,
     borderTop: "1pt solid #e5e7eb",
   },
   notesTitle: {
     fontSize: 8,
     fontWeight: 700,
-    color: "#374151",
-    marginBottom: 3,
+    color: "#6b7280",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   notesText: {
     fontSize: 9,
     color: "#4b5563",
+    lineHeight: 1.4,
   },
 
-  // Center Section - Voucher ID
-  centerSection: {
-    flex: 0.5,
-    alignItems: "center",
-    justifyContent: "center",
-    borderLeft: "1pt dashed #9ca3af",
-    borderRight: "1pt dashed #9ca3af",
-    paddingHorizontal: 10,
+  // Right Column — Payment Box + Signature
+  rightColumn: {
+    flex: 2,
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
-  centerLabel: {
-    fontSize: 7,
-    fontWeight: 700,
-    color: "#4b5563",
-    marginBottom: 5,
-    letterSpacing: 1,
-  },
-  centerValue: {
-    fontSize: 11,
-    fontWeight: 700,
-    color: "#1a365d",
-    letterSpacing: 0.5,
-    textAlign: "center",
-  },
-  centerHint: {
-    fontSize: 7,
-    color: "#6b7280",
-    marginTop: 4,
-  },
-
-  // Right Section - Financial Box
-  rightSection: {
-    flex: 0.9,
-    alignItems: "center",
-  },
-  feeBox: {
+  paymentBox: {
     width: "100%",
     border: "2pt solid #b8860b",
     borderRadius: 4,
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  feeStatusHeader: {
+  paymentHeader: {
     backgroundColor: "#b8860b",
-    paddingVertical: 5,
+    paddingVertical: 6,
     alignItems: "center",
   },
-  feeStatusLabel: {
+  paymentHeaderLabel: {
     fontSize: 7,
+    fontWeight: 700,
+    color: "#ffffff",
+    letterSpacing: 1,
+  },
+  paymentHeaderValue: {
+    fontSize: 14,
     fontWeight: 700,
     color: "#ffffff",
     letterSpacing: 0.5,
   },
-  feeStatusValue: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: "#ffffff",
-  },
-  feeDetails: {
-    padding: 8,
+  paymentDetails: {
+    padding: 10,
     backgroundColor: "#fffef5",
+    gap: 6,
   },
-  feeRow: {
+  paymentRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 3,
+    alignItems: "center",
   },
-  feeRowLabel: {
+  paymentRowLabel: {
     fontSize: 8,
     color: "#4b5563",
+    fontWeight: 600,
   },
-  feeRowValue: {
-    fontSize: 9,
+  paymentRowValue: {
+    fontSize: 10,
     fontWeight: 700,
     color: "#111827",
   },
-  feeRowTotal: {
-    borderTop: "1pt solid #d1d5db",
-    marginTop: 4,
-    paddingTop: 4,
+  paymentRowDivider: {
+    borderTop: "1pt solid #fde68a",
+    paddingTop: 6,
+    marginTop: 2,
   },
-  balanceBefore: {
+  balanceColor: {
     color: "#ea580c",
   },
-  amountPaid: {
+  paidColor: {
     color: "#16a34a",
   },
-  remainingPositive: {
+  remainingColor: {
     color: "#ea580c",
   },
-  remainingZero: {
+  settledColor: {
     color: "#16a34a",
   },
 
   // Signature
   signatureSection: {
-    marginTop: "auto",
     alignItems: "flex-end",
     paddingTop: 8,
   },
   signatureLabel: {
     fontSize: 7,
     color: "#6b7280",
-    marginBottom: 18,
+    marginBottom: 20,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   signatureLine: {
-    width: 120,
+    width: 140,
     borderBottom: "1.5pt solid #1a365d",
     height: 1,
   },
@@ -284,24 +268,21 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
     borderTop: "1pt solid #e5e7eb",
-    paddingTop: 6,
+    paddingTop: 5,
+    backgroundColor: "#ffffff",
   },
   footerWarning: {
     fontSize: 7,
     fontWeight: "bold",
     color: "#b8860b",
   },
-  footerReceipt: {
-    fontSize: 7,
-    color: "#9ca3af",
-  },
   footerAddress: {
     fontSize: 7,
     color: "#6b7280",
     textAlign: "right",
-    maxWidth: 200,
+    maxWidth: 220,
   },
 });
 
@@ -337,13 +318,18 @@ const formatDate = (date: Date | string): string => {
   });
 };
 
+const capitalizeFirst = (str: string): string => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 // ==================== COMPONENT ====================
 export const TeacherPaymentPDF = ({
   data,
   logoDataUrl,
 }: TeacherPaymentPDFProps) => {
   const balanceBefore = data.remainingBalance + data.amountPaid;
-  const isPaidOff = data.remainingBalance === 0;
+  const isSettled = data.remainingBalance === 0;
 
   return (
     <Document>
@@ -351,7 +337,6 @@ export const TeacherPaymentPDF = ({
         <View style={styles.container}>
           {/* ==================== HEADER ==================== */}
           <View style={styles.header}>
-            {/* Left: Logo & Academy Name */}
             <View style={styles.headerLeft}>
               {logoDataUrl ? (
                 <Image src={logoDataUrl} style={styles.logo} />
@@ -368,15 +353,10 @@ export const TeacherPaymentPDF = ({
               </View>
             </View>
 
-            {/* Center: Voucher Badge */}
-            <View style={styles.headerCenter}>
+            <View style={styles.headerRight}>
               <View style={styles.voucherBadge}>
                 <Text style={styles.voucherBadgeText}>PAYMENT VOUCHER</Text>
               </View>
-            </View>
-
-            {/* Right: Voucher No & Date */}
-            <View style={styles.headerRight}>
               <View style={styles.voucherBox}>
                 <Text style={styles.voucherIdText}>{data.voucherId}</Text>
               </View>
@@ -388,107 +368,89 @@ export const TeacherPaymentPDF = ({
 
           {/* ==================== MAIN CONTENT ==================== */}
           <View style={styles.mainContent}>
-            {/* Left Section - Teacher Details */}
-            <View style={styles.leftSection}>
-              <View style={styles.detailsGrid}>
-                {/* Row 1: Paid To */}
+            {/* Left Column — Payment Details */}
+            <View style={styles.leftColumn}>
+              {/* Teacher & Payment Info */}
+              <View style={styles.detailsSection}>
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Paid To:</Text>
+                    <Text style={styles.detailLabel}>Paid To</Text>
                     <Text style={styles.detailValue}>{data.teacherName}</Text>
                   </View>
-                </View>
-
-                {/* Row 2: Subject | Type */}
-                <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Subject:</Text>
+                    <Text style={styles.detailLabel}>Subject</Text>
                     <Text style={styles.detailValue}>
-                      {data.subject
-                        ? data.subject.charAt(0).toUpperCase() +
-                          data.subject.slice(1)
-                        : "-"}
-                    </Text>
-                  </View>
-                  <View style={[styles.detailItem, { marginLeft: 14 }]}>
-                    <Text style={styles.detailLabel}>Type:</Text>
-                    <Text style={styles.detailValue}>
-                      {data.compensationType
-                        ? data.compensationType.charAt(0).toUpperCase() +
-                          data.compensationType.slice(1)
-                        : "Percentage"}
+                      {capitalizeFirst(data.subject)}
                     </Text>
                   </View>
                 </View>
 
-                {/* Row 3: Session */}
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Session:</Text>
+                    <Text style={styles.detailLabel}>Session</Text>
                     <Text style={styles.detailValue}>
-                      {data.sessionName || "N/A"}
+                      {data.sessionName || "Tuition"}
+                    </Text>
+                  </View>
+                  <View style={styles.detailItem}>
+                    <Text style={styles.detailLabel}>Payment Type</Text>
+                    <Text style={styles.detailValue}>
+                      {capitalizeFirst(data.compensationType || "Percentage")}
                     </Text>
                   </View>
                 </View>
               </View>
 
-              {/* Notes */}
+              {/* Payment Notes */}
               {data.description && (
                 <View style={styles.notesSection}>
-                  <Text style={styles.notesTitle}>Payment Notes:</Text>
+                  <Text style={styles.notesTitle}>Payment Notes</Text>
                   <Text style={styles.notesText}>{data.description}</Text>
                 </View>
               )}
             </View>
 
-            {/* Center Section - Voucher Ref */}
-            <View style={styles.centerSection}>
-              <Text style={styles.centerLabel}>VOUCHER REF</Text>
-              <Text style={styles.centerValue}>{data.voucherId}</Text>
-              <Text style={styles.centerHint}>For record verification</Text>
-            </View>
-
-            {/* Right Section - Financial Box */}
-            <View style={styles.rightSection}>
-              <View style={styles.feeBox}>
+            {/* Right Column — Payment Box & Signature */}
+            <View style={styles.rightColumn}>
+              <View style={styles.paymentBox}>
                 {/* Status Header */}
-                <View style={styles.feeStatusHeader}>
-                  <Text style={styles.feeStatusLabel}>PAYMENT STATUS</Text>
-                  <Text style={styles.feeStatusValue}>
-                    {isPaidOff ? "SETTLED" : "PARTIAL"}
+                <View style={styles.paymentHeader}>
+                  <Text style={styles.paymentHeaderLabel}>PAYMENT STATUS</Text>
+                  <Text style={styles.paymentHeaderValue}>
+                    {isSettled ? "SETTLED" : "PARTIAL"}
                   </Text>
                 </View>
 
                 {/* Financial Details */}
-                <View style={styles.feeDetails}>
-                  <View style={styles.feeRow}>
-                    <Text style={styles.feeRowLabel}>Balance Before:</Text>
-                    <Text style={[styles.feeRowValue, styles.balanceBefore]}>
+                <View style={styles.paymentDetails}>
+                  <View style={styles.paymentRow}>
+                    <Text style={styles.paymentRowLabel}>Balance Before:</Text>
+                    <Text style={[styles.paymentRowValue, styles.balanceColor]}>
                       {formatCurrency(balanceBefore)}
                     </Text>
                   </View>
 
-                  <View style={styles.feeRow}>
-                    <Text style={styles.feeRowLabel}>Amount Paid:</Text>
-                    <Text style={[styles.feeRowValue, styles.amountPaid]}>
+                  <View style={styles.paymentRow}>
+                    <Text style={styles.paymentRowLabel}>Amount Paid:</Text>
+                    <Text style={[styles.paymentRowValue, styles.paidColor]}>
                       {formatCurrency(data.amountPaid)}
                     </Text>
                   </View>
 
-                  <View style={[styles.feeRow, styles.feeRowTotal]}>
-                    <Text style={[styles.feeRowLabel, { fontWeight: 700 }]}>
-                      Remaining:
-                    </Text>
-                    <Text
-                      style={[
-                        styles.feeRowValue,
-                        data.remainingBalance > 0
-                          ? styles.remainingPositive
-                          : styles.remainingZero,
-                      ]}
-                    >
-                      {formatCurrency(data.remainingBalance)}
-                    </Text>
+                  <View style={styles.paymentRowDivider}>
+                    <View style={styles.paymentRow}>
+                      <Text style={[styles.paymentRowLabel, { fontWeight: 700 }]}>
+                        Remaining:
+                      </Text>
+                      <Text
+                        style={[
+                          styles.paymentRowValue,
+                          isSettled ? styles.settledColor : styles.remainingColor,
+                        ]}
+                      >
+                        {formatCurrency(data.remainingBalance)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
@@ -503,16 +465,13 @@ export const TeacherPaymentPDF = ({
 
           {/* ==================== FOOTER ==================== */}
           <View style={styles.footer}>
-            <Text style={styles.footerWarning}>
-              Computer-generated voucher
-            </Text>
-            <Text style={styles.footerReceipt}>Ref: {data.voucherId}</Text>
+            <Text style={styles.footerWarning}>Computer-generated voucher</Text>
             <Text style={styles.footerAddress}>
               Opp. Islamia College, Danishabad, University Road, Peshawar
             </Text>
           </View>
 
-          {/* Watermark - rendered last to appear on top */}
+          {/* Watermark */}
           <Text style={styles.academyWatermark}>SCIENCES COACHING ACADEMY</Text>
         </View>
       </Page>

@@ -208,7 +208,7 @@ const FinanceOverview = () => {
             Finance Overview
           </CardTitle>
           <CardDescription>
-            SCIENCES COACHING ACADEMY — Revenue & Expense Tracking
+            Sciences Coaching Academy — Revenue & Expense Tracking
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -289,7 +289,9 @@ const FinanceOverview = () => {
                           className={
                             item.type === "EXPENSE"
                               ? "text-red-600"
-                              : "text-emerald-600"
+                              : item.type === "REFUND"
+                                ? "text-amber-600"
+                                : "text-emerald-600"
                           }
                         >
                           {item.type}
@@ -303,7 +305,9 @@ const FinanceOverview = () => {
                         className={
                           item.type === "EXPENSE"
                             ? "text-right font-bold text-red-600"
-                            : "text-right font-bold text-emerald-700"
+                            : item.type === "REFUND"
+                              ? "text-right font-bold text-amber-600"
+                              : "text-right font-bold text-emerald-700"
                         }
                       >
                         {formatCurrency(item.amount)}
@@ -993,6 +997,12 @@ const StudentCollections = () => {
   const [description, setDescription] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [searchFilter, setSearchFilter] = useState("");
+  // Outsider mode
+  const [isOutsider, setIsOutsider] = useState(false);
+  const [outsiderName, setOutsiderName] = useState("");
+  const [outsiderFatherName, setOutsiderFatherName] = useState("");
+  const [outsiderContact, setOutsiderContact] = useState("");
+
   const [cachedLogo, setCachedLogo] = useState<string | null>(null);
 
   // Load logo for PDF
@@ -1045,7 +1055,8 @@ const StudentCollections = () => {
       p.description?.toLowerCase().includes(search) ||
       p.category?.toLowerCase().includes(search) ||
       p.studentId?.studentName?.toLowerCase().includes(search) ||
-      p.studentId?.studentId?.toLowerCase().includes(search)
+      p.studentId?.studentId?.toLowerCase().includes(search) ||
+      p.outsiderName?.toLowerCase().includes(search)
     );
   });
 
@@ -1101,6 +1112,11 @@ const StudentCollections = () => {
       setPaymentType("trip");
       setPaymentMethod("Cash");
       setStudentSearch("");
+      setIsOutsider(false);
+      setOutsiderName("");
+      setOutsiderFatherName("");
+      setOutsiderContact("");
+
     },
     onError: (error: any) => {
       toast.error("Payment Failed", { description: error.message });
@@ -1108,17 +1124,35 @@ const StudentCollections = () => {
   });
 
   const handleCollect = () => {
-    if (!selectedStudent || !amount || Number(amount) <= 0) {
-      toast.error("Please select a student and enter a valid amount");
-      return;
+    if (isOutsider) {
+      if (!outsiderName.trim() || !amount || Number(amount) <= 0) {
+        toast.error("Please enter a name and a valid amount");
+        return;
+      }
+      collectMutation.mutate({
+        isOutsider: true,
+        outsiderName: outsiderName.trim(),
+        outsiderFatherName: outsiderFatherName.trim(),
+        outsiderContact: outsiderContact.trim(),
+
+        amount: Number(amount),
+        paymentType,
+        description,
+        paymentMethod,
+      });
+    } else {
+      if (!selectedStudent || !amount || Number(amount) <= 0) {
+        toast.error("Please select a student and enter a valid amount");
+        return;
+      }
+      collectMutation.mutate({
+        studentId: selectedStudent._id,
+        amount: Number(amount),
+        paymentType,
+        description,
+        paymentMethod,
+      });
     }
-    collectMutation.mutate({
-      studentId: selectedStudent._id,
-      amount: Number(amount),
-      paymentType,
-      description,
-      paymentMethod,
-    });
   };
 
   const formatDate = (d: string) => {
@@ -1229,10 +1263,14 @@ const StudentCollections = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <span className="font-medium">{p.studentId?.studentName || "-"}</span>
-                          {p.studentId?.studentId && (
+                          <span className="font-medium">
+                            {p.studentId?.studentName || p.outsiderName || "-"}
+                          </span>
+                          {p.studentId?.studentId ? (
                             <span className="text-xs text-slate-400 ml-1">({p.studentId.studentId})</span>
-                          )}
+                          ) : p.outsiderName ? (
+                            <span className="text-xs text-amber-500 ml-1">(Walk-in)</span>
+                          ) : null}
                         </div>
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate text-slate-600">
@@ -1259,7 +1297,7 @@ const StudentCollections = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-blue-600" />
-              Record Student Misc Payment
+              Record Misc Payment
             </DialogTitle>
             <DialogDescription>
               Collect a non-tuition payment for trips, tests, labs, events, etc.
@@ -1267,51 +1305,108 @@ const StudentCollections = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Student Search */}
+            {/* Enrolled / Outsider Toggle */}
             <div>
-              <Label>Student *</Label>
-              {selectedStudent ? (
-                <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-md p-3 mt-1">
+              <Label className="mb-1.5 block">Paying Person *</Label>
+              <div className="flex gap-2 mb-3">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={!isOutsider ? "default" : "outline"}
+                  className={!isOutsider ? "bg-blue-600 hover:bg-blue-700" : ""}
+                  onClick={() => { setIsOutsider(false); setOutsiderName(""); setOutsiderFatherName(""); setOutsiderContact(""); }}
+                >
+                  Enrolled Student
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={isOutsider ? "default" : "outline"}
+                  className={isOutsider ? "bg-amber-600 hover:bg-amber-700" : ""}
+                  onClick={() => { setIsOutsider(true); setSelectedStudent(null); setStudentSearch(""); }}
+                >
+                  Outsider / Walk-in
+                </Button>
+              </div>
+
+              {!isOutsider ? (
+                /* ---- Enrolled Student Search ---- */
+                selectedStudent ? (
+                  <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <div>
+                      <span className="font-semibold">{selectedStudent.studentName}</span>
+                      <span className="text-xs ml-2 text-slate-500">({selectedStudent.studentId})</span>
+                      <div className="text-xs text-slate-500 mt-0.5">
+                        {selectedStudent.class} | Father: {selectedStudent.fatherName || "-"}
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(null)}>
+                      Change
+                    </Button>
+                  </div>
+                ) : (
                   <div>
-                    <span className="font-semibold">{selectedStudent.studentName}</span>
-                    <span className="text-xs ml-2 text-slate-500">({selectedStudent.studentId})</span>
-                    <div className="text-xs text-slate-500 mt-0.5">
-                      {selectedStudent.class} | Father: {selectedStudent.fatherName || "-"}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        placeholder="Search by name or student ID..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    {studentsData?.data && studentsData.data.length > 0 && (
+                      <div className="max-h-40 overflow-auto border rounded-md mt-1 bg-white shadow-sm">
+                        {studentsData.data.slice(0, 8).map((s: any) => (
+                          <button
+                            key={s._id}
+                            className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b last:border-b-0 transition-colors"
+                            onClick={() => {
+                              setSelectedStudent(s);
+                              setStudentSearch("");
+                            }}
+                          >
+                            <span className="font-medium text-sm">{s.studentName}</span>
+                            <span className="text-xs ml-2 text-slate-400">({s.studentId})</span>
+                            <span className="text-xs ml-2 text-slate-500">{s.class}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              ) : (
+                /* ---- Outsider / Walk-in Manual Entry ---- */
+                <div className="space-y-3 bg-amber-50 border border-amber-200 rounded-md p-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Full Name *</Label>
+                      <Input
+                        placeholder="e.g., Ahmad Khan"
+                        value={outsiderName}
+                        onChange={(e) => setOutsiderName(e.target.value)}
+                        className="mt-1 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Father's Name</Label>
+                      <Input
+                        placeholder="e.g., Ali Khan"
+                        value={outsiderFatherName}
+                        onChange={(e) => setOutsiderFatherName(e.target.value)}
+                        className="mt-1 bg-white"
+                      />
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(null)}>
-                    Change
-                  </Button>
-                </div>
-              ) : (
-                <div className="mt-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <div>
+                    <Label className="text-xs">Contact Number</Label>
                     <Input
-                      placeholder="Search by name or student ID..."
-                      value={studentSearch}
-                      onChange={(e) => setStudentSearch(e.target.value)}
-                      className="pl-10"
+                      placeholder="e.g., 0300-1234567"
+                      value={outsiderContact}
+                      onChange={(e) => setOutsiderContact(e.target.value)}
+                      className="mt-1 bg-white"
                     />
                   </div>
-                  {studentsData?.data && studentsData.data.length > 0 && (
-                    <div className="max-h-40 overflow-auto border rounded-md mt-1 bg-white shadow-sm">
-                      {studentsData.data.slice(0, 8).map((s: any) => (
-                        <button
-                          key={s._id}
-                          className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b last:border-b-0 transition-colors"
-                          onClick={() => {
-                            setSelectedStudent(s);
-                            setStudentSearch("");
-                          }}
-                        >
-                          <span className="font-medium text-sm">{s.studentName}</span>
-                          <span className="text-xs ml-2 text-slate-400">({s.studentId})</span>
-                          <span className="text-xs ml-2 text-slate-500">{s.class}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -1381,7 +1476,7 @@ const StudentCollections = () => {
             </Button>
             <Button
               onClick={handleCollect}
-              disabled={collectMutation.isPending || !selectedStudent || !amount}
+              disabled={collectMutation.isPending || (!isOutsider && !selectedStudent) || (isOutsider && !outsiderName.trim()) || !amount}
               className="bg-blue-600 hover:bg-blue-700"
             >
               {collectMutation.isPending ? (

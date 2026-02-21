@@ -50,6 +50,7 @@ import {
   Trash2,
   Users,
   User,
+  Calendar,
   Clock,
   Filter,
   GraduationCap,
@@ -120,6 +121,10 @@ interface ClassInstance {
   teacherName?: string;
   subjects: (string | SubjectWithFee)[];
   subjectTeachers?: SubjectTeacherMap[];
+  days: string[];
+  startTime: string;
+  endTime: string;
+  roomNumber?: string;
   studentCount?: number;
   totalRevenueCollected?: number;
   estimatedTeacherShare?: number;
@@ -147,6 +152,10 @@ interface ClassPayload {
   status: string;
   assignedTeacher?: string;
   teacherName?: string;
+  days: string[];
+  startTime: string;
+  endTime: string;
+  roomNumber: string;
 }
 
 // ============================================================================
@@ -178,7 +187,15 @@ const GRADE_LEVEL_OPTIONS = [
   "Tuition Classes",
 ] as const;
 
-
+const DAYS_OF_WEEK = [
+  { value: "Mon", label: "Mon", full: "Monday" },
+  { value: "Tue", label: "Tue", full: "Tuesday" },
+  { value: "Wed", label: "Wed", full: "Wednesday" },
+  { value: "Thu", label: "Thu", full: "Thursday" },
+  { value: "Fri", label: "Fri", full: "Friday" },
+  { value: "Sat", label: "Sat", full: "Saturday" },
+  { value: "Sun", label: "Sun", full: "Sunday" },
+] as const;
 
 // ============================================================================
 // QUERY KEY FACTORIES (Enterprise Pattern)
@@ -266,6 +283,10 @@ export default function Classes() {
     subjectTeachers: [],
     status: "active",
     assignedTeacher: "",
+    days: [],
+    startTime: "16:00",
+    endTime: "18:00",
+    roomNumber: "",
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -493,6 +514,11 @@ export default function Classes() {
       errors.classTitle = "Class Title is required";
     if (!formData.gradeLevel) errors.gradeLevel = "Grade Level is required";
     if (!formData.group) errors.group = "Group is required";
+    if (!formData.days?.length)
+      errors.days = "At least one day must be selected";
+    if (!formData.startTime) errors.schedule = "Start time is required";
+    if (!formData.endTime) errors.schedule = "End time is required";
+
     const unassignedSubjects = (formData.subjects || []).filter((s: any) => {
       const subjectName = typeof s === "string" ? s : s.name;
       return !(formData.subjectTeachers || []).find(
@@ -519,6 +545,10 @@ export default function Classes() {
       subjectTeachers: [],
       status: "active",
       assignedTeacher: "",
+      days: [],
+      startTime: "16:00",
+      endTime: "18:00",
+      roomNumber: "",
     });
     setFormErrors({});
   }, []);
@@ -547,6 +577,10 @@ export default function Classes() {
         typeof classDoc.assignedTeacher === "string"
           ? classDoc.assignedTeacher
           : classDoc.assignedTeacher?._id || "",
+      days: classDoc.days || [],
+      startTime: classDoc.startTime || "16:00",
+      endTime: classDoc.endTime || "18:00",
+      roomNumber: classDoc.roomNumber || "",
     });
     setFormErrors({});
   }, []);
@@ -594,6 +628,10 @@ export default function Classes() {
       status: formData.status || "active",
       assignedTeacher: formData.assignedTeacher || undefined,
       teacherName: selectedTeacher?.name,
+      days: formData.days || [],
+      startTime: formData.startTime || "16:00",
+      endTime: formData.endTime || "18:00",
+      roomNumber: formData.roomNumber || "TBD",
     };
 
     if (modalState.type === "edit" && formData._id) {
@@ -680,7 +718,14 @@ export default function Classes() {
       (s: any) => (typeof s === "string" ? s : s.name) === subjectId,
     );
 
-
+  const toggleDay = (day: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      days: prev.days?.includes(day)
+        ? prev.days.filter((d) => d !== day)
+        : [...(prev.days || []), day],
+    }));
+  };
 
   // ==========================================================================
   // RENDER HELPERS
@@ -750,7 +795,7 @@ export default function Classes() {
     () => ({
       total: classes.length,
       active: classes.filter((c) => c.status === "active").length,
-      students: classes.reduce((sum, c) => sum + (c.studentCount || 0), 0),
+      students: classes.reduce((sum, c) => sum + (c.enrolledStudents || c.studentCount || 0), 0),
       linked: classes.filter((c) => getSessionInfo(c.session).found).length,
     }),
     [classes, getSessionInfo],
@@ -835,9 +880,9 @@ export default function Classes() {
               <SelectValue placeholder="Filter by Session" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Academic Sessions</SelectItem>
-              {mergedSessions.map((session) => {
-                const sessionId = session._id || session.sessionId;
+              <SelectItem value="all">All Sessions</SelectItem>
+              {sessions.map((session) => {
+                const sessionId = session._id;
                 if (!sessionId) return null;
                 return (
                   <SelectItem key={sessionId} value={sessionId}>
@@ -888,7 +933,7 @@ export default function Classes() {
               <TableRow className="bg-muted/50 hover:bg-muted/50">
                 <TableHead>Class Details</TableHead>
                 <TableHead>Academic Session</TableHead>
-                <TableHead>Group / Shift</TableHead>
+                <TableHead>Group / Schedule</TableHead>
                 <TableHead>Subjects & Teachers</TableHead>
                 <TableHead className="text-center">Students</TableHead>
                 <TableHead className="text-right">Revenue Collected</TableHead>
@@ -947,7 +992,7 @@ export default function Classes() {
                           {classDoc.shift && (
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              {classDoc.shift}
+                              {classDoc.shift} • {classDoc.days?.join(", ")}
                             </span>
                           )}
                         </div>
@@ -980,7 +1025,7 @@ export default function Classes() {
                       <TableCell className="text-center">
                         <div className="flex flex-col items-center">
                           <span className="text-lg font-bold text-primary">
-                            {classDoc.studentCount || 0}
+                            {classDoc.enrolledStudents || classDoc.studentCount || 0}
                           </span>
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                             Enrolled
@@ -994,7 +1039,7 @@ export default function Classes() {
                           </span>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
-                              70% = PKR {(classDoc.estimatedTeacherShare || 0).toLocaleString()}
+                              {classDoc.teacherSharePct || 70}% = PKR {(classDoc.estimatedTeacherShare || 0).toLocaleString()}
                             </span>
                           </div>
                         </div>
@@ -1199,29 +1244,87 @@ export default function Classes() {
               </div>
             </div>
 
-            {/* Shift Selection */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Shift / Batch
-              </Label>
-              <Select
-                value={formData.shift || ""}
-                onValueChange={(val) =>
-                  setFormData((prev) => ({ ...prev, shift: val }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select shift (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SHIFT_OPTIONS.map((shift) => (
-                    <SelectItem key={shift} value={shift}>
-                      {shift}
-                    </SelectItem>
+            {/* Schedule Section */}
+            <div className="space-y-4 p-4 bg-blue-50/30 rounded-xl border border-blue-100">
+              <div className="flex items-center gap-2 text-blue-800">
+                <Calendar className="h-4 w-4" />
+                <Label className="font-semibold">
+                  Schedule Configuration *
+                </Label>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">
+                  Class Days
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {DAYS_OF_WEEK.map((day) => (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => toggleDay(day.value)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                        formData.days?.includes(day.value)
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-white border border-gray-200 text-gray-700 hover:border-blue-300",
+                      )}
+                    >
+                      {day.label}
+                    </button>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+                {formErrors.days && (
+                  <p className="text-xs text-red-600">{formErrors.days}</p>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    Start Time
+                  </Label>
+                  <Input
+                    type="time"
+                    value={formData.startTime || "16:00"}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        startTime: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">
+                    End Time
+                  </Label>
+                  <Input
+                    type="time"
+                    value={formData.endTime || "18:00"}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        endTime: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Room</Label>
+                  <Input
+                    placeholder="e.g., 101"
+                    value={formData.roomNumber || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        roomNumber: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              {formErrors.schedule && (
+                <p className="text-xs text-red-600">{formErrors.schedule}</p>
+              )}
             </div>
 
             {/* Form Master */}
