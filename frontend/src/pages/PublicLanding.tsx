@@ -897,14 +897,14 @@ export default function PublicLanding() {
       <footer className="bg-white text-brand-primary pt-14 pb-8 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-            <div className="col-span-1 lg:col-span-1">
+            <div className="col-span-1 md:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-3 mb-5">
                 <img
                   src="/logo.png"
                   alt="Logo"
-                  className="h-10 w-10 object-contain"
+                  className="h-10 w-10 object-contain flex-shrink-0"
                 />
-                <span className="text-lg font-serif font-black tracking-tight whitespace-nowrap">
+                <span className="text-base font-serif font-black tracking-tight leading-tight">
                   SCIENCES COACHING ACADEMY
                 </span>
               </div>
