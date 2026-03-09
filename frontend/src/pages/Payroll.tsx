@@ -121,23 +121,7 @@ export default function Payroll() {
     [loadLogo],
   );
 
-  // Redirect non-owners
-  if (user?.role !== "OWNER") {
-    return (
-      <DashboardLayout title="Payroll">
-        <div className="flex flex-col items-center justify-center h-96 gap-4">
-          <AlertCircle className="h-16 w-16 text-red-500" />
-          <h2 className="text-xl font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground">
-            Only the Owner can access the Payroll dashboard.
-          </p>
-          <Button onClick={() => navigate("/")}>Go to Dashboard</Button>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  // Fetch payroll dashboard data
+  // Fetch payroll dashboard data - hooks must be before any conditional returns
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["payroll-dashboard"],
     queryFn: async () => {
@@ -261,18 +245,32 @@ export default function Payroll() {
     },
   });
 
-  const dashboard = dashboardData?.data || {
-    activeSession: null,
-    totalPaidSession: 0,
-    teachersWithBalances: [],
-    totalTeacherLiability: 0,
-  };
+  // Redirect non-owners (AFTER all hooks to avoid React hooks order violation)
+  if (user?.role !== "OWNER") {
+    return (
+      <DashboardLayout title="Payroll">
+        <div className="flex flex-col items-center justify-center h-96 gap-4">
+          <AlertCircle className="h-16 w-16 text-red-500" />
+          <h2 className="text-xl font-semibold">Access Denied</h2>
+          <p className="text-muted-foreground">
+            Only the Owner can access the Payroll dashboard.
+          </p>
+          <Button onClick={() => navigate("/")}>Go to Dashboard</Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const dashboard = dashboardData?.data || {};
+  const totalTeacherLiability = dashboard.totalTeacherLiability || 0;
+  const totalPaidSession = dashboard.totalPaidSession || 0;
+  const teachersWithBalances = dashboard.teachersWithBalances || [];
 
   const sessions = sessionsData?.data || [];
   const classes = classesData?.data || [];
 
   // Filter teachers based on search and filters
-  const filteredTeachers = dashboard.teachersWithBalances.filter((teacher: any) => {
+  const filteredTeachers = teachersWithBalances.filter((teacher: any) => {
     // Search filter
     if (searchQuery && !teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !teacher.subject?.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -309,7 +307,7 @@ export default function Payroll() {
                     Total Liability
                   </p>
                   <p className="text-2xl font-bold text-blue-600">
-                    Rs. {dashboard.totalTeacherLiability.toLocaleString()}
+                    Rs. {totalTeacherLiability.toLocaleString()}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
@@ -325,7 +323,7 @@ export default function Payroll() {
                     Paid This Session
                   </p>
                   <p className="text-2xl font-bold text-emerald-600">
-                    Rs. {dashboard.totalPaidSession.toLocaleString()}
+                    Rs. {totalPaidSession.toLocaleString()}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-emerald-500" />
@@ -341,7 +339,7 @@ export default function Payroll() {
                     Teachers With Payable
                   </p>
                   <p className="text-2xl font-bold text-red-600">
-                    {dashboard.teachersWithBalances.filter(
+                    {teachersWithBalances.filter(
                       (t: any) => (t.netPayable || 0) > 0,
                     ).length}
                   </p>
@@ -483,7 +481,7 @@ export default function Payroll() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {dashboard.teachersWithBalances.map((teacher: any) => (
+              {teachersWithBalances.map((teacher: any) => (
                 <div
                   key={teacher._id}
                   className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"

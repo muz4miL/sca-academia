@@ -7,6 +7,7 @@ const configurationSchema = new mongoose.Schema(
     academyLogo: { type: String, default: "" },
     academyAddress: { type: String, default: "Peshawar, Pakistan" },
     academyPhone: { type: String, default: "" },
+    systemAdminName: { type: String, default: "System Admin" },
 
     // Teacher Compensation (Global Default)
     salaryConfig: {

@@ -125,12 +125,12 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300 ease-in-out",
+        "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300 ease-in-out flex flex-col",
         collapsed ? "w-16" : "w-64",
       )}
     >
       {/* Sidebar Header - Sciences Coaching Academy Blue Theme */}
-      <div className="border-b border-blue-500/20 px-4 py-5">
+      <div className="border-b border-blue-500/20 px-4 py-5 shrink-0">
         {!collapsed && (
           <div className="flex flex-col items-center gap-2">
             <img
@@ -152,10 +152,9 @@ export function Sidebar() {
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - scrollable flex-1 area */}
       <nav
-        className="mt-4 flex flex-col gap-1 px-2 overflow-y-auto sidebar-scrollbar"
-        style={{ maxHeight: "calc(100vh - 300px)" }}
+        className="mt-2 flex flex-col gap-1 px-2 overflow-y-auto sidebar-scrollbar flex-1 min-h-0"
       >
         {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -178,7 +177,7 @@ export function Sidebar() {
       </nav>
 
       {/* System Apps Section */}
-      <div className="absolute bottom-16 left-0 right-0 border-t border-sidebar-border pt-3 px-2 bg-sidebar">
+      <div className="border-t border-sidebar-border pt-3 px-2 bg-sidebar shrink-0">
         {!collapsed && (
           <div className="px-3 mb-2">
             <p className="text-[10px] font-semibold text-blue-400/60 tracking-widest uppercase">
@@ -217,16 +216,18 @@ export function Sidebar() {
       </div>
 
       {/* Collapse button */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute bottom-4 left-1/2 z-50 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sidebar-foreground shadow-lg transition-colors hover:bg-primary hover:text-primary-foreground"
-      >
-        {collapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" />
-        )}
-      </button>
+      <div className="shrink-0 flex justify-center py-3">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sidebar-foreground shadow-lg transition-colors hover:bg-primary hover:text-primary-foreground"
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </button>
+      </div>
     </aside>
   );
 }

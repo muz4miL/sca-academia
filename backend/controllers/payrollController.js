@@ -347,7 +347,7 @@ exports.getPayrollDashboard = async (req, res) => {
     );
 
     const creditTotals = await Transaction.aggregate([
-      { $match: { type: "CREDIT", "splitDetails.teacherId": { $ne: null } } },
+      { $match: { type: { $in: ["CREDIT", "LIABILITY"] }, "splitDetails.teacherId": { $ne: null } } },
       {
         $group: { _id: "$splitDetails.teacherId", total: { $sum: "$amount" } },
       },

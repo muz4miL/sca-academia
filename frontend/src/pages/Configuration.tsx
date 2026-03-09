@@ -68,6 +68,7 @@ const Configuration = () => {
   const [academyName, setAcademyName] = useState("SCIENCES COACHING ACADEMY");
   const [academyAddress, setAcademyAddress] = useState("Peshawar, Pakistan");
   const [academyPhone, setAcademyPhone] = useState("");
+  const [systemAdminName, setSystemAdminName] = useState("System Admin");
 
   // --- Master Subject Pricing ---
   const [defaultSubjectFees, setDefaultSubjectFees] = useState<
@@ -162,6 +163,7 @@ const Configuration = () => {
           setAcademyName(data.academyName || "SCIENCES COACHING ACADEMY");
           setAcademyAddress(data.academyAddress || "Peshawar, Pakistan");
           setAcademyPhone(data.academyPhone || "");
+          setSystemAdminName(data.systemAdminName || "System Admin");
 
           // Master Subject Pricing
           setDefaultSubjectFees(data.defaultSubjectFees || []);
@@ -542,6 +544,7 @@ const Configuration = () => {
         academyName,
         academyAddress,
         academyPhone,
+        systemAdminName,
         defaultSubjectFees,
         sessionPrices,
       };
@@ -660,6 +663,18 @@ const Configuration = () => {
                     onChange={(e) => setAcademyName(e.target.value)}
                     className="h-10"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">System Admin Name</Label>
+                  <Input
+                    value={systemAdminName}
+                    onChange={(e) => setSystemAdminName(e.target.value)}
+                    placeholder="e.g. Sir Waqar Baig"
+                    className="h-10"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This name will be displayed on the main dashboard welcome banner.
+                  </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">

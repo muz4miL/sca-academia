@@ -138,6 +138,9 @@ const OwnerDashboard = () => {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportPeriod, setReportPeriod] = useState("");
 
+  // System admin name from configuration
+  const [systemAdminName, setSystemAdminName] = useState<string>("");
+
   // Fetch dashboard stats
   const fetchStats = async () => {
     try {
@@ -318,6 +321,19 @@ const OwnerDashboard = () => {
         // Fetch analytics
         await fetchAnalytics();
 
+        // Fetch system admin name from configuration
+        try {
+          const configRes = await fetch(`${API_BASE_URL}/config`, {
+            credentials: "include",
+          });
+          const configData = await configRes.json();
+          if (configData.success && configData.data?.systemAdminName) {
+            setSystemAdminName(configData.data.systemAdminName);
+          }
+        } catch (configErr) {
+          console.error("Error fetching config:", configErr);
+        }
+
         setLoading(false);
       } catch (err) {
         console.error("Error:", err);
@@ -356,7 +372,7 @@ const OwnerDashboard = () => {
           <div className="relative z-10">
             <h1 className="text-4xl font-bold text-white mb-2">
               Welcome back,{" "}
-              <span className="text-red-400">{user?.fullName || "Owner"}</span>
+              <span className="text-red-400">{systemAdminName || "System Admin"}</span>
             </h1>
             <p className="text-slate-300 text-lg">
               SCIENCES COACHING ACADEMY — Management Dashboard
