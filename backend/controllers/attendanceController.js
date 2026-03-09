@@ -1,6 +1,9 @@
+const mongoose = require("mongoose");
 const Attendance = require("../models/Attendance");
 const Student = require("../models/Student");
 const Class = require("../models/Class");
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id);
 
 /**
  * Attendance Controller — Sciences Coaching Academy
@@ -34,14 +37,15 @@ exports.markAttendance = async (req, res) => {
       });
     }
 
-    // Find the student
-    const student = await Student.findOne({
-      $or: [
-        { _id: studentId },
-        { studentId: studentId },
-        { barcodeId: studentId },
-      ],
-    }).populate("classRef");
+    // Find the student (only search by _id if it's a valid ObjectId)
+    const orConditions = [
+      { studentId: studentId },
+      { barcodeId: studentId },
+    ];
+    if (isValidObjectId(studentId)) {
+      orConditions.unshift({ _id: studentId });
+    }
+    const student = await Student.findOne({ $or: orConditions }).populate("classRef");
 
     if (!student) {
       return res.status(404).json({
@@ -131,7 +135,10 @@ exports.getTodayAttendance = async (req, res) => {
     const studentQuery = classFilter && classFilter !== "all" ? { class: classFilter } : {};
     const totalStudents = await Student.countDocuments({
       ...studentQuery,
-      studentStatus: { $in: ["Active", "active", undefined] },
+      $or: [
+        { studentStatus: { $in: ["Active", "active"] } },
+        { studentStatus: { $exists: false } },
+      ],
     });
 
     // Calculate stats
@@ -239,9 +246,11 @@ exports.getStudentAttendance = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const student = await Student.findOne({
-      $or: [{ _id: id }, { studentId: id }],
-    });
+    const orConditions = [{ studentId: id }];
+    if (isValidObjectId(id)) {
+      orConditions.unshift({ _id: id });
+    }
+    const student = await Student.findOne({ $or: orConditions });
 
     if (!student) {
       return res.status(404).json({
@@ -342,9 +351,12 @@ exports.markAbsentees = async (req, res) => {
     const today = getTodayPKT();
     const { classFilter } = req.body;
 
-    // Get all active students
+    // Get all active students (match Active, active, or missing studentStatus field)
     const studentQuery = {
-      studentStatus: { $in: ["Active", "active", undefined] },
+      $or: [
+        { studentStatus: { $in: ["Active", "active"] } },
+        { studentStatus: { $exists: false } },
+      ],
     };
     if (classFilter && classFilter !== "all") {
       studentQuery.class = classFilter;

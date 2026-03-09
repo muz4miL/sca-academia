@@ -118,11 +118,12 @@ exports.scanBarcode = async (req, res) => {
 
     // If not found by token, try direct ID lookup
     if (!student) {
+      const escapedBarcode = barcodeId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       student = await Student.findOne({
         $or: [
           { barcodeId: barcodeId },
           { studentId: barcodeId },
-          { barcodeId: { $regex: new RegExp(`^${barcodeId}$`, "i") } },
+          { barcodeId: { $regex: new RegExp(`^${escapedBarcode}$`, "i") } },
         ],
       }).populate("classRef");
     }
