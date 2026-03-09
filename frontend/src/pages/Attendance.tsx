@@ -497,21 +497,6 @@ export default function Attendance() {
 
               {/* Actions */}
               <div className="flex gap-2 ml-auto">
-                {viewMode === "today" && (user?.role === "OWNER" || user?.role === "ADMIN") && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleMarkAbsentees}
-                    disabled={markAbsentLoading}
-                  >
-                    {markAbsentLoading ? (
-                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                    ) : (
-                      <UserX className="w-4 h-4 mr-1" />
-                    )}
-                    Mark Absentees
-                  </Button>
-                )}
               </div>
             </div>
           </CardContent>
