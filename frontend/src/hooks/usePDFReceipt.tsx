@@ -110,12 +110,15 @@ export function usePDFReceipt() {
         const result = await response.json();
 
         const receiptData: PrintReceiptResult = {
-          student: result.data.student,
+          student: {
+            ...result.data.student,
+            schedule: result.data.schedule || [],
+          },
           receiptConfig: {
             receiptId: result.data.receiptId,
             version: result.data.version,
-            isOriginal: result.data.isOriginal,
-            printedAt: result.data.printedAt,
+            isOriginal: result.data.isOriginal ?? (result.data.version === 1),
+            printedAt: result.data.printedAt || new Date(),
           },
         };
 

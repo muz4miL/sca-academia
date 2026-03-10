@@ -272,12 +272,54 @@ exports.trackPrint = async (req, res) => {
 
     const version = (student.printHistory?.length || 0) + 1;
     const receiptId = `TOKEN-${student.studentId}-${Math.random().toString(36).substr(2, 4).toUpperCase()}-V${version}`;
+    const isOriginal = version === 1;
+    const printedAt = new Date();
 
     student.printHistory = student.printHistory || [];
-    student.printHistory.push({ receiptId, printedAt: new Date(), version });
+    student.printHistory.push({ receiptId, printedAt, version });
     await student.save();
 
-    res.json({ success: true, data: { receiptId, version, student } });
+    // Fetch class timetable schedule — group by subject for the receipt
+    let schedule = [];
+    if (student.classRef) {
+      try {
+        const Timetable = require("../models/Timetable");
+        const entries = await Timetable.find({
+          classId: student.classRef,
+          status: "active",
+        }).populate("teacherId", "teacherName fullName");
+
+        // Group entries by subject — deduplicate teachers and collect days
+        const subjectMap = new Map();
+        for (const entry of entries) {
+          const key = entry.subject;
+          if (!subjectMap.has(key)) {
+            subjectMap.set(key, {
+              subject: entry.subject,
+              teacherName:
+                entry.teacherId?.teacherName ||
+                entry.teacherId?.fullName ||
+                "—",
+              time: `${entry.startTime} – ${entry.endTime}`,
+              days: [entry.day],
+            });
+          } else {
+            const existing = subjectMap.get(key);
+            if (!existing.days.includes(entry.day)) {
+              existing.days.push(entry.day);
+            }
+          }
+        }
+        schedule = Array.from(subjectMap.values());
+      } catch (e) {
+        console.log("Schedule fetch skipped:", e.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      data: { receiptId, version, isOriginal, printedAt, student, schedule },
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

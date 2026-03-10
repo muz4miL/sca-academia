@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2563eb",
   },
 
-  // Subjects Section (Vertical List)
+  // Subjects / Schedule Section
   subjectsSection: {
     marginTop: 10,
     paddingTop: 10,
@@ -225,6 +225,57 @@ const styles = StyleSheet.create({
   subjectName: {
     fontSize: 9,
     color: "#1f2937",
+  },
+  // Schedule table
+  scheduleSection: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTop: "1pt solid #e5e7eb",
+  },
+  scheduleTitle: {
+    fontSize: 9,
+    fontWeight: 700,
+    color: "#374151",
+    marginBottom: 4,
+  },
+  scheduleHeader: {
+    flexDirection: "row",
+    backgroundColor: "#1a365d",
+    paddingVertical: 3,
+    paddingHorizontal: 3,
+    marginBottom: 0,
+  },
+  scheduleRow: {
+    flexDirection: "row",
+    paddingVertical: 2,
+    paddingHorizontal: 3,
+    borderBottom: "0.5pt solid #e5e7eb",
+  },
+  scheduleRowAlt: {
+    backgroundColor: "#f8fafc",
+  },
+  scheduleColSubject: { flex: 1.1 },
+  scheduleColTeacher: { flex: 1.4 },
+  scheduleColTime: { flex: 1.1 },
+  scheduleHeaderText: {
+    fontSize: 7,
+    fontWeight: 700,
+    color: "#ffffff",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  scheduleSubjectText: {
+    fontSize: 8,
+    color: "#1a365d",
+    fontWeight: 700,
+  },
+  scheduleTeacherText: {
+    fontSize: 7.5,
+    color: "#374151",
+  },
+  scheduleTimeText: {
+    fontSize: 7,
+    color: "#4b5563",
   },
 
   // Center Section - Student ID
@@ -388,6 +439,12 @@ export interface StudentPDFData {
   feeStatus: string;
   admissionDate?: string | Date;
   subjects?: Array<{ name: string; fee: number }>;
+  schedule?: Array<{
+    subject: string;
+    teacherName: string;
+    time: string;
+    days: string[];
+  }>;
 }
 
 export interface ReceiptPDFConfig {
@@ -555,19 +612,46 @@ export const ReceiptPDF = ({
                 </View>
               </View>
 
-              {/* Subjects - Vertical Bullet List */}
-              {student.subjects && student.subjects.length > 0 && (
-                <View style={styles.subjectsSection}>
-                  <Text style={styles.subjectsTitle}>Enrolled Subjects:</Text>
-                  <View style={styles.subjectsList}>
-                    {student.subjects.map((s, idx) => (
-                      <View key={idx} style={styles.subjectItem}>
-                        <Text style={styles.subjectBullet}>•</Text>
-                        <Text style={styles.subjectName}>{s.name}</Text>
-                      </View>
-                    ))}
+              {/* Class Schedule — Subject / Teacher / Time */}
+              {student.schedule && student.schedule.length > 0 ? (
+                <View style={styles.scheduleSection}>
+                  <Text style={styles.scheduleTitle}>Class Schedule:</Text>
+                  {/* Header row */}
+                  <View style={styles.scheduleHeader}>
+                    <Text style={[styles.scheduleColSubject, styles.scheduleHeaderText]}>Subject</Text>
+                    <Text style={[styles.scheduleColTeacher, styles.scheduleHeaderText]}>Teacher</Text>
+                    <Text style={[styles.scheduleColTime, styles.scheduleHeaderText]}>Time</Text>
                   </View>
+                  {/* Data rows */}
+                  {student.schedule.map((s, idx) => (
+                    <View
+                      key={idx}
+                      style={[
+                        styles.scheduleRow,
+                        idx % 2 !== 0 ? styles.scheduleRowAlt : {},
+                      ]}
+                    >
+                      <Text style={[styles.scheduleColSubject, styles.scheduleSubjectText]}>{s.subject}</Text>
+                      <Text style={[styles.scheduleColTeacher, styles.scheduleTeacherText]}>{s.teacherName}</Text>
+                      <Text style={[styles.scheduleColTime, styles.scheduleTimeText]}>{s.time}</Text>
+                    </View>
+                  ))}
                 </View>
+              ) : (
+                /* Fallback bullet list if no timetable data */
+                student.subjects && student.subjects.length > 0 && (
+                  <View style={styles.subjectsSection}>
+                    <Text style={styles.subjectsTitle}>Enrolled Subjects:</Text>
+                    <View style={styles.subjectsList}>
+                      {student.subjects.map((s, idx) => (
+                        <View key={idx} style={styles.subjectItem}>
+                          <Text style={styles.subjectBullet}>•</Text>
+                          <Text style={styles.subjectName}>{s.name}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )
               )}
             </View>
 
