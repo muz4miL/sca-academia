@@ -26,6 +26,7 @@ import StudentPortal from "./pages/StudentPortal";
 import NotFound from "./pages/NotFound";
 import PublicLanding from "./pages/PublicLanding";
 import Attendance from "./pages/Attendance";
+import Inventory from "./pages/Inventory";
 // Gatekeeper (reserved for SCA project)
 import Gatekeeper from "./pages/Gatekeeper";
 
@@ -150,6 +151,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Payroll />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <ProtectedRoute>
+                  <Inventory />
                 </ProtectedRoute>
               }
             />

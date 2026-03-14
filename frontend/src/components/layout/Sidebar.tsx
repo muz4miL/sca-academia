@@ -19,6 +19,7 @@ import {
   Globe,
   Scan,
   ExternalLink,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -90,6 +91,13 @@ const navItems = [
     label: "Payroll",
     path: "/payroll",
     permission: "payroll",
+    ownerOnly: true,
+  },
+  {
+    icon: Package,
+    label: "Inventory",
+    path: "/inventory",
+    permission: "configuration",
     ownerOnly: true,
   },
   {

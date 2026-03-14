@@ -17,7 +17,7 @@ const Student = require("./models/Student");
 const Transaction = require("./models/Transaction");
 const Expense = require("./models/Expense");
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sca-academia";
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://127.0.0.1:27017/scaAcademiaDB";
 
 async function clearDatabase() {
   console.log("\n🗑️  CLEARING DATABASE...");
@@ -55,9 +55,9 @@ async function seedClasses(sessionId) {
   
   // Create classes one by one to trigger pre-save hooks
   const class1 = await Class.create({
-    classTitle: "SCA 1st Year (Pre-Med)",
-    className: "SCA 1st Year (Pre-Med)",
-    gradeLevel: "1st Year",
+    classTitle: "SCA 11th Grade (Pre-Med)",
+    className: "SCA 11th Grade (Pre-Med)",
+    gradeLevel: "11th Grade",
     group: "Pre-Medical",
     baseFee: 25000,
     session: sessionId,
@@ -74,9 +74,9 @@ async function seedClasses(sessionId) {
   });
   
   const class2 = await Class.create({
-    classTitle: "SCA 2nd Year (Pre-Eng)",
-    className: "SCA 2nd Year (Pre-Eng)",
-    gradeLevel: "2nd Year",
+    classTitle: "SCA 12th Grade (Pre-Eng)",
+    className: "SCA 12th Grade (Pre-Eng)",
+    gradeLevel: "12th Grade",
     group: "Pre-Engineering",
     baseFee: 30000,
     session: sessionId,
@@ -251,7 +251,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Saifullah Khan",
       fatherName: "Muhammad Khan",
       gender: "Male",
-      class: "10th Grade Medical",
+      class: "11th Grade Pre-Medical",
       group: "Pre-Medical",
       parentCell: "03001111111",
       studentCell: "03111111111",
@@ -267,7 +267,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Ayesha Malik",
       fatherName: "Malik Riaz",
       gender: "Female",
-      class: "10th Grade Medical",
+      class: "11th Grade Pre-Medical",
       group: "Pre-Medical",
       parentCell: "03002222222",
       studentCell: "03122222222",
@@ -283,7 +283,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Ali Hassan",
       fatherName: "Hassan Ahmed",
       gender: "Male",
-      class: "10th Grade Medical",
+      class: "11th Grade Pre-Medical",
       group: "Pre-Medical",
       parentCell: "03003333333",
       studentCell: "03133333333",
@@ -299,7 +299,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Zainab Fatima",
       fatherName: "Muhammad Fatima",
       gender: "Female",
-      class: "10th Grade Medical",
+      class: "11th Grade Pre-Medical",
       group: "Pre-Medical",
       parentCell: "03004444444",
       studentCell: "03144444444",
@@ -315,7 +315,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Hamza Tariq",
       fatherName: "Tariq Mahmood",
       gender: "Male",
-      class: "10th Grade Medical",
+      class: "11th Grade Pre-Medical",
       group: "Pre-Medical",
       parentCell: "03005555555",
       studentCell: "03155555555",
@@ -333,7 +333,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Bilal Ahmed",
       fatherName: "Ahmed Raza",
       gender: "Male",
-      class: "12th Grade Engineering",
+      class: "12th Grade Pre-Engineering",
       group: "Pre-Engineering",
       parentCell: "03006666666",
       studentCell: "03166666666",
@@ -349,7 +349,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Usman Khalid",
       fatherName: "Khalid Mehmood",
       gender: "Male",
-      class: "12th Grade Engineering",
+      class: "12th Grade Pre-Engineering",
       group: "Pre-Engineering",
       parentCell: "03007777777",
       studentCell: "03177777777",
@@ -365,7 +365,7 @@ async function seedStudents(classes, sessionId) {
       studentName: "Fahad Iqbal",
       fatherName: "Iqbal Hussain",
       gender: "Male",
-      class: "12th Grade Engineering",
+      class: "12th Grade Pre-Engineering",
       group: "Pre-Engineering",
       parentCell: "03008888888",
       studentCell: "03188888888",
@@ -573,8 +573,8 @@ async function main() {
     console.log("   Total Students: 8");
     console.log("   Total Teachers: 3");
     console.log("\n🎓 Expected Class Revenue:");
-    console.log("   10th Grade Medical: PKR 110,000 (70% = PKR 77,000)");
-    console.log("   12th Grade Engineering: PKR 85,000 (70% = PKR 59,500)");
+    console.log("   11th Grade Pre-Medical: PKR 110,000 (70% = PKR 77,000)");
+    console.log("   12th Grade Pre-Engineering: PKR 85,000 (70% = PKR 59,500)");
     
     process.exit(0);
   } catch (error) {
