@@ -10,7 +10,10 @@ import {
   Loader2,
   PlusCircle,
   Search,
-  Filter,
+  ChevronDown,
+  ChevronRight,
+  Calculator,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,9 +72,10 @@ export default function Payroll() {
   const [creditNote, setCreditNote] = useState("");
 
   // Filter State
-  const [sessionFilter, setSessionFilter] = useState("");
-  const [classFilter, setClassFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Expanded teacher breakdown rows
+  const [expandedTeachers, setExpandedTeachers] = useState<Set<string>>(new Set());
 
   // Logo cache for PDF
   const [cachedLogo, setCachedLogo] = useState<string | null>(null);
@@ -133,6 +137,18 @@ export default function Payroll() {
     },
   });
 
+  // Fetch real-time earnings breakdown (from enrollment data)
+  const { data: earningsData, isLoading: earningsLoading, refetch: refetchEarnings } = useQuery({
+    queryKey: ["payroll-earnings-breakdown"],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/payroll/earnings-breakdown`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch earnings breakdown");
+      return res.json();
+    },
+  });
+
   // Fetch sessions for filter
   const { data: sessionsData } = useQuery({
     queryKey: ["sessions"],
@@ -143,6 +159,7 @@ export default function Payroll() {
       if (!res.ok) throw new Error("Failed to fetch sessions");
       return res.json();
     },
+    enabled: false,
   });
 
   // Fetch classes for filter
@@ -155,9 +172,10 @@ export default function Payroll() {
       if (!res.ok) throw new Error("Failed to fetch classes");
       return res.json();
     },
+    enabled: false,
   });
 
-  const payTeacherMutation = useMutation({
+  const payTeacherMutation= useMutation({
     mutationFn: async ({ teacherId, amount, notes }: any) => {
       const res = await fetch(`${API_BASE_URL}/finance/teacher-payout`, {
         method: "POST",
@@ -266,12 +284,25 @@ export default function Payroll() {
   const totalPaidSession = dashboard.totalPaidSession || 0;
   const teachersWithBalances = dashboard.teachersWithBalances || [];
 
-  const sessions = sessionsData?.data || [];
-  const classes = classesData?.data || [];
+  const earningsTeachers = earningsData?.data?.teachers || [];
 
-  // Filter teachers based on search and filters
+  // Build earnings lookup by teacherId
+  const earningsMap = new Map(
+    earningsTeachers.map((t: any) => [t.teacherId?.toString(), t])
+  );
+
+  // Toggle expanded breakdown row
+  const toggleExpanded = (teacherId: string) => {
+    setExpandedTeachers((prev) => {
+      const next = new Set(prev);
+      if (next.has(teacherId)) next.delete(teacherId);
+      else next.add(teacherId);
+      return next;
+    });
+  };
+
+  // Filter teachers based on search
   const filteredTeachers = teachersWithBalances.filter((teacher: any) => {
-    // Search filter
     if (searchQuery && !teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !teacher.subject?.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
@@ -360,8 +391,8 @@ export default function Payroll() {
           </CardHeader>
           <CardContent>
             {/* Filters */}
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
+            <div className="mb-6">
+              <div className="relative max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by name or subject..."
@@ -370,33 +401,6 @@ export default function Payroll() {
                   className="pl-10"
                 />
               </div>
-              <Select value={sessionFilter} onValueChange={setSessionFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by Session" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sessions</SelectItem>
-                  {sessions.map((session: any) => (
-                    <SelectItem key={session._id} value={session._id}>
-                      {session.sessionName}
-                      {session.status === "active" && " (Active)"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={classFilter} onValueChange={setClassFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by Class" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Classes</SelectItem>
-                  {classes.map((cls: any) => (
-                    <SelectItem key={cls._id} value={cls._id}>
-                      {cls.classTitle || cls.className}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             {filteredTeachers.length === 0 ? (
@@ -408,64 +412,180 @@ export default function Payroll() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-primary/5">
+                    <TableHead className="w-8"></TableHead>
                     <TableHead>Teacher</TableHead>
                     <TableHead>Subject</TableHead>
                     <TableHead>Compensation</TableHead>
+                    <TableHead className="text-right">Calculated Earning</TableHead>
                     <TableHead className="text-right">Total Earned</TableHead>
-                    <TableHead className="text-right">Total Withdrawn</TableHead>
                     <TableHead className="text-right">Net Payable</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTeachers.map((teacher: any) => (
-                    <TableRow key={teacher._id} className="hover:bg-muted/50">
-                      <TableCell className="font-medium">
-                        {teacher.name}
-                      </TableCell>
-                      <TableCell className="capitalize">
-                        {teacher.subject || "-"}
-                      </TableCell>
-                      <TableCell className="capitalize">
-                        {teacher.compensation?.type || "percentage"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        Rs. {(teacher.totalEarned || 0).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        Rs. {(teacher.totalWithdrawn || 0).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right font-bold text-green-600">
-                        Rs. {(teacher.netPayable || 0).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => {
-                              setSelectedTeacher(teacher);
-                              setCreditDialogOpen(true);
-                            }}
-                          >
-                            <PlusCircle className="h-3.5 w-3.5 mr-1" />
-                            Credit
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
-                            onClick={() => {
-                              setSelectedTeacher(teacher);
-                              setPayDialogOpen(true);
-                            }}
-                            disabled={(teacher.netPayable || 0) <= 0}
-                          >
-                            Pay
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredTeachers.map((teacher: any) => {
+                    const earnings = earningsMap.get(teacher._id?.toString());
+                    const isExpanded = expandedTeachers.has(teacher._id?.toString());
+                    return (
+                      <>
+                        <TableRow key={teacher._id} className="hover:bg-muted/50">
+                          <TableCell>
+                            {earnings?.breakdown?.length > 0 && (
+                              <button
+                                onClick={() => toggleExpanded(teacher._id?.toString())}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </button>
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {teacher.name}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {teacher.subject || "-"}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            <Badge variant="outline" className="text-xs">
+                              {teacher.compensation?.type || "percentage"}
+                              {teacher.compensation?.type === "percentage" &&
+                                ` (${teacher.compensation?.teacherShare || 70}%)`}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {earningsLoading ? (
+                              <Skeleton className="h-4 w-20 ml-auto" />
+                            ) : earnings ? (
+                              <span className="font-semibold text-blue-600">
+                                Rs. {(earnings.calculatedEarning || 0).toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            Rs. {(teacher.totalEarned || 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right font-bold text-green-600">
+                            Rs. {(teacher.netPayable || 0).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => {
+                                  setSelectedTeacher(teacher);
+                                  // Pre-fill with calculated earning if available
+                                  if (earnings?.calculatedEarning > 0) {
+                                    setCreditAmount(String(earnings.calculatedEarning));
+                                    setCreditNote(`Calculated share — ${earnings.breakdown?.map((b: any) => b.classTitle).join(", ") || "session earnings"}`);
+                                  }
+                                  setCreditDialogOpen(true);
+                                }}
+                              >
+                                <PlusCircle className="h-3.5 w-3.5 mr-1" />
+                                Credit
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={() => {
+                                  setSelectedTeacher(teacher);
+                                  setPayDialogOpen(true);
+                                }}
+                                disabled={(teacher.netPayable || 0) <= 0}
+                              >
+                                Pay
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        {/* Expandable Earnings Breakdown */}
+                        {isExpanded && earnings?.breakdown?.length > 0 && (
+                          <TableRow key={`${teacher._id}-breakdown`} className="bg-blue-50/50">
+                            <TableCell colSpan={8} className="py-0">
+                              <div className="p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Calculator className="h-4 w-4 text-blue-600" />
+                                  <span className="font-medium text-sm text-blue-700">
+                                    Earnings Calculation Breakdown — {teacher.name}
+                                  </span>
+                                  {earnings.compensationType === "hybrid" && earnings.baseSalary > 0 && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      + Rs. {earnings.baseSalary.toLocaleString()} base salary
+                                    </Badge>
+                                  )}
+                                </div>
+                                <table className="w-full text-sm">
+                                  <thead>
+                                    <tr className="text-muted-foreground border-b">
+                                      <th className="text-left pb-1 font-medium">Class</th>
+                                      <th className="text-left pb-1 font-medium">Subject(s)</th>
+                                      <th className="text-center pb-1 font-medium">Students</th>
+                                      <th className="text-right pb-1 font-medium">Fee/Student</th>
+                                      <th className="text-right pb-1 font-medium">Total Revenue</th>
+                                      <th className="text-right pb-1 font-medium">Share %</th>
+                                      <th className="text-right pb-1 font-medium text-blue-700">Teacher Earning</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {earnings.breakdown.map((row: any, idx: number) => (
+                                      <tr key={idx} className="border-b border-dashed last:border-0">
+                                        <td className="py-1.5">
+                                          <span className="font-medium">{row.classTitle}</span>
+                                          {row.gradeLevel && (
+                                            <span className="text-muted-foreground ml-1 text-xs">({row.gradeLevel})</span>
+                                          )}
+                                          {row.isMultiTeacher && (
+                                            <Badge variant="outline" className="ml-1 text-xs py-0">Multi-Teacher</Badge>
+                                          )}
+                                        </td>
+                                        <td className="py-1.5 text-muted-foreground max-w-[200px] truncate">
+                                          {row.subject}
+                                        </td>
+                                        <td className="py-1.5 text-center">{row.studentCount}</td>
+                                        <td className="py-1.5 text-right">Rs. {(row.subjectFee || 0).toLocaleString()}</td>
+                                        <td className="py-1.5 text-right">Rs. {(row.subjectRevenue || 0).toLocaleString()}</td>
+                                        <td className="py-1.5 text-right">{row.teacherSharePct}%</td>
+                                        <td className="py-1.5 text-right font-semibold text-blue-600">
+                                          Rs. {(row.calculatedEarning || 0).toLocaleString()}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                  <tfoot>
+                                    <tr className="border-t-2 font-semibold">
+                                      <td colSpan={6} className="pt-2 text-right text-sm">
+                                        Total Calculated Earning:
+                                      </td>
+                                      <td className="pt-2 text-right text-blue-700">
+                                        Rs. {(earnings.calculatedEarning || 0).toLocaleString()}
+                                      </td>
+                                    </tr>
+                                    {teacher.netPayable > 0 && (
+                                      <tr>
+                                        <td colSpan={6} className="pt-0.5 text-right text-xs text-muted-foreground">
+                                          Already in Pending Balance:
+                                        </td>
+                                        <td className="pt-0.5 text-right text-xs text-muted-foreground">
+                                          Rs. {(earnings.alreadyCredited || 0).toLocaleString()}
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </tfoot>
+                                </table>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
@@ -502,6 +622,77 @@ export default function Payroll() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Earnings Calculator Summary */}
+        {earningsTeachers.length > 0 && (
+          <Card className="border-blue-200">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5 text-blue-500" />
+                  Session Earnings Calculator
+                </CardTitle>
+                <Button variant="outline" size="sm" onClick={() => refetchEarnings()}>
+                  Refresh
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Real-time earnings calculated from enrolled students × subject fees × teacher split %.
+                Click the arrow (▶) next to any teacher in the table above to see the class-by-class breakdown.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {earningsTeachers.map((t: any) => (
+                  <div key={t.teacherId} className="p-3 border rounded-lg bg-blue-50/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm">{t.teacherName}</span>
+                      <Badge variant="outline" className="text-xs capitalize">{t.compensationType}</Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" />
+                      {t.breakdown?.length > 0
+                        ? `${t.breakdown.length} class${t.breakdown.length !== 1 ? "es" : ""}`
+                        : t.compensationType === "fixed" ? "Fixed salary" : "No classes assigned"}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Calculated:</span>
+                      <span className="font-bold text-blue-700 text-sm">
+                        Rs. {(t.calculatedEarning || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    {t.compensationType === "hybrid" && t.baseSalary > 0 && (
+                      <div className="text-xs text-muted-foreground mt-0.5 text-right">
+                        incl. Rs. {t.baseSalary.toLocaleString()} base
+                      </div>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full mt-2 text-xs h-7"
+                      onClick={() => {
+                        const teacher = teachersWithBalances.find(
+                          (tw: any) => tw._id?.toString() === t.teacherId?.toString()
+                        );
+                        if (teacher) {
+                          setSelectedTeacher(teacher);
+                          setCreditAmount(String(t.calculatedEarning));
+                          setCreditNote(
+                            `Calculated share — ${t.breakdown?.map((b: any) => b.classTitle).join(", ") || "session earnings"}`
+                          );
+                          setCreditDialogOpen(true);
+                        }
+                      }}
+                    >
+                      <PlusCircle className="h-3 w-3 mr-1" />
+                      Credit Rs. {(t.calculatedEarning || 0).toLocaleString()}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Pay Teacher Dialog */}

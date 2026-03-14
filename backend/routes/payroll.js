@@ -11,6 +11,7 @@ const {
   generateSessionSalaries,
   getTeacherReport,
   manualCreditTeacher,
+  getEarningsBreakdown,
 } = require("../controllers/payrollController");
 
 // @route   POST /api/payroll/request
@@ -71,6 +72,16 @@ router.get(
   protect,
   restrictTo("OWNER"),
   getTeacherReport,
+);
+
+// @route   GET /api/payroll/earnings-breakdown
+// @desc    Get real-time earnings breakdown per teacher from enrollment data
+// @access  Protected (OWNER only)
+router.get(
+  "/earnings-breakdown",
+  protect,
+  restrictTo("OWNER"),
+  getEarningsBreakdown,
 );
 
 // @route   POST /api/payroll/credit

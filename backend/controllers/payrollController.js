@@ -843,6 +843,174 @@ exports.processPayout = async (req, res) => {
 // @desc    Manually credit a teacher's pending balance
 // @route   POST /api/payroll/credit
 // @access  Protected (OWNER only)
+// @desc    Get real-time earnings breakdown per teacher from enrollment data
+// @route   GET /api/payroll/earnings-breakdown
+// @access  Protected (OWNER only)
+exports.getEarningsBreakdown = async (req, res) => {
+  try {
+    const activeSession = await getActiveSession();
+
+    const teachers = await Teacher.find({ status: "active" }).lean();
+
+    const classQuery = { status: "active" };
+    if (activeSession?._id) classQuery.session = activeSession._id;
+
+    const classes = await Class.find(classQuery)
+      .select("classTitle gradeLevel group shift subjects subjectTeachers assignedTeacher baseFee")
+      .lean();
+
+    const classIds = classes.map((c) => c._id);
+    const enrollmentAgg = classIds.length
+      ? await Student.aggregate([
+          {
+            $match: {
+              classRef: { $in: classIds },
+              status: "active",
+              ...(activeSession?._id ? { sessionRef: activeSession._id } : {}),
+            },
+          },
+          { $group: { _id: "$classRef", count: { $sum: 1 } } },
+        ])
+      : [];
+
+    const enrollmentMap = new Map(
+      enrollmentAgg.map((e) => [e._id.toString(), e.count])
+    );
+
+    const teacherBreakdowns = [];
+
+    for (const teacher of teachers) {
+      const compType = teacher.compensation?.type || "percentage";
+      const teacherSharePct =
+        compType === "hybrid"
+          ? teacher.compensation?.profitShare || 70
+          : teacher.compensation?.teacherShare || 70;
+      const fixedSalary = teacher.compensation?.fixedSalary || 0;
+      const baseSalary = teacher.compensation?.baseSalary || 0;
+
+      if (compType === "fixed") {
+        teacherBreakdowns.push({
+          teacherId: teacher._id,
+          teacherName: teacher.name,
+          subject: teacher.subject,
+          compensationType: "fixed",
+          fixedSalary,
+          calculatedEarning: fixedSalary,
+          breakdown: [],
+          alreadyCredited: teacher.balance?.pending || 0,
+        });
+        continue;
+      }
+
+      const breakdown = [];
+      let totalCalculatedEarning = 0;
+
+      for (const cls of classes) {
+        const studentCount = enrollmentMap.get(cls._id.toString()) || 0;
+        if (studentCount === 0) continue;
+
+        const isPrimary =
+          cls.assignedTeacher?.toString() === teacher._id.toString();
+        const subjectAssignments = (cls.subjectTeachers || []).filter(
+          (st) => st.teacherId?.toString() === teacher._id.toString()
+        );
+
+        if (!isPrimary && subjectAssignments.length === 0) continue;
+
+        const hasSubjects = cls.subjects && cls.subjects.length > 0;
+        const totalSubjectFees = hasSubjects
+          ? cls.subjects.reduce((sum, s) => sum + (s.fee || 0), 0)
+          : cls.baseFee || 0;
+
+        if (subjectAssignments.length > 0) {
+          // Multi-teacher class: teacher earns from their specific subjects only
+          for (const assignment of subjectAssignments) {
+            const subjectData = hasSubjects
+              ? cls.subjects.find(
+                  (s) => s.name?.toLowerCase() === assignment.subject?.toLowerCase()
+                )
+              : null;
+            const subjectFee =
+              subjectData?.fee ||
+              (hasSubjects && cls.subjects.length > 0
+                ? totalSubjectFees / cls.subjects.length
+                : cls.baseFee || 0);
+            const subjectRevenue = studentCount * subjectFee;
+            const teacherEarning = subjectRevenue * (teacherSharePct / 100);
+
+            breakdown.push({
+              classId: cls._id,
+              classTitle: cls.classTitle,
+              gradeLevel: cls.gradeLevel,
+              isMultiTeacher: true,
+              subject: assignment.subject,
+              studentCount,
+              subjectFee,
+              subjectRevenue,
+              teacherSharePct,
+              calculatedEarning: Math.round(teacherEarning),
+            });
+            totalCalculatedEarning += teacherEarning;
+          }
+        } else if (isPrimary) {
+          // Primary teacher earns from all subjects in the class
+          const totalRevenue = studentCount * totalSubjectFees;
+          const teacherEarning = totalRevenue * (teacherSharePct / 100);
+
+          breakdown.push({
+            classId: cls._id,
+            classTitle: cls.classTitle,
+            gradeLevel: cls.gradeLevel,
+            isMultiTeacher: false,
+            subject: hasSubjects
+              ? cls.subjects.map((s) => s.name).join(", ")
+              : "All Subjects",
+            studentCount,
+            subjectFee: totalSubjectFees,
+            subjectRevenue: totalRevenue,
+            teacherSharePct,
+            calculatedEarning: Math.round(teacherEarning),
+          });
+          totalCalculatedEarning += teacherEarning;
+        }
+      }
+
+      // For hybrid: add base salary on top of profit share
+      const finalEarning =
+        compType === "hybrid"
+          ? Math.round(totalCalculatedEarning) + baseSalary
+          : Math.round(totalCalculatedEarning);
+
+      teacherBreakdowns.push({
+        teacherId: teacher._id,
+        teacherName: teacher.name,
+        subject: teacher.subject,
+        compensationType: compType,
+        teacherSharePct,
+        baseSalary: compType === "hybrid" ? baseSalary : 0,
+        calculatedEarning: finalEarning,
+        breakdown,
+        alreadyCredited: teacher.balance?.pending || 0,
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        session: activeSession,
+        teachers: teacherBreakdowns,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error in getEarningsBreakdown:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while calculating earnings",
+      error: error.message,
+    });
+  }
+};
+
 exports.manualCreditTeacher = async (req, res) => {
   try {
     const { teacherId, amount, description } = req.body;
