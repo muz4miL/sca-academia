@@ -950,7 +950,6 @@ export default function Classes() {
                 <TableHead>Group / Schedule</TableHead>
                 <TableHead>Subjects & Teachers</TableHead>
                 <TableHead className="text-center">Students</TableHead>
-                <TableHead className="text-right">Revenue Collected</TableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -1044,18 +1043,6 @@ export default function Classes() {
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
                             Enrolled
                           </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-col items-end gap-1">
-                          <span className="text-lg font-bold text-emerald-600">
-                            PKR {(classDoc.totalRevenueCollected || 0).toLocaleString()}
-                          </span>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
-                              {classDoc.teacherSharePct || 70}% = PKR {(classDoc.estimatedTeacherShare || 0).toLocaleString()}
-                            </span>
-                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-center">

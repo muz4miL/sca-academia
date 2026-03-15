@@ -65,11 +65,6 @@ export default function Payroll() {
   const [payAmount, setPayAmount] = useState("");
   const [payNotes, setPayNotes] = useState("");
 
-  // Manual Credit State
-  const [creditDialogOpen, setCreditDialogOpen] = useState(false);
-  const [creditAmount, setCreditAmount] = useState("");
-  const [creditNote, setCreditNote] = useState("");
-
   // Filter State
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -226,41 +221,6 @@ export default function Payroll() {
     },
   });
 
-  // Manual Credit Mutation
-  const manualCreditMutation = useMutation({
-    mutationFn: async ({ teacherId, amount, description }: any) => {
-      const res = await fetch(`${API_BASE_URL}/payroll/credit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ teacherId, amount, description }),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to credit teacher");
-      }
-      return res.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Credit Added",
-        description: data.message,
-      });
-      setCreditDialogOpen(false);
-      setSelectedTeacher(null);
-      setCreditAmount("");
-      setCreditNote("");
-      queryClient.invalidateQueries({ queryKey: ["payroll-dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["finance", "history"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Credit Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
 
   // Redirect non-owners (AFTER all hooks to avoid React hooks order violation)
   if (user?.role !== "OWNER") {
@@ -519,22 +479,6 @@ export default function Payroll() {
                             <div className="flex gap-2 justify-end">
                               <Button
                                 size="sm"
-                                variant="secondary"
-                                onClick={() => {
-                                  setSelectedTeacher(teacher);
-                                  // Pre-fill with calculated earning if available
-                                  if (earnings?.calculatedEarning > 0) {
-                                    setCreditAmount(String(earnings.calculatedEarning));
-                                    setCreditNote(`Calculated share — ${earnings.breakdown?.map((b: any) => b.classTitle).join(", ") || "session earnings"}`);
-                                  }
-                                  setCreditDialogOpen(true);
-                                }}
-                              >
-                                <PlusCircle className="h-3.5 w-3.5 mr-1" />
-                                Credit
-                              </Button>
-                              <Button
-                                size="sm"
                                 className="bg-green-600 hover:bg-green-700"
                                 onClick={() => {
                                   setSelectedTeacher(teacher);
@@ -762,92 +706,6 @@ export default function Payroll() {
                 </>
               ) : (
                 "Pay Now"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Manual Credit Dialog */}
-      <Dialog
-        open={creditDialogOpen}
-        onOpenChange={(open) => {
-          setCreditDialogOpen(open);
-          if (!open) {
-            setSelectedTeacher(null);
-            setCreditAmount("");
-            setCreditNote("");
-          }
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Manual Credit</DialogTitle>
-            <DialogDescription>
-              {selectedTeacher
-                ? `Credit ${selectedTeacher.name}'s balance. This records a liability (debt owed), not a cash payout.`
-                : ""}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Amount (PKR) *</label>
-              <Input
-                type="number"
-                placeholder="e.g. 14000"
-                value={creditAmount}
-                onChange={(e) => setCreditAmount(e.target.value)}
-                min={1}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Note / Description *</label>
-              <Textarea
-                placeholder="e.g. Jan Session Share, Chemistry Classes Dec..."
-                value={creditNote}
-                onChange={(e) => setCreditNote(e.target.value)}
-              />
-            </div>
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              <strong>Note:</strong> This will increase the teacher's payable balance.
-              The amount will appear in their Payroll as owed. Use the "Pay" button
-              to record actual cash payouts.
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCreditDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() =>
-                manualCreditMutation.mutate({
-                  teacherId: selectedTeacher?._id,
-                  amount: Number(creditAmount),
-                  description: creditNote,
-                })
-              }
-              disabled={
-                !selectedTeacher ||
-                !creditAmount ||
-                Number(creditAmount) <= 0 ||
-                !creditNote.trim() ||
-                manualCreditMutation.isPending
-              }
-            >
-              {manualCreditMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Crediting...
-                </>
-              ) : (
-                <>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Credit
-                </>
               )}
             </Button>
           </DialogFooter>

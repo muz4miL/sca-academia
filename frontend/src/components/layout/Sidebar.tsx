@@ -20,6 +20,7 @@ import {
   Scan,
   ExternalLink,
   Package,
+  UserCog,
   Menu,
   X,
 } from "lucide-react";
@@ -99,6 +100,13 @@ const navItems = [
     label: "Inventory",
     path: "/inventory",
     permission: "configuration",
+    ownerOnly: true,
+  },
+  {
+    icon: UserCog,
+    label: "Users",
+    path: "/users",
+    permission: "users",
     ownerOnly: true,
   },
   {

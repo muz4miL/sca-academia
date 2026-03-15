@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 const Student = require("../models/Student");
 const Class = require("../models/Class");
@@ -324,15 +325,20 @@ router.post("/", async (req, res) => {
       sanitizedData.studentStatus = "Active";
     }
 
-    // Auto-attach class teacher if missing
+    // Auto-attach class teacher and session if missing
     let classDoc = null;
     if (sanitizedData.classRef) {
       classDoc = await Class.findById(sanitizedData.classRef)
-        .select("assignedTeacher teacherName")
+        .select("assignedTeacher teacherName session")
         .lean();
       if (classDoc && !sanitizedData.assignedTeacher) {
         sanitizedData.assignedTeacher = classDoc.assignedTeacher;
         sanitizedData.assignedTeacherName = classDoc.teacherName;
+      }
+      // Auto-fill sessionRef from the class if not provided
+      if (classDoc && !sanitizedData.sessionRef && classDoc.session) {
+        sanitizedData.sessionRef = classDoc.session;
+        console.log("🔧 Auto-filled sessionRef from class:", classDoc.session);
       }
     }
 
@@ -650,6 +656,89 @@ router.delete("/:id", async (req, res) => {
         } catch (e) {
           console.log("TotalCash refund deduction skipped:", e.message);
         }
+      }
+
+      // Reverse teacher shares + academy shares proportionally on refund
+      // Uses actual transaction amounts (works for both percentage & fixed-per-student)
+      try {
+        const Teacher = require("../models/Teacher");
+
+        // Find all LIABILITY "Payroll_Credit" transactions for this student (created by feeSplitCalculator)
+        const teacherCredits = await Transaction.find({
+          type: "LIABILITY",
+          category: "Payroll_Credit",
+          studentId: student._id,
+          "splitDetails.teacherId": { $ne: null },
+        }).lean();
+
+        const totalTeacherCredited = teacherCredits.reduce((sum, t) => sum + t.amount, 0);
+        const totalAcademyCredited = teacherCredits.reduce((sum, t) => sum + (t.splitDetails?.academyShare || 0), 0);
+        const totalDistributed = totalTeacherCredited + totalAcademyCredited;
+
+        if (totalDistributed > 0) {
+          // Refund ratio = what fraction of the original payment is being refunded
+          const refundRatio = Math.min(1, refundNum / totalDistributed);
+
+          // Group teacher credits by teacherId
+          const teacherTotals = new Map();
+          for (const txn of teacherCredits) {
+            const tid = txn.splitDetails.teacherId?.toString();
+            if (!tid) continue;
+            teacherTotals.set(tid, (teacherTotals.get(tid) || 0) + txn.amount);
+          }
+
+          const reversalTxns = [];
+          const teacherUpdates = [];
+          for (const [teacherId, totalAmt] of teacherTotals) {
+            const reverseAmt = Math.round(totalAmt * refundRatio);
+            if (reverseAmt <= 0) continue;
+
+            teacherUpdates.push({
+              updateOne: {
+                filter: { _id: teacherId },
+                update: { $inc: { "balance.pending": -reverseAmt } },
+              },
+            });
+
+            reversalTxns.push({
+              type: "DEBIT",
+              category: "Teacher Share Reversal",
+              amount: reverseAmt,
+              description: `Reversal: Refund for ${student.studentName} (${student.studentId})`,
+              date: now,
+              status: "VERIFIED",
+              studentId: student._id,
+              splitDetails: {
+                teacherId: new mongoose.Types.ObjectId(teacherId),
+                teacherName: teacherCredits.find(t => t.splitDetails?.teacherId?.toString() === teacherId)?.splitDetails?.teacherName || "",
+              },
+            });
+          }
+
+          if (teacherUpdates.length > 0) {
+            await Teacher.bulkWrite(teacherUpdates);
+          }
+
+          // Academy share reversal
+          const academyReversal = Math.round(totalAcademyCredited * refundRatio);
+          if (academyReversal > 0) {
+            reversalTxns.push({
+              type: "EXPENSE",
+              category: "Academy Share Reversal",
+              amount: academyReversal,
+              description: `Reversal: Academy share refund for ${student.studentName} (${student.studentId})`,
+              date: now,
+              status: "VERIFIED",
+              studentId: student._id,
+            });
+          }
+
+          if (reversalTxns.length > 0) {
+            await Transaction.insertMany(reversalTxns);
+          }
+        }
+      } catch (revErr) {
+        console.log("Teacher share reversal skipped:", revErr.message);
       }
 
       // Send refund notification

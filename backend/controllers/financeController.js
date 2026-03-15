@@ -1376,15 +1376,30 @@ exports.distributeRevenue = async ({ studentId, paidAmount, feeRecordId }) => {
 
     const config = await Configuration.findOne().lean();
     const teacherSharePct = config?.salaryConfig?.teacherShare ?? 70;
-    const teacherPool = Math.floor(
-      resolvedPaidAmount * (teacherSharePct / 100),
-    );
-    const academyShare = resolvedPaidAmount - teacherPool;
 
+    // Look up class FIRST to determine revenue mode
     const classQuery = student.classRef
       ? { _id: student.classRef }
       : { $or: [{ classTitle: student.class }, { gradeLevel: student.class }] };
     const classDoc = await Class.findOne(classQuery).lean();
+
+    // Determine split based on class revenue mode
+    let teacherPool, academyShare;
+    const isFixedPerStudent =
+      classDoc?.revenueMode === "fixed-per-student" &&
+      classDoc?.teacherRatePerStudent > 0;
+
+    if (isFixedPerStudent) {
+      // Fixed rate: teachers collectively get the fixed rate, academy keeps the rest
+      teacherPool = Math.min(classDoc.teacherRatePerStudent, resolvedPaidAmount);
+      academyShare = Math.max(0, resolvedPaidAmount - teacherPool);
+    } else {
+      // Percentage split (default)
+      teacherPool = Math.floor(
+        resolvedPaidAmount * (teacherSharePct / 100),
+      );
+      academyShare = resolvedPaidAmount - teacherPool;
+    }
 
     const enrolledSubjects = normalizeSubjectList(student.subjects || []);
     let subjectCandidates = enrolledSubjects;

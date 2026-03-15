@@ -27,6 +27,7 @@ import NotFound from "./pages/NotFound";
 import PublicLanding from "./pages/PublicLanding";
 import Attendance from "./pages/Attendance";
 import Inventory from "./pages/Inventory";
+import Users from "./pages/Users";
 // Gatekeeper (reserved for SCA project)
 import Gatekeeper from "./pages/Gatekeeper";
 
@@ -159,6 +160,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Inventory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
                 </ProtectedRoute>
               }
             />

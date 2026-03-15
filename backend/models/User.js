@@ -5,7 +5,9 @@ const bcrypt = require("bcryptjs");
 const PERMISSION_VALUES = [
   "dashboard",
   "admissions",
+  "registrations",
   "students",
+  "attendance",
   "teachers",
   "finance",
   "classes",
@@ -15,8 +17,8 @@ const PERMISSION_VALUES = [
   "users",
   "website",
   "payroll",
+  "inventory",
   "settlement",
-  // New modules
   "gatekeeper",
   "frontdesk",
   "inquiries",
@@ -208,26 +210,7 @@ userSchema.methods.getPublicProfile = function () {
   // OWNER gets all permissions automatically
   let permissions = this.permissions || ["dashboard"];
   if (this.role === "OWNER") {
-    permissions = [
-      "dashboard",
-      "admissions",
-      "students",
-      "teachers",
-      "finance",
-      "classes",
-      "timetable",
-      "sessions",
-      "configuration",
-      "users",
-      "website",
-      "payroll",
-      "settlement",
-      "gatekeeper",
-      "frontdesk",
-      "inquiries",
-      "reports",
-      "lectures",
-    ];
+    permissions = PERMISSION_VALUES;
   } else if (this.role === "TEACHER") {
     // Teachers get dashboard and timetable by default
     permissions = ["dashboard", "timetable"];

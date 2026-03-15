@@ -174,9 +174,14 @@ exports.createStaff = async (req, res) => {
             });
         }
 
-        // Generate unique userId
-        const staffCount = await User.countDocuments({ role: 'STAFF' });
-        const userId = `STAFF-${String(staffCount + 1).padStart(3, '0')}`;
+        // Generate unique userId using timestamp to avoid duplicates after deletions
+        const lastStaff = await User.findOne({ role: 'STAFF' }).sort({ createdAt: -1 });
+        let nextNum = 1;
+        if (lastStaff && lastStaff.userId) {
+            const match = lastStaff.userId.match(/STAFF-(\d+)/);
+            if (match) nextNum = parseInt(match[1], 10) + 1;
+        }
+        const userId = `STAFF-${String(nextNum).padStart(3, '0')}`;
 
         // Create new staff member
         const newStaff = await User.create({
