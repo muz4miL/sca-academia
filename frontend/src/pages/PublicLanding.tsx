@@ -20,6 +20,7 @@ import {
   Trophy,
   Loader2,
   LogIn,
+  ClipboardList,
   Sparkles,
   Star,
   Award,
@@ -393,21 +394,32 @@ export default function PublicLanding() {
                 className="h-11 w-11 object-contain shrink-0"
               />
               <div className="min-w-0">
-                <span className="block text-xl md:text-2xl font-serif font-black tracking-tight text-brand-primary leading-none whitespace-nowrap">
+                <span className="block text-base sm:text-xl md:text-2xl font-serif font-black tracking-tight text-brand-primary leading-none truncate max-w-[180px] sm:max-w-none">
                   {brandTitle}
                 </span>
               </div>
             </motion.div>
 
             {/* Primary Action Buttons */}
-            <div className="hidden md:flex items-center gap-5">
+            <div className="hidden lg:flex items-center gap-3">
               <Link to="/student-portal">
                 <motion.div {...ripple}>
                   <Button
                     variant="outline"
-                    className="border-brand-primary/20 text-brand-primary hover:bg-brand-primary hover:text-white rounded-full px-7 h-10 transition-all font-semibold tracking-wide bg-white/50 backdrop-blur-sm"
+                    className="border-brand-primary/20 text-brand-primary hover:bg-brand-primary hover:text-white rounded-full px-5 h-9 transition-all font-semibold tracking-wide bg-white/50 backdrop-blur-sm text-sm"
                   >
                     Student Portal
+                  </Button>
+                </motion.div>
+              </Link>
+              <Link to="/register">
+                <motion.div {...ripple}>
+                  <Button
+                    variant="outline"
+                    className="border-emerald-500/30 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-full px-5 h-9 transition-all font-semibold tracking-wide bg-emerald-50/50 backdrop-blur-sm text-sm"
+                  >
+                    <ClipboardList className="mr-1.5 h-4 w-4" />
+                    Register
                   </Button>
                 </motion.div>
               </Link>
@@ -415,9 +427,9 @@ export default function PublicLanding() {
                 <motion.div {...ripple}>
                   <Button
                     variant="ghost"
-                    className="text-brand-primary hover:bg-brand-primary/10 rounded-full px-6 h-10 font-semibold tracking-wide"
+                    className="text-brand-primary hover:bg-brand-primary/10 rounded-full px-5 h-9 font-semibold tracking-wide text-sm"
                   >
-                    <LogIn className="mr-2 h-4 w-4" />
+                    <LogIn className="mr-1.5 h-4 w-4" />
                     Staff Login
                   </Button>
                 </motion.div>
@@ -425,7 +437,7 @@ export default function PublicLanding() {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
@@ -439,12 +451,18 @@ export default function PublicLanding() {
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="md:hidden overflow-hidden border-t border-slate-200"
+                className="lg:hidden overflow-hidden border-t border-slate-200"
               >
                 <div className="py-4 flex flex-col gap-2">
                   <Link to="/student-portal" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full border-brand-primary/20 text-brand-primary rounded-full h-10 font-semibold">
                       Student Portal
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full border-emerald-500/30 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-full h-10 font-semibold">
+                      <ClipboardList className="mr-2 h-4 w-4" />
+                      Register
                     </Button>
                   </Link>
                   <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
