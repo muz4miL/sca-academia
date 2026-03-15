@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const configurationSchema = new mongoose.Schema(
   {
     // Academy Identity
-    academyName: { type: String, default: "Sciences Coaching Academy" },
+    academyName: { type: String, default: "Standard Coaching Academy" },
     academyLogo: { type: String, default: "" },
     academyAddress: { type: String, default: "Peshawar, Pakistan" },
     academyPhone: { type: String, default: "" },

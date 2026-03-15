@@ -542,7 +542,7 @@ export default function Attendance() {
                     </p>
                   </div>
                 ) : (
-                  <div className="border rounded-lg overflow-hidden">
+                  <div className="border rounded-lg overflow-hidden overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/50">
@@ -706,7 +706,7 @@ export default function Attendance() {
                     <p>No records found for this date range</p>
                   </div>
                 ) : (
-                  <div className="border rounded-lg overflow-hidden max-h-[500px] overflow-y-auto">
+                  <div className="border rounded-lg overflow-hidden overflow-x-auto max-h-[500px] overflow-y-auto">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/50 sticky top-0">
@@ -815,7 +815,7 @@ export default function Attendance() {
                 </div>
 
                 {/* Recent Records */}
-                <div className="border rounded-lg max-h-[300px] overflow-y-auto">
+                <div className="border rounded-lg overflow-x-auto max-h-[300px] overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50 sticky top-0">

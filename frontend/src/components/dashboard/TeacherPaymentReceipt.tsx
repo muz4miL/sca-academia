@@ -140,7 +140,7 @@ export const TeacherPaymentReceipt = forwardRef<
             >
               <img
                 src="/logo.png"
-                alt="SCIENCES COACHING ACADEMY"
+                alt="STANDARD COACHING ACADEMY"
                 style={{
                   height: "60px",
                   width: "auto",
@@ -159,7 +159,7 @@ export const TeacherPaymentReceipt = forwardRef<
                 letterSpacing: "1px",
               }}
             >
-              SCIENCES COACHING ACADEMY
+              STANDARD COACHING ACADEMY
             </h1>
 
             {/* Address */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -20,6 +20,8 @@ import {
   Scan,
   ExternalLink,
   Package,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -28,7 +30,6 @@ import { useAuth } from "@/context/AuthContext";
 const logoSrc = "/logo.png";
 
 // Navigation items with permission keys - SRS 2.0 Compliant
-// KEPT: Dashboard, Admissions, Students, Teachers, Finance, Classes, Timetable, Sessions, Configuration, Payroll
 const navItems = [
   {
     icon: LayoutDashboard,
@@ -111,8 +112,25 @@ const navItems = [
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile sidebar on window resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Get user permissions (OWNER gets all permissions automatically)
   const userPermissions = user?.permissions || ["dashboard"];
@@ -120,33 +138,23 @@ export function Sidebar() {
 
   // Filter nav items based on user permissions and role
   const filteredNavItems = navItems.filter((item) => {
-    // OWNER bypasses all permission checks
     if (isOwner) return true;
-
-    // ownerOnly items are restricted to OWNER role
     if (item.ownerOnly) return false;
-
-    // Check if user has permission for this item
     return userPermissions.includes(item.permission);
   });
 
-  return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300 ease-in-out flex flex-col",
-        collapsed ? "w-16" : "w-64",
-      )}
-    >
-      {/* Sidebar Header - Sciences Coaching Academy Blue Theme */}
-      <div className="border-b border-blue-500/20 px-4 py-5 shrink-0">
+  const sidebarContent = (
+    <>
+      {/* Sidebar Header - Standard Coaching Academy Gold & Navy Theme */}
+      <div className="border-b border-[#F5A623]/20 px-4 py-5 shrink-0">
         {!collapsed && (
           <div className="flex flex-col items-center gap-2">
             <img
               src={logoSrc}
-              alt="SCIENCES COACHING ACADEMY"
+              alt="STANDARD COACHING ACADEMY"
               className="h-20 w-auto object-contain"
             />
-            <p className="text-[10px] font-semibold text-blue-400/80 tracking-widest uppercase">
+            <p className="text-[10px] font-semibold text-[#F5A623]/80 tracking-widest uppercase">
               Enterprise ERP
             </p>
           </div>
@@ -154,7 +162,7 @@ export function Sidebar() {
         {collapsed && (
           <img
             src={logoSrc}
-            alt="SCIENCES COACHING ACADEMY"
+            alt="STANDARD COACHING ACADEMY"
             className="mx-auto h-10 w-10 object-contain"
           />
         )}
@@ -173,7 +181,7 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-[#F5A623] text-[#0D1442]"
                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               )}
             >
@@ -188,7 +196,7 @@ export function Sidebar() {
       <div className="border-t border-sidebar-border pt-3 px-2 bg-sidebar shrink-0">
         {!collapsed && (
           <div className="px-3 mb-2">
-            <p className="text-[10px] font-semibold text-blue-400/60 tracking-widest uppercase">
+            <p className="text-[10px] font-semibold text-[#F5A623]/60 tracking-widest uppercase">
               System Apps
             </p>
           </div>
@@ -223,11 +231,11 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Collapse button */}
-      <div className="shrink-0 flex justify-center py-3">
+      {/* Collapse button - only on desktop */}
+      <div className="shrink-0 hidden md:flex justify-center py-3">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sidebar-foreground shadow-lg transition-colors hover:bg-primary hover:text-primary-foreground"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sidebar-foreground shadow-lg transition-colors hover:bg-[#F5A623] hover:text-[#0D1442]"
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -236,6 +244,55 @@ export function Sidebar() {
           )}
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="fixed top-4 left-4 z-50 md:hidden flex h-10 w-10 items-center justify-center rounded-lg bg-[#1A237E] text-white shadow-lg"
+        aria-label="Open menu"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 h-screen w-64 bg-sidebar transition-transform duration-300 ease-in-out flex flex-col md:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        {/* Mobile close button */}
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-accent text-sidebar-foreground"
+          aria-label="Close menu"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        {sidebarContent}
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-40 h-screen bg-sidebar transition-all duration-300 ease-in-out flex-col hidden md:flex",
+          collapsed ? "w-16" : "w-64",
+        )}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

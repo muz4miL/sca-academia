@@ -52,7 +52,7 @@ const getApiBaseUrl = () => {
 };
 const API_BASE_URL = getApiBaseUrl();
 
-// Simplified Finance View for Sciences Coaching Academy
+// Simplified Finance View for Standard Coaching Academy
 const OwnerView = () => {
   return (
     <div className="space-y-6">
@@ -63,7 +63,7 @@ const OwnerView = () => {
             Finance Overview
           </CardTitle>
           <CardDescription>
-            Simple revenue and expense tracking for Sciences Coaching Academy
+            Simple revenue and expense tracking for Standard Coaching Academy
           </CardDescription>
         </CardHeader>
         <CardContent>

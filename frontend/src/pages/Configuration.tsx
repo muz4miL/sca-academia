@@ -65,7 +65,7 @@ const Configuration = () => {
   const [accessDenied, setAccessDenied] = useState(false);
 
   // --- Academy Info ---
-  const [academyName, setAcademyName] = useState("SCIENCES COACHING ACADEMY");
+  const [academyName, setAcademyName] = useState("STANDARD COACHING ACADEMY");
   const [academyAddress, setAcademyAddress] = useState("Peshawar, Pakistan");
   const [academyPhone, setAcademyPhone] = useState("");
   const [systemAdminName, setSystemAdminName] = useState("System Admin");
@@ -160,7 +160,7 @@ const Configuration = () => {
           const data = result.data;
 
           // Academy Info
-          setAcademyName(data.academyName || "SCIENCES COACHING ACADEMY");
+          setAcademyName(data.academyName || "STANDARD COACHING ACADEMY");
           setAcademyAddress(data.academyAddress || "Peshawar, Pakistan");
           setAcademyPhone(data.academyPhone || "");
           setSystemAdminName(data.systemAdminName || "System Admin");

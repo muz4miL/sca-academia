@@ -163,7 +163,7 @@ const FinanceOverview = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card className="border-l-4 border-emerald-500">
           <CardContent className="pt-6">
             <p className="text-sm font-medium text-muted-foreground">
@@ -208,7 +208,7 @@ const FinanceOverview = () => {
             Finance Overview
           </CardTitle>
           <CardDescription>
-            Sciences Coaching Academy — Revenue & Expense Tracking
+            Standard Coaching Academy — Revenue & Expense Tracking
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -461,7 +461,7 @@ const AssetRegistry = () => {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card className="border-l-4 border-blue-500">
           <CardContent className="pt-6">
             <p className="text-sm font-medium text-muted-foreground">
@@ -517,7 +517,7 @@ const AssetRegistry = () => {
             Add Asset
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {assetsLoading ? (
             <div className="text-center py-12">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
@@ -828,7 +828,7 @@ const DailyExpenses = () => {
             Record Expense
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-red-600" />
@@ -1532,7 +1532,7 @@ const Finance = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-3xl">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-3xl">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Overview

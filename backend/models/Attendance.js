@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 /**
- * Attendance Model — Sciences Coaching Academy
+ * Attendance Model — Standard Coaching Academy
  * 
  * Tracks daily student attendance, integrated with the Gatekeeper scanner.
  * Each record = one student + one date. Prevents duplicates via compound index.

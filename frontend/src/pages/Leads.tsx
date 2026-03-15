@@ -546,7 +546,7 @@ export default function Leads() {
 
             {/* Premium Leads Table */}
             <Card className="border-gray-200/80 shadow-sm rounded-2xl overflow-hidden">
-                <CardContent className="p-0">
+                <CardContent className="p-0 overflow-x-auto">
                     {isLoading ? (
                         <div className="flex items-center justify-center py-16">
                             <div className="text-center">

@@ -8,6 +8,7 @@ const FeeRecord = require("../models/FeeRecord");
 const Transaction = require("../models/Transaction");
 const Notification = require("../models/Notification");
 const { protect } = require("../middleware/authMiddleware");
+const { calculateAndApplyFeeSplit } = require("../utils/feeSplitCalculator");
 const { handlePhotoUpload } = require("../middleware/upload");
 const {
   collectFee,
@@ -150,7 +151,7 @@ router.get("/:id/placeholder-avatar", async (req, res) => {
 // @access  Public
 router.get("/", async (req, res) => {
   try {
-    const { class: className, group, status, search, sessionRef } = req.query;
+    const { class: className, group, status, search, sessionRef, teacher } = req.query;
 
     // Build query object
     let query = {};
@@ -169,16 +170,38 @@ router.get("/", async (req, res) => {
     }
 
     if (search) {
-      query.$or = [
-        { studentName: { $regex: search, $options: "i" } },
-        { fatherName: { $regex: search, $options: "i" } },
-        { studentId: { $regex: search, $options: "i" } },
-      ];
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { studentName: { $regex: search, $options: "i" } },
+          { fatherName: { $regex: search, $options: "i" } },
+          { studentId: { $regex: search, $options: "i" } },
+        ],
+      });
     }
 
     // TASK 4: Peshawar Session Filter
     if (sessionRef && sessionRef !== "all") {
       query.sessionRef = sessionRef;
+    }
+
+    // Teacher filter: find classes assigned to this teacher, then filter students
+    if (teacher && teacher !== "all") {
+      const teacherClasses = await Class.find({
+        $or: [
+          { assignedTeacher: teacher },
+          { "subjectTeachers.teacherId": teacher },
+        ],
+      }).select("_id");
+
+      const classIds = teacherClasses.map((c) => c._id);
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { classRef: { $in: classIds } },
+          { assignedTeacher: teacher },
+        ],
+      });
     }
 
     const students = await Student.find(query).sort({ createdAt: -1 });
@@ -374,7 +397,7 @@ router.post("/", async (req, res) => {
         notes: "Admission payment",
       });
 
-      // Record FULL amount as INCOME (Manual Payroll Model)
+      // Record FULL amount as INCOME (Academy Revenue)
       await Transaction.create({
         type: "INCOME",
         category: "Tuition",
@@ -385,6 +408,38 @@ router.post("/", async (req, res) => {
         status: "FLOATING",
         studentId: savedStudent._id,
       });
+
+      // ─── AUTO-SPLIT: Credit teachers from admission payment ───
+      try {
+        const splitResult = await calculateAndApplyFeeSplit({
+          student: savedStudent,
+          amount: paidAmount,
+          month: monthLabel,
+          collector: req.user,
+          paymentMethod: "CASH",
+          notes: "Admission payment",
+        });
+
+        if (splitResult.splitApplied) {
+          // Update FeeRecord with split info
+          const firstCredit = splitResult.teacherCredits[0];
+          if (firstCredit) {
+            await FeeRecord.findByIdAndUpdate(feeRecord._id, {
+              teacher: firstCredit.teacherId,
+              teacherName: firstCredit.teacherName,
+              splitBreakdown: {
+                teacherShare: firstCredit.amount,
+                academyShare: paidAmount - splitResult.teacherCredits.reduce((sum, c) => sum + c.amount, 0),
+                teacherPercentage: firstCredit.percentage || 0,
+                academyPercentage: firstCredit.percentage ? (100 - firstCredit.percentage) : 0,
+              },
+            });
+          }
+          console.log(`✅ Admission auto-split: ${splitResult.revenueModel} — ${splitResult.teacherCredits.length} teachers credited`);
+        }
+      } catch (splitErr) {
+        console.error("⚠️ Admission auto-split failed (payment still recorded):", splitErr.message);
+      }
 
       try {
         await Notification.create({

@@ -49,7 +49,7 @@ const seedData = async () => {
     // 3. Create Test Student
     // Note: Student model has its own barcode/studentId generation, but we can set them manually for seed
     await Student.create({
-      studentId: "260001",
+      studentId: "1",
       studentName: "Test Student",
       fatherName: "Father Name",
       class: "10th",

@@ -104,7 +104,7 @@ app.use("/api/inventory", inventoryRoutes);
 // Root endpoint
 app.get("/", (req, res) => {
   res.json({
-    message: "SCIENCES COACHING ACADEMY ERP API",
+    message: "STANDARD COACHING ACADEMY ERP API",
     version: "2.0.0",
     endpoints: {
       auth: "/api/auth",

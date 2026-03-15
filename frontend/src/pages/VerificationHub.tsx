@@ -385,7 +385,7 @@ export default function VerificationHub() {
   };
 
   const copyCredentials = (username: string, password: string) => {
-    const text = `SCIENCES COACHING ACADEMY - Login Credentials\n\nStudent: ${foundStudent?.studentName}\nUsername: ${username}\nPassword: ${password}\n\nLogin at: ${window.location.origin}/student-portal`;
+    const text = `STANDARD COACHING ACADEMY - Login Credentials\n\nStudent: ${foundStudent?.studentName}\nUsername: ${username}\nPassword: ${password}\n\nLogin at: ${window.location.origin}/student-portal`;
     navigator.clipboard.writeText(text);
     toast.success("Credentials copied to clipboard!");
   };
@@ -746,7 +746,7 @@ export default function VerificationHub() {
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             {studentsLoading ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
@@ -1316,7 +1316,7 @@ export default function VerificationHub() {
                 <div className="flex gap-3">
                   <Button
                     onClick={() => {
-                      const text = `*SCIENCES COACHING ACADEMY*\n\n🎓 Student: ${generatedCredentials.studentName}\n👤 Username: ${generatedCredentials.credentials?.username || generatedCredentials.barcodeId}\n🔐 Password: ${generatedCredentials.credentials?.password}\n\n🌐 Login: ${window.location.origin}/student-portal`;
+                      const text = `*STANDARD COACHING ACADEMY*\n\n🎓 Student: ${generatedCredentials.studentName}\n👤 Username: ${generatedCredentials.credentials?.username || generatedCredentials.barcodeId}\n🔐 Password: ${generatedCredentials.credentials?.password}\n\n🌐 Login: ${window.location.origin}/student-portal`;
                       navigator.clipboard.writeText(text);
                       toast.success("Copied for WhatsApp!");
                     }}

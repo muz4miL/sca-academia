@@ -154,7 +154,7 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img
                 src="/logo.png"
-                alt="SCIENCES COACHING ACADEMY"
+                alt="STANDARD COACHING ACADEMY"
                 style={{
                   width: "55px",
                   height: "55px",
@@ -169,7 +169,7 @@ const ReceiptTemplate = forwardRef<HTMLDivElement, ReceiptTemplateProps>(
                     color: "#1a365d",
                   }}
                 >
-                  SCIENCES COACHING ACADEMY
+                  STANDARD COACHING ACADEMY
                 </div>
                 <div style={{ fontSize: "9px", color: "#0056b3" }}>
                   Contact: 091-5601600 / 0334-5852326

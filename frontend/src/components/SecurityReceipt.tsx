@@ -128,7 +128,7 @@ export function SecurityReceipt({ student, open, onOpenChange }: SecurityReceipt
 
                         {/* Header */}
                         <div className="text-center border-b-2 border-gray-800 pb-4 mb-4">
-                            <h1 className="text-xl font-bold text-gray-900 print:text-2xl">SCIENCES COACHING ACADEMY</h1>
+                            <h1 className="text-xl font-bold text-gray-900 print:text-2xl">STANDARD COACHING ACADEMY</h1>
                             <p className="text-sm text-gray-600 font-medium">Official Entry Permit</p>
                         </div>
 

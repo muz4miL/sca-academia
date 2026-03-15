@@ -223,7 +223,7 @@ export default function PublicRegister() {
               <img src="/logo.png" alt="Logo" className="h-20 w-20 object-contain brightness-0 invert opacity-90" />
               <div className="text-left border-l border-white/20 pl-6">
                 <h1 className="text-4xl font-serif font-black text-white tracking-tight leading-none">
-                  SCIENCES COACHING ACADEMY<br />
+                  STANDARD COACHING ACADEMY<br />
                   <span className="text-brand-gold text-lg font-bold tracking-[0.4em] uppercase">Academy</span>
                 </h1>
               </div>

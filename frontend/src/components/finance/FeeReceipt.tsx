@@ -26,8 +26,7 @@ interface FeeReceiptProps {
   onPrint?: () => void;
 }
 
-// Printable Fee Receipt - Matches SCIENCES COACHING ACADEMY physical paper format EXACTLY
-// Red & Black branded with shield logo
+// Printable Fee Receipt - STANDARD COACHING ACADEMY
 const FeeReceipt = forwardRef<HTMLDivElement, FeeReceiptProps>(
   (
     {
@@ -50,194 +49,132 @@ const FeeReceipt = forwardRef<HTMLDivElement, FeeReceiptProps>(
     },
     ref,
   ) => {
-    // Extract just the number part for S.No display (e.g., "2766" from "FEE-202601-2766")
     const serialNumber =
       receiptNumber?.match(/\d+$/)?.[0] || receiptNumber?.slice(-4) || "----";
 
     return (
       <div className="space-y-4">
-        {/* Receipt Card - Landscape Style matching physical form */}
+        {/* Receipt Card */}
         <div
           ref={ref}
-          className="relative bg-white w-full max-w-[700px] mx-auto shadow-lg print:shadow-none overflow-hidden"
+          className="relative bg-white w-full max-w-[700px] mx-auto shadow-lg print:shadow-none overflow-hidden border border-gray-200"
           style={{ fontFamily: "'Times New Roman', Georgia, serif" }}
         >
-          {/* Top Red Border */}
+          {/* Top Border */}
           <div className="h-2 bg-blue-700" />
 
-          {/* Main Content with Left Red Border */}
           <div className="flex">
-            {/* Left Red Accent */}
-            <div className="w-2 bg-blue-700" />
+            {/* Left Accent */}
+            <div className="w-1.5 bg-blue-700" />
 
-            {/* Content Area */}
-            <div className="flex-1 p-5">
-              {/* Watermark Logo */}
+            {/* Content */}
+            <div className="flex-1 px-6 py-5">
+              {/* Watermark */}
               <div
-                className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none"
+                className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none"
                 aria-hidden="true"
               >
-                <div className="w-64 h-64 rounded-full border-[10px] border-blue-700 flex items-center justify-center">
-                  <div className="text-center">
-                    <span className="text-2xl font-serif italic text-blue-700">
-                      Sciences
-                    </span>
-                    <br />
-                    <span className="text-3xl font-bold text-blue-700">
-                      COACHING
-                    </span>
-                  </div>
+                <div className="text-6xl font-bold text-[#1A237E] tracking-widest rotate-[-25deg]">
+                  SCA
                 </div>
               </div>
 
-              {/* Header Row */}
-              <div className="relative z-10 flex items-start justify-between mb-4">
-                {/* Left: Logo + Title */}
+              {/* Header */}
+              <div className="relative z-10 flex items-start justify-between mb-5 pb-4 border-b-2 border-[#1A237E]">
+                {/* Logo + Title */}
                 <div className="flex items-center gap-3">
-                  {/* Academy Emblem */}
-                  <div className="w-16 h-16 rounded-full border-2 border-blue-700 flex items-center justify-center bg-gradient-to-b from-blue-50 to-white flex-shrink-0">
+                  <div className="w-14 h-14 rounded-full border-2 border-[#1A237E] flex items-center justify-center bg-gradient-to-b from-amber-50 to-white flex-shrink-0">
                     <img
                       src="/logo.png"
-                      alt="SCIENCES COACHING ACADEMY"
-                      className="w-12 h-12 object-contain"
+                      alt="SCA"
+                      className="w-10 h-10 object-contain"
                     />
                   </div>
-
-                  {/* Title */}
                   <div>
-                    <h1 className="text-2xl font-bold leading-tight">
-                      <span className="text-blue-700 font-serif italic">
-                        Sciences{" "}
-                      </span>
-                      <span className="text-blue-700 tracking-wide">
-                        COACHING{" "}
-                      </span>
+                    <h1 className="text-xl font-bold leading-tight">
+                      <span className="text-[#1A237E] font-serif italic">Standard </span>
+                      <span className="text-[#1A237E] tracking-wide">COACHING </span>
                       <span className="text-gray-900">Academy</span>
                     </h1>
-                    {/* Contact in Red */}
-                    <p className="text-blue-600 font-semibold text-sm mt-0.5">
+                    <p className="text-[#1A237E] font-semibold text-xs mt-1">
                       Contact: 091-5601600 / 0334-5852326
                     </p>
                   </div>
                 </div>
 
-                {/* Right: S.No Box (matching physical form style) */}
-                <div className="text-right">
+                {/* S.No Box + Date */}
+                <div className="text-right flex-shrink-0 ml-4">
                   <div className="inline-block border-2 border-gray-800 bg-white">
-                    <div className="px-2 py-0.5 border-b border-gray-400 text-xs font-semibold text-gray-600">
+                    <div className="px-2 py-0.5 border-b border-gray-400 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                       S.No.
                     </div>
-                    <div className="px-4 py-2 text-2xl font-bold text-gray-900 min-w-[80px] text-center">
+                    <div className="px-5 py-1.5 text-xl font-bold text-gray-900 min-w-[70px] text-center">
                       {serialNumber}
                     </div>
                   </div>
+                  <p className="text-[10px] text-gray-500 mt-1.5">Date: {date}</p>
                 </div>
               </div>
 
-              {/* Form Fields - 2 Column Layout like physical form */}
-              <div className="relative z-10 grid grid-cols-2 gap-x-8 gap-y-2 text-sm border-t border-gray-300 pt-4">
-                {/* Left Column */}
-                <div className="space-y-2">
-                  {/* Professor Row */}
-                  <div className="flex items-center">
-                    <span className="font-semibold text-gray-700 w-20">
-                      Professor:
-                    </span>
-                    <span className="flex-1 border-b border-gray-400 px-2 py-0.5 uppercase font-bold text-blue-800">
-                      {professorName || "—"}
-                    </span>
-                  </div>
+              {/* Form Fields - Clean Table Layout */}
+              <div className="relative z-10 mb-4">
+                <table className="w-full text-sm" style={{ borderCollapse: "separate", borderSpacing: "0 6px" }}>
+                  <tbody>
+                    <tr>
+                      <td className="font-semibold text-gray-600 w-[80px] pr-2 whitespace-nowrap align-middle">Professor:</td>
+                      <td className="border-b border-gray-300 px-2 py-1 uppercase font-bold text-blue-800">{professorName || "—"}</td>
+                      <td className="font-semibold text-gray-600 w-[70px] pr-2 pl-6 whitespace-nowrap align-middle">TIME:</td>
+                      <td className="border-b border-gray-300 px-2 py-1">{time || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="font-semibold text-gray-600 pr-2 whitespace-nowrap align-middle">Name:</td>
+                      <td className="border-b border-gray-300 px-2 py-1">{studentName}</td>
+                      <td className="font-semibold text-gray-600 pr-2 pl-6 whitespace-nowrap align-middle">Roll No.:</td>
+                      <td className="border-b border-gray-300 px-2 py-1">{studentId || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="font-semibold text-gray-600 pr-2 whitespace-nowrap align-middle">Father:</td>
+                      <td className="border-b border-gray-300 px-2 py-1">{fatherName}</td>
+                      <td className="font-semibold text-gray-600 pr-2 pl-6 whitespace-nowrap align-middle">Cell#:</td>
+                      <td className="border-b border-gray-300 px-2 py-1">{studentPhone || "—"}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-                  {/* Name Row */}
-                  <div className="flex items-center">
-                    <span className="font-semibold text-gray-700 w-20">
-                      Name:
-                    </span>
-                    <span className="flex-1 border-b border-gray-400 px-2 py-0.5">
-                      {studentName}
-                    </span>
-                  </div>
-
-                  {/* Father Row */}
-                  <div className="flex items-center">
-                    <span className="font-semibold text-gray-700 w-20">
-                      Father:
-                    </span>
-                    <span className="flex-1 border-b border-gray-400 px-2 py-0.5">
-                      {fatherName}
-                    </span>
-                  </div>
-
-                  {/* Subject Row with Yellow Highlight */}
-                  <div className="flex items-center mt-2">
-                    <span className="font-semibold text-gray-700 w-20">
-                      Subject:
-                    </span>
-                    <span className="bg-yellow-400 px-4 py-1 font-bold uppercase border border-gray-800 shadow-sm">
-                      {subject || "—"}
-                    </span>
-                  </div>
+              {/* Subject + Class Row */}
+              <div className="relative z-10 flex items-center justify-between mb-4 gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-600 text-sm">Subject:</span>
+                  <span className="bg-yellow-300 px-4 py-1 font-bold uppercase text-sm border border-gray-700 shadow-sm">
+                    {subject || "—"}
+                  </span>
                 </div>
-
-                {/* Right Column */}
-                <div className="space-y-2">
-                  {/* TIME Row */}
-                  <div className="flex items-center">
-                    <span className="font-semibold text-gray-700 w-20">
-                      TIME:
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-600 text-sm">Class:</span>
+                  <div className="flex gap-1.5">
+                    <span
+                      className={`px-3 py-1 border border-gray-400 text-xs rounded-sm ${className?.toLowerCase().includes("first") ? "bg-yellow-200 font-bold border-gray-700" : "bg-white"}`}
+                    >
+                      1st Year
                     </span>
-                    <span className="flex-1 border-b border-gray-400 px-2 py-0.5">
-                      {time || "—"}
+                    <span
+                      className={`px-3 py-1 border border-gray-400 text-xs rounded-sm ${className?.toLowerCase().includes("second") ? "bg-yellow-200 font-bold border-gray-700" : "bg-white"}`}
+                    >
+                      2nd Year
                     </span>
-                  </div>
-
-                  {/* Roll No Row */}
-                  <div className="flex items-center">
-                    <span className="font-semibold text-gray-700 w-20">
-                      Roll No.:
-                    </span>
-                    <span className="flex-1 border-b border-gray-400 px-2 py-0.5">
-                      {studentId || "—"}
-                    </span>
-                  </div>
-
-                  {/* Student Cell Row */}
-                  <div className="flex items-center">
-                    <span className="font-semibold text-gray-700 w-20">
-                      Cell#:
-                    </span>
-                    <span className="flex-1 border-b border-gray-400 px-2 py-0.5">
-                      {studentPhone || "—"}
-                    </span>
-                  </div>
-
-                  {/* Class Row with boxes */}
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="font-semibold text-gray-700">Class:</span>
-                    <div className="flex gap-2">
-                      <span
-                        className={`px-3 py-1 border border-gray-400 text-xs ${className?.toLowerCase().includes("first") ? "bg-yellow-200 font-bold" : "bg-white"}`}
-                      >
-                        First Year
-                      </span>
-                      <span
-                        className={`px-3 py-1 border border-gray-400 text-xs ${className?.toLowerCase().includes("second") ? "bg-yellow-200 font-bold" : "bg-white"}`}
-                      >
-                        Second Year
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Amount Section */}
-              <div className="relative z-10 mt-4 flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 p-3 border border-green-300 rounded">
+              <div className="relative z-10 flex items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 border border-green-300 rounded-md">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-700">Month:</span>
-                  <span className="font-bold text-lg">{month}</span>
+                  <span className="font-semibold text-gray-600 text-sm">Month:</span>
+                  <span className="font-bold text-base">{month}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-700">Amount:</span>
+                  <span className="font-semibold text-gray-600 text-sm">Amount:</span>
                   <span className="font-bold text-2xl text-green-700">
                     Rs. {amount?.toLocaleString()}
                   </span>
@@ -246,14 +183,14 @@ const FeeReceipt = forwardRef<HTMLDivElement, FeeReceiptProps>(
 
               {/* Split Breakdown (internal use) */}
               {showSplit && splitBreakdown && (
-                <div className="relative z-10 mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                <div className="relative z-10 mt-2 p-2.5 bg-blue-50 border border-blue-200 rounded text-xs">
                   <div className="flex justify-between">
                     <span>Teacher ({splitBreakdown.teacherPercentage}%):</span>
                     <span className="font-semibold">
                       Rs. {splitBreakdown.teacherShare?.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between mt-0.5">
                     <span>Academy ({splitBreakdown.academyPercentage}%):</span>
                     <span className="font-semibold">
                       Rs. {splitBreakdown.academyShare?.toLocaleString()}
@@ -262,43 +199,32 @@ const FeeReceipt = forwardRef<HTMLDivElement, FeeReceiptProps>(
                 </div>
               )}
 
-              {/* Footer Row */}
-              <div className="relative z-10 mt-4 pt-3 border-t border-gray-300 flex justify-between items-end">
-                {/* Left: Non-Refundable Box */}
-                <div className="border-2 border-blue-600 px-3 py-2 bg-blue-50">
+              {/* Footer */}
+              <div className="relative z-10 mt-5 pt-3 border-t border-gray-300 flex justify-between items-end">
+                <div className="border-2 border-blue-600 px-3 py-1.5 bg-blue-50 rounded-sm">
                   <p className="text-[10px] font-bold text-blue-700 uppercase leading-tight">
-                    FEE IS NON-REFUNDABLE
-                  </p>
-                  <p className="text-[10px] font-bold text-blue-700 uppercase leading-tight">
-                    IN ANY CASE
+                    Fee is non-refundable in any case
                   </p>
                 </div>
-
-                {/* Right: Signature */}
                 <div className="text-center">
-                  <div className="border-t border-gray-800 w-32 mb-1" />
-                  <p className="text-xs text-gray-600">Signature</p>
+                  <div className="border-t border-gray-800 w-28 mb-1" />
+                  <p className="text-[10px] text-gray-500">Signature</p>
                 </div>
               </div>
 
-              {/* Bottom Address */}
-              <div className="relative z-10 text-center text-[9px] text-gray-500 mt-3 pt-2 border-t border-gray-200">
+              {/* Address */}
+              <div className="relative z-10 text-center text-[9px] text-gray-400 mt-3 pt-2 border-t border-gray-100">
                 <p>
-                  Address: Opposite Islamia College Behind, Danishabad
-                  University Road Peshawar
+                  Opp. Islamia College, Danishabad, University Road, Peshawar
                 </p>
-                <p className="mt-0.5">
-                  Email: info@sca.edu.pk |
-                  www.facebook.com/sciencescoachingacademy
-                </p>
-                <p className="text-[8px] text-gray-400 mt-1 italic">
+                <p className="mt-0.5 italic text-[8px]">
                   Can't Be Used For Legal Purpose
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Bottom Red Border */}
+          {/* Bottom Border */}
           <div className="h-1 bg-blue-600" />
         </div>
 

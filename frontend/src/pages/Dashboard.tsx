@@ -203,7 +203,7 @@ const OwnerDashboard = () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>${reportData.period} Financial Report — SCIENCES COACHING ACADEMY</title>
+        <title>${reportData.period} Financial Report — STANDARD COACHING ACADEMY</title>
         <style>
           body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; color: #1e293b; }
           h1 { color: #0f172a; border-bottom: 3px solid #0EA5E9; padding-bottom: 12px; }
@@ -224,7 +224,7 @@ const OwnerDashboard = () => {
       </head>
       <body>
         <h1>📊 ${reportData.period} Financial Report</h1>
-        <p style="color: #64748b;">SCIENCES COACHING ACADEMY — Generated on ${new Date(reportData.generatedAt).toLocaleString()}</p>
+        <p style="color: #64748b;">STANDARD COACHING ACADEMY — Generated on ${new Date(reportData.generatedAt).toLocaleString()}</p>
         
         <div class="summary">
           <div class="stat-box">
@@ -261,7 +261,7 @@ const OwnerDashboard = () => {
         <p>Total Fees Collected: <strong>PKR ${reportData.feesCollected?.total?.toLocaleString() || 0}</strong> (${reportData.feesCollected?.count || 0} records)</p>
 
         <div class="footer">
-          <p>SCIENCES COACHING ACADEMY — Confidential Financial Report</p>
+          <p>STANDARD COACHING ACADEMY — Confidential Financial Report</p>
         </div>
       </body>
       </html>
@@ -375,7 +375,7 @@ const OwnerDashboard = () => {
               <span className="text-red-400">{systemAdminName || "System Admin"}</span>
             </h1>
             <p className="text-slate-300 text-lg">
-              SCIENCES COACHING ACADEMY — Management Dashboard
+              STANDARD COACHING ACADEMY — Management Dashboard
             </p>
           </div>
         </div>
@@ -752,7 +752,7 @@ const OwnerDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <Button
                 size="lg"
                 className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-semibold shadow-lg hover:-translate-y-1 hover:shadow-2xl transition-all duration-300"
@@ -810,7 +810,7 @@ const OwnerDashboard = () => {
             ) : reportData ? (
               <div className="space-y-6">
                 {/* Summary Cards */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-center">
                     <p className="text-xs font-semibold text-emerald-600 uppercase">Revenue</p>
                     <p className="text-xl font-bold text-emerald-900 mt-1">
@@ -1502,7 +1502,7 @@ const TeacherDashboard = () => {
               )}
             </div>
             <p className="text-slate-400 text-sm mt-2">
-              SCIENCES COACHING ACADEMY — {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+              STANDARD COACHING ACADEMY — {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
         </div>
@@ -1777,7 +1777,7 @@ const StaffDashboard = () => {
             <span className="text-sky-400">{user?.fullName || "Staff"}</span>
           </h1>
           <p className="text-slate-300 text-lg">
-            SCIENCES COACHING ACADEMY — Staff Panel
+            STANDARD COACHING ACADEMY — Staff Panel
           </p>
           <div className="mt-3 flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-medium border border-sky-500/30">

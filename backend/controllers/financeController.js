@@ -1,6 +1,6 @@
 /**
  * ================================================================
- * SCIENCES COACHING ACADEMY — FINANCE CONTROLLER (Clean Single-Owner Edition)
+ * STANDARD COACHING ACADEMY — FINANCE CONTROLLER (Clean Single-Owner Edition)
  * ================================================================
  * All partner/pool/split logic removed. This is a sole-proprietor
  * system: Owner collects 30% academy share, Teachers earn 70%.

@@ -30,6 +30,8 @@ import {
   Send,
   CheckCircle2,
   Megaphone,
+  Menu,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -315,6 +317,7 @@ function SectionSkeleton() {
 
 export default function PublicLanding() {
   const [currentAnnouncement, setCurrentAnnouncement] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Fetch public config
   const { data, isLoading } = useQuery({
@@ -348,7 +351,7 @@ export default function PublicLanding() {
 
   const config: PublicConfig | null = data?.data || null;
   const brandTitle =
-    config?.heroSection?.title?.trim() || "SCIENCES COACHING ACADEMY";
+    config?.heroSection?.title?.trim() || "STANDARD COACHING ACADEMY";
 
   // Rotate announcements
   useEffect(() => {
@@ -386,7 +389,7 @@ export default function PublicLanding() {
             >
               <img
                 src="/logo.png"
-                alt="SCIENCES COACHING ACADEMY"
+                alt="STANDARD COACHING ACADEMY"
                 className="h-11 w-11 object-contain shrink-0"
               />
               <div className="min-w-0">
@@ -421,13 +424,39 @@ export default function PublicLanding() {
               </Link>
             </div>
 
-            {/* Mobile Menu Button - Placeholder for future expansion */}
+            {/* Mobile Menu Button */}
             <div className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Users className="h-6 w-6" />
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
             </div>
           </div>
+          {/* Mobile Menu Dropdown */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="md:hidden overflow-hidden border-t border-slate-200"
+              >
+                <div className="py-4 flex flex-col gap-2">
+                  <Link to="/student-portal" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full border-brand-primary/20 text-brand-primary rounded-full h-10 font-semibold">
+                      Student Portal
+                    </Button>
+                  </Link>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full text-brand-primary rounded-full h-10 font-semibold">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Staff Login
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </nav>
 
@@ -466,7 +495,7 @@ export default function PublicLanding() {
                 transition={{ duration: 1, type: "spring", stiffness: 50 }}
                 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-black text-white mb-6 leading-[1.06] tracking-tight"
               >
-                {config?.heroSection?.title || "SCIENCES COACHING ACADEMY"}
+                {config?.heroSection?.title || "STANDARD COACHING ACADEMY"}
               </motion.h1>
 
               <motion.p
@@ -681,7 +710,7 @@ export default function PublicLanding() {
           <div className="max-w-7xl mx-auto">
             <motion.div {...waterfall} className="text-center mb-14">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-black text-brand-primary mb-4 tracking-tight">
-                Why SCIENCES COACHING ACADEMY?
+                Why STANDARD COACHING ACADEMY?
               </h2>
               <div className="w-20 h-1 bg-brand-gold mx-auto rounded-full mb-6" />
               <p className="text-base text-slate-500 max-w-2xl mx-auto font-medium">
@@ -905,7 +934,7 @@ export default function PublicLanding() {
                   className="h-10 w-10 object-contain flex-shrink-0"
                 />
                 <span className="text-base font-serif font-black tracking-tight leading-tight">
-                  SCIENCES COACHING ACADEMY
+                  STANDARD COACHING ACADEMY
                 </span>
               </div>
               <p className="text-slate-600 font-medium leading-relaxed mb-5 text-sm">
@@ -1026,7 +1055,7 @@ export default function PublicLanding() {
           </div>
 
           <div className="pt-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em]">
-            <p>© {new Date().getFullYear()} SCIENCES COACHING ACADEMY. All Rights Reserved.</p>
+            <p>© {new Date().getFullYear()} STANDARD COACHING ACADEMY. All Rights Reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-brand-primary transition-colors">
                 Privacy Policy

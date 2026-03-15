@@ -503,7 +503,7 @@ export function StudentPortal() {
                 >
                   <img
                     src="/logo.png"
-                    alt="Sciences Coaching Academy"
+                    alt="Standard Coaching Academy"
                     className="h-16 w-16 object-contain drop-shadow-[0_0_10px_rgba(180,83,9,0.3)]"
                   />
                 </motion.div>
@@ -699,7 +699,7 @@ export function StudentPortal() {
             </div>
           </div>
           <p className="text-center text-[10px] text-slate-600 uppercase tracking-[0.4em] mt-8">
-            Admissions Department • Sciences Coaching Academy Executive Office
+            Admissions Department • Standard Coaching Academy Executive Office
           </p>
         </motion.div>
       </div>
@@ -733,7 +733,7 @@ export function StudentPortal() {
             <div className="p-2 rounded-xl bg-brand-primary border border-white/10 shadow-2xl">
               <img
                 src="/logo.png"
-                alt="Sciences Coaching Academy"
+                alt="Standard Coaching Academy"
                 className="h-10 w-auto object-contain drop-shadow-[0_0_8px_rgba(180,83,9,0.3)]"
               />
             </div>
@@ -896,7 +896,7 @@ export function StudentPortal() {
                   </h2>
                   <p className="text-xl text-slate-400 mb-12 max-w-2xl leading-relaxed">
                     Your portal to excellence is ready. Continue your academic
-                    journey with the Sciences Coaching Academy elite curriculum.
+                    journey with the Standard Coaching Academy elite curriculum.
                   </p>
 
                   {/* Quick Stats Grid */}

@@ -6,7 +6,7 @@ const Class = require("../models/Class");
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id) && /^[0-9a-fA-F]{24}$/.test(id);
 
 /**
- * Attendance Controller — Sciences Coaching Academy
+ * Attendance Controller — Standard Coaching Academy
  *
  * Handles attendance marking (auto from Gatekeeper + manual from Admin)
  * and reporting (daily summary, student history, class breakdowns).

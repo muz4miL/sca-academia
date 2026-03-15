@@ -52,14 +52,12 @@ const classSchema = new mongoose.Schema({
     },
   },
 
-  // Session Type - For ETEA/MDCAT special fee handling
-  sessionType: {
-    type: String,
-    enum: {
-      values: ["regular", "etea", "mdcat", "ecat", "test-prep"],
-      message: "{VALUE} is not a valid session type",
-    },
-    default: "regular",
+  // Per-student fixed rate for teachers (used when revenueMode = "fixed-per-student")
+  // Each teacher in the class gets this amount per enrolled student
+  teacherRatePerStudent: {
+    type: Number,
+    default: null,
+    min: [0, "Teacher rate per student cannot be negative"],
   },
 
   // Group - Academic stream/category (e.g., "Pre-Medical", "Pre-Engineering")
@@ -165,11 +163,13 @@ const classSchema = new mongoose.Schema({
     trim: true,
   },
 
-  // Revenue Mode: 'standard' (70/30 split) or 'partner' (100% to teacher)
+  // Revenue Mode: how teacher earnings are calculated from student fees
+  //   "percentage" — Fee split equally among teachers, then each gets their compensation %
+  //   "fixed-per-student" — Each teacher gets a fixed amount (teacherRatePerStudent) per student
   revenueMode: {
     type: String,
-    enum: ["standard", "partner"],
-    default: "standard",
+    enum: ["percentage", "fixed-per-student"],
+    default: "percentage",
   },
 
   // Subjects offered in this class with individual fees

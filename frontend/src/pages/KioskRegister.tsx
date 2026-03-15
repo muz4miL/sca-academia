@@ -195,7 +195,7 @@ export default function KioskRegister() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              SCIENCES COACHING ACADEMY
+              STANDARD COACHING ACADEMY
             </h1>
             <p className="text-blue-200 text-sm">Student Registration Form</p>
           </div>
@@ -422,7 +422,7 @@ export default function KioskRegister() {
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-400 mt-6 pb-6">
-          SCIENCES COACHING ACADEMY — Registration Portal
+          STANDARD COACHING ACADEMY — Registration Portal
         </p>
       </div>
     </div>

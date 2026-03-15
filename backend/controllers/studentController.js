@@ -6,6 +6,7 @@ const Class = require("../models/Class");
 const Configuration = require("../models/Configuration");
 const Notification = require("../models/Notification");
 const User = require("../models/User");
+const { calculateAndApplyFeeSplit } = require("../utils/feeSplitCalculator");
 
 // GET all students
 exports.getStudents = async (req, res) => {
@@ -179,6 +180,39 @@ exports.collectFee = async (req, res) => {
 
     console.log("✅ Transaction created:", transaction._id);
 
+    // ─── AUTO-SPLIT: Credit teachers based on class revenue model ───
+    let splitResult = { splitApplied: false, revenueModel: "none", teacherCredits: [] };
+    try {
+      splitResult = await calculateAndApplyFeeSplit({
+        student,
+        amount: amountNum,
+        month,
+        collector: req.user,
+        paymentMethod: paymentMethod || "CASH",
+        notes,
+      });
+
+      // Update FeeRecord with split breakdown if split was applied
+      if (splitResult.splitApplied && splitResult.teacherCredits.length > 0) {
+        const firstCredit = splitResult.teacherCredits[0];
+        await FeeRecord.findByIdAndUpdate(feeRecord._id, {
+          teacher: firstCredit.teacherId,
+          teacherName: firstCredit.teacherName,
+          splitBreakdown: {
+            teacherShare: firstCredit.amount,
+            academyShare: amountNum - splitResult.teacherCredits.reduce((sum, c) => sum + c.amount, 0),
+            teacherPercentage: firstCredit.percentage || 0,
+            academyPercentage: firstCredit.percentage ? (100 - firstCredit.percentage) : 0,
+          },
+          revenueSource: splitResult.revenueModel === "fixed-per-student" ? "standard-split" : "standard-split",
+        });
+      }
+
+      console.log(`✅ Fee split: ${splitResult.revenueModel} — ${splitResult.teacherCredits.length} teachers credited`);
+    } catch (splitErr) {
+      console.error("⚠️ Auto-split failed (fee still collected):", splitErr.message);
+    }
+
     // Track collector's cash (for daily closing verification)
     if (req.user?._id) {
       try {
@@ -239,7 +273,12 @@ exports.collectFee = async (req, res) => {
     res.status(201).json({
       success: true,
       message: `Fee collected! Receipt: ${feeRecord.receiptNumber}`,
-      data: { feeRecord },
+      data: {
+        feeRecord,
+        splitApplied: splitResult.splitApplied,
+        revenueModel: splitResult.revenueModel,
+        teacherCredits: splitResult.teacherCredits,
+      },
     });
   } catch (error) {
     console.error("CollectFee Error:", error);

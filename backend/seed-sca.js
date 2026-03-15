@@ -87,7 +87,7 @@ async function main() {
     // ══════════════════════════════════════════════════════
     console.log("\n⚙️  Creating Configuration...");
     const config = await Configuration.create({
-      academyName: "SCIENCES COACHING ACADEMY",
+      academyName: "STANDARD COACHING ACADEMY",
       academyAddress: "University Road, Peshawar",
       academyPhone: "+92 91 5701234",
       systemAdminName: "Sir Usman",

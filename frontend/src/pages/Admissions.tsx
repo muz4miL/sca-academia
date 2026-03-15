@@ -692,7 +692,7 @@ const Admissions = () => {
 
       </HeaderBanner>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+      <div className="mt-6 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {/* Student Information */}
         <div className="lg:col-span-2">
           <div className="rounded-xl border border-border bg-card p-6 card-shadow">
@@ -749,17 +749,6 @@ const Admissions = () => {
                     <SelectItem value="Female">Female</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="wing">Wing - Assigning to Right Wing</Label>
-                <Input
-                  id="wing"
-                  value="Right Wing"
-                  disabled
-                  className="bg-secondary/50 text-muted-foreground cursor-not-allowed"
-                  title="Auto: Assigning to Right Wing"
-                />
               </div>
 
               <div className="space-y-2">

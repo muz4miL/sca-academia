@@ -849,44 +849,120 @@ exports.processPayout = async (req, res) => {
 exports.getEarningsBreakdown = async (req, res) => {
   try {
     const activeSession = await getActiveSession();
+    if (!activeSession) {
+      return res.json({ success: true, data: { session: null, teachers: [], totalAcademyPool: 0 } });
+    }
 
     const teachers = await Teacher.find({ status: "active" }).lean();
+    const config = await Configuration.findOne().lean();
+    const globalTeacherPct = config?.salaryConfig?.teacherShare ?? 70;
+    const globalAcademyPct = 100 - globalTeacherPct;
 
-    const classQuery = { status: "active" };
-    if (activeSession?._id) classQuery.session = activeSession._id;
+    // 1. All active students in the active session
+    const sessionStudents = await Student.find({
+      sessionRef: activeSession._id,
+      status: "active",
+    }).select("_id classRef totalFee").lean();
 
-    const classes = await Class.find(classQuery)
-      .select("classTitle gradeLevel group shift subjects subjectTeachers assignedTeacher baseFee")
+    const activeStudentIds = sessionStudents.map((s) => s._id);
+    const studentClassMap = new Map(
+      sessionStudents.map((s) => [s._id.toString(), s.classRef?.toString()])
+    );
+
+    // 2. Class info for display
+    const classes = await Class.find({
+      status: "active",
+      session: activeSession._id,
+    })
+      .select("classTitle gradeLevel subjects subjectTeachers assignedTeacher baseFee revenueMode teacherRatePerStudent")
       .lean();
+    const classInfoMap = new Map(classes.map((c) => [c._id.toString(), c]));
 
-    const classIds = classes.map((c) => c._id);
-    const enrollmentAgg = classIds.length
-      ? await Student.aggregate([
+    // Enrollment per class
+    const enrollmentMap = new Map();
+    for (const s of sessionStudents) {
+      const k = s.classRef?.toString();
+      if (k) enrollmentMap.set(k, (enrollmentMap.get(k) || 0) + 1);
+    }
+
+    // 3. Academy pool — sum of INCOME "Academy Share" txns for this session's students
+    const academyAgg = activeStudentIds.length
+      ? await Transaction.aggregate([
           {
             $match: {
-              classRef: { $in: classIds },
-              status: "active",
-              ...(activeSession?._id ? { sessionRef: activeSession._id } : {}),
+              type: "INCOME",
+              category: "Academy Share",
+              "splitDetails.studentId": { $in: activeStudentIds },
             },
           },
-          { $group: { _id: "$classRef", count: { $sum: 1 } } },
+          { $group: { _id: null, total: { $sum: "$amount" } } },
+        ])
+      : [];
+    const grandTotalAcademyPool = academyAgg[0]?.total || 0;
+
+    // 4. Teacher credits per teacher+student+subject
+    const teacherCreditAgg = activeStudentIds.length
+      ? await Transaction.aggregate([
+          {
+            $match: {
+              type: "CREDIT",
+              category: "Teacher Share",
+              "splitDetails.teacherId": { $ne: null },
+              "splitDetails.studentId": { $in: activeStudentIds },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                teacherId: "$splitDetails.teacherId",
+                studentId: "$splitDetails.studentId",
+                subject: {
+                  $toLower: { $ifNull: ["$splitDetails.subject", ""] },
+                },
+              },
+              totalAmount: { $sum: "$amount" },
+            },
+          },
         ])
       : [];
 
-    const enrollmentMap = new Map(
-      enrollmentAgg.map((e) => [e._id.toString(), e.count])
-    );
+    // 5. Build per-teacher → per-(classId::subject) earnings map
+    // teacherId → Map(classId::subject → { classId, subject, studentSet, totalAmount })
+    const teacherEarningsMap = new Map();
+    for (const row of teacherCreditAgg) {
+      const teacherId = row._id.teacherId?.toString();
+      const studentId = row._id.studentId?.toString();
+      if (!teacherId || !studentId) continue;
+      const classId = studentClassMap.get(studentId);
+      if (!classId) continue;
+      const subject = row._id.subject || "";
+      const mapKey = `${classId}::${subject}`;
+      if (!teacherEarningsMap.has(teacherId)) teacherEarningsMap.set(teacherId, new Map());
+      const existing = teacherEarningsMap.get(teacherId).get(mapKey);
+      if (!existing) {
+        teacherEarningsMap.get(teacherId).set(mapKey, {
+          classId,
+          subject,
+          studentSet: new Set([studentId]),
+          totalAmount: row.totalAmount,
+        });
+      } else {
+        existing.studentSet.add(studentId);
+        existing.totalAmount += row.totalAmount;
+      }
+    }
 
+    // 6. Build breakdown per teacher
     const teacherBreakdowns = [];
 
     for (const teacher of teachers) {
       const compType = teacher.compensation?.type || "percentage";
-      const teacherSharePct =
-        compType === "hybrid"
-          ? teacher.compensation?.profitShare || 70
-          : teacher.compensation?.teacherShare || 70;
       const fixedSalary = teacher.compensation?.fixedSalary || 0;
       const baseSalary = teacher.compensation?.baseSalary || 0;
+      const teacherSharePct =
+        compType === "hybrid"
+          ? teacher.compensation?.profitShare || globalTeacherPct
+          : teacher.compensation?.teacherShare || globalTeacherPct;
 
       if (compType === "fixed") {
         teacherBreakdowns.push({
@@ -896,90 +972,127 @@ exports.getEarningsBreakdown = async (req, res) => {
           compensationType: "fixed",
           fixedSalary,
           calculatedEarning: fixedSalary,
+          totalAcademyShare: 0,
           breakdown: [],
           alreadyCredited: teacher.balance?.pending || 0,
         });
         continue;
       }
 
+      const teacherId = teacher._id.toString();
+      const classEarningsMap = teacherEarningsMap.get(teacherId) || new Map();
       const breakdown = [];
       let totalCalculatedEarning = 0;
+      let totalAcademyShare = 0;
 
-      for (const cls of classes) {
-        const studentCount = enrollmentMap.get(cls._id.toString()) || 0;
-        if (studentCount === 0) continue;
+      // Process actual transaction-based earnings per class
+      for (const [, entry] of classEarningsMap) {
+        const cls = classInfoMap.get(entry.classId);
+        const studentCount = entry.studentSet.size;
+        const teacherEarning = Math.round(entry.totalAmount);
 
-        const isPrimary =
-          cls.assignedTeacher?.toString() === teacher._id.toString();
-        const subjectAssignments = (cls.subjectTeachers || []).filter(
-          (st) => st.teacherId?.toString() === teacher._id.toString()
+        // Academy share is proportional: if teacher got globalTeacherPct%, academy got rest
+        const academyEarning = globalTeacherPct > 0
+          ? Math.round(teacherEarning * globalAcademyPct / globalTeacherPct)
+          : 0;
+
+        const isFixedRate = cls?.revenueMode === "fixed-per-student";
+        const isMultiTeacher =
+          (cls?.subjectTeachers || []).length > 0 &&
+          cls?.assignedTeacher?.toString() !== teacherId;
+
+        // Display fee per student
+        const subjectDef = cls?.subjects?.find(
+          (s) => s.name?.toLowerCase() === entry.subject
         );
+        const feePerStudent = isFixedRate
+          ? cls?.teacherRatePerStudent || 0
+          : subjectDef?.fee || cls?.baseFee || 0;
 
-        if (!isPrimary && subjectAssignments.length === 0) continue;
+        // Display subject label
+        const subjectLabel =
+          entry.subject ||
+          (cls?.subjects?.length > 0
+            ? cls.subjects.map((s) => s.name).join(", ")
+            : "All Subjects");
 
-        const hasSubjects = cls.subjects && cls.subjects.length > 0;
-        const totalSubjectFees = hasSubjects
-          ? cls.subjects.reduce((sum, s) => sum + (s.fee || 0), 0)
-          : cls.baseFee || 0;
+        breakdown.push({
+          classId: entry.classId,
+          classTitle: cls?.classTitle || "Unknown Class",
+          gradeLevel: cls?.gradeLevel,
+          isMultiTeacher,
+          isFixedRate,
+          subject: subjectLabel,
+          studentCount,
+          ratePerStudent: isFixedRate ? cls?.teacherRatePerStudent : undefined,
+          subjectFee: feePerStudent,
+          subjectRevenue: studentCount * feePerStudent,
+          teacherSharePct,
+          calculatedEarning: teacherEarning,
+          academyShare: academyEarning,
+        });
 
-        if (subjectAssignments.length > 0) {
-          // Multi-teacher class: teacher earns from their specific subjects only
-          for (const assignment of subjectAssignments) {
-            const subjectData = hasSubjects
-              ? cls.subjects.find(
-                  (s) => s.name?.toLowerCase() === assignment.subject?.toLowerCase()
-                )
-              : null;
-            const subjectFee =
-              subjectData?.fee ||
-              (hasSubjects && cls.subjects.length > 0
-                ? totalSubjectFees / cls.subjects.length
-                : cls.baseFee || 0);
-            const subjectRevenue = studentCount * subjectFee;
-            const teacherEarning = subjectRevenue * (teacherSharePct / 100);
+        totalCalculatedEarning += teacherEarning;
+        totalAcademyShare += academyEarning;
+      }
 
-            breakdown.push({
-              classId: cls._id,
-              classTitle: cls.classTitle,
-              gradeLevel: cls.gradeLevel,
-              isMultiTeacher: true,
-              subject: assignment.subject,
-              studentCount,
-              subjectFee,
-              subjectRevenue,
-              teacherSharePct,
-              calculatedEarning: Math.round(teacherEarning),
-            });
-            totalCalculatedEarning += teacherEarning;
-          }
-        } else if (isPrimary) {
-          // Primary teacher earns from all subjects in the class
-          const totalRevenue = studentCount * totalSubjectFees;
-          const teacherEarning = totalRevenue * (teacherSharePct / 100);
+      // Show assigned classes that have no transactions yet (0 earning)
+      const teacherClasses = classes.filter((cls) => {
+        const isPrimary = cls.assignedTeacher?.toString() === teacherId;
+        const hasSub = (cls.subjectTeachers || []).some(
+          (st) => st.teacherId?.toString() === teacherId
+        );
+        return isPrimary || hasSub;
+      });
+
+      for (const cls of teacherClasses) {
+        const subjectAssignments = (cls.subjectTeachers || []).filter(
+          (st) => st.teacherId?.toString() === teacherId
+        );
+        const isPrimary = cls.assignedTeacher?.toString() === teacherId;
+        const isFixedRate =
+          cls.revenueMode === "fixed-per-student" && cls.teacherRatePerStudent > 0;
+        const studentCount = enrollmentMap.get(cls._id.toString()) || 0;
+        const entries =
+          subjectAssignments.length > 0 ? subjectAssignments : [null];
+
+        for (const assignment of entries) {
+          const subjName = assignment?.subject || "";
+          const alreadyCovered = breakdown.some(
+            (b) =>
+              b.classId === cls._id.toString() &&
+              (!subjName ||
+                b.subject?.toLowerCase() === subjName.toLowerCase())
+          );
+          if (alreadyCovered) continue;
 
           breakdown.push({
-            classId: cls._id,
+            classId: cls._id.toString(),
             classTitle: cls.classTitle,
             gradeLevel: cls.gradeLevel,
-            isMultiTeacher: false,
-            subject: hasSubjects
-              ? cls.subjects.map((s) => s.name).join(", ")
-              : "All Subjects",
+            isMultiTeacher: subjectAssignments.length > 0,
+            isFixedRate,
+            subject:
+              subjName ||
+              (cls.subjects?.map((s) => s.name).join(", ") || "All Subjects"),
             studentCount,
-            subjectFee: totalSubjectFees,
-            subjectRevenue: totalRevenue,
+            ratePerStudent: isFixedRate ? cls.teacherRatePerStudent : undefined,
+            subjectFee: isFixedRate ? cls.teacherRatePerStudent : 0,
+            subjectRevenue: 0,
             teacherSharePct,
-            calculatedEarning: Math.round(teacherEarning),
+            calculatedEarning: 0,
+            academyShare: 0,
           });
-          totalCalculatedEarning += teacherEarning;
         }
       }
 
-      // For hybrid: add base salary on top of profit share
+      // Sort: earned classes first
+      breakdown.sort((a, b) => b.calculatedEarning - a.calculatedEarning);
+
       const finalEarning =
         compType === "hybrid"
-          ? Math.round(totalCalculatedEarning) + baseSalary
-          : Math.round(totalCalculatedEarning);
+          ? totalCalculatedEarning + baseSalary
+          : totalCalculatedEarning;
 
       teacherBreakdowns.push({
         teacherId: teacher._id,
@@ -989,6 +1102,7 @@ exports.getEarningsBreakdown = async (req, res) => {
         teacherSharePct,
         baseSalary: compType === "hybrid" ? baseSalary : 0,
         calculatedEarning: finalEarning,
+        totalAcademyShare,
         breakdown,
         alreadyCredited: teacher.balance?.pending || 0,
       });
@@ -999,6 +1113,7 @@ exports.getEarningsBreakdown = async (req, res) => {
       data: {
         session: activeSession,
         teachers: teacherBreakdowns,
+        totalAcademyPool: grandTotalAcademyPool,
       },
     });
   } catch (error) {
@@ -1010,7 +1125,6 @@ exports.getEarningsBreakdown = async (req, res) => {
     });
   }
 };
-
 exports.manualCreditTeacher = async (req, res) => {
   try {
     const { teacherId, amount, description } = req.body;

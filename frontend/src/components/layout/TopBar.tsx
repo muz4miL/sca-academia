@@ -47,6 +47,9 @@ export function TopBar({ title }: TopBarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic admin name from config
+  const [configAdminName, setConfigAdminName] = useState<string>("");
+
   // Fetch notifications
   const fetchNotifications = async () => {
     try {
@@ -91,6 +94,24 @@ export function TopBar({ title }: TopBarProps) {
     };
   }, []);
 
+  // Fetch system admin name from config
+  useEffect(() => {
+    const fetchConfigName = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/config`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (data.success && data.data?.systemAdminName) {
+          setConfigAdminName(data.data.systemAdminName);
+        }
+      } catch (err) {
+        console.error("Error fetching config name:", err);
+      }
+    };
+    fetchConfigName();
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -128,8 +149,8 @@ export function TopBar({ title }: TopBarProps) {
     return `${days}d ago`;
   };
 
-  // Get display name and role badge color
-  const displayName = user?.fullName || user?.username || "Admin";
+  // Get display name - prefer config systemAdminName, then user fullName
+  const displayName = configAdminName || user?.fullName || user?.username || "Admin";
   const roleBadgeColor =
     user?.role === "OWNER"
       ? "bg-amber-500"
@@ -138,8 +159,8 @@ export function TopBar({ title }: TopBarProps) {
         : "bg-blue-500";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-6">
-      <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-4 pl-14 md:pl-6 md:px-6">
+      <h1 className="text-base md:text-xl font-semibold text-foreground truncate">{title}</h1>
 
       <div className="flex items-center gap-4">
         {/* Notifications - OWNER ONLY */}

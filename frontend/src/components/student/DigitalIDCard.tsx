@@ -39,7 +39,7 @@ export const DigitalIDCard = ({ student }: DigitalIDCardProps) => {
               </div>
               <div className="text-left">
                 <h3 className="text-sm font-bold leading-tight">
-                  SCIENCES COACHING ACADEMY
+                  STANDARD COACHING ACADEMY
                 </h3>
                 <p className="text-xs opacity-90">ACADEMY</p>
               </div>

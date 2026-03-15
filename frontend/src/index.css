@@ -16,32 +16,32 @@
 
 @layer base {
   :root {
-    /* Core palette - Sciences Coaching Academy Professional Blue Theme */
+    /* Core palette - Standard Coaching Academy Gold & Navy Theme */
     --background: 0 0% 98%;
-    --foreground: 210 20% 10%;
+    --foreground: 230 40% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 20% 10%;
+    --card-foreground: 230 40% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 10%;
+    --popover-foreground: 230 40% 15%;
 
-    /* Primary - Professional Academic Blue (#0056b3) */
-    --primary: 210 100% 35%;
+    /* Primary - Navy Blue (#1A237E) from logo */
+    --primary: 232 65% 30%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 210 80% 95%;
-    --primary-hover: 210 100% 28%;
+    --primary-light: 232 60% 95%;
+    --primary-hover: 232 65% 24%;
 
-    /* Secondary - Dark Navy (#1a2332) */
-    --secondary: 215 30% 15%;
+    /* Secondary - Dark Navy (#0D1442) */
+    --secondary: 232 60% 16%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 10% 95%;
-    --muted-foreground: 210 10% 45%;
+    --muted: 40 10% 95%;
+    --muted-foreground: 230 10% 45%;
 
-    /* Accent - Light Blue */
-    --accent: 210 70% 95%;
-    --accent-foreground: 210 100% 30%;
+    /* Accent - Gold/Amber from logo */
+    --accent: 40 95% 93%;
+    --accent-foreground: 232 65% 30%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -51,95 +51,95 @@
     --success-foreground: 0 0% 100%;
     --success-light: 142 76% 95%;
 
-    --warning: 38 92% 50%;
+    --warning: 40 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --warning-light: 38 92% 95%;
+    --warning-light: 40 92% 95%;
 
-    --pending: 210 100% 50%;
+    --pending: 232 80% 55%;
     --pending-foreground: 0 0% 100%;
-    --pending-light: 210 80% 95%;
+    --pending-light: 232 60% 95%;
 
-    --border: 210 15% 88%;
-    --input: 210 15% 88%;
-    --ring: 210 100% 35%;
+    --border: 230 15% 88%;
+    --input: 230 15% 88%;
+    --ring: 232 65% 30%;
 
     --radius: 0.75rem;
 
-    /* Sidebar - Dark Theme with Blue Accents */
-    --sidebar-background: 215 30% 8%;
-    --sidebar-foreground: 210 10% 85%;
-    --sidebar-primary: 210 100% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 20% 14%;
-    --sidebar-accent-foreground: 210 70% 90%;
-    --sidebar-border: 215 20% 18%;
-    --sidebar-ring: 210 100% 45%;
-    --sidebar-muted: 210 10% 55%;
+    /* Sidebar - Dark Navy Theme with Gold Accents */
+    --sidebar-background: 232 55% 10%;
+    --sidebar-foreground: 40 20% 85%;
+    --sidebar-primary: 40 90% 55%;
+    --sidebar-primary-foreground: 232 65% 15%;
+    --sidebar-accent: 232 40% 16%;
+    --sidebar-accent-foreground: 40 60% 90%;
+    --sidebar-border: 232 30% 20%;
+    --sidebar-ring: 40 90% 55%;
+    --sidebar-muted: 40 10% 55%;
 
     /* Chart colors */
-    --chart-1: 210 100% 35%;
+    --chart-1: 232 65% 30%;
     --chart-2: 142 76% 36%;
-    --chart-3: 210 10% 40%;
-    --chart-4: 38 92% 50%;
-    --chart-5: 195 80% 45%;
+    --chart-3: 0 65% 50%;
+    --chart-4: 40 90% 55%;
+    --chart-5: 232 50% 50%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 35%), hsl(210 100% 25%));
-    --gradient-header: linear-gradient(135deg, hsl(210 100% 35%), hsl(215 80% 28%));
+    --gradient-primary: linear-gradient(135deg, hsl(232 65% 30%), hsl(232 65% 22%));
+    --gradient-header: linear-gradient(135deg, hsl(232 65% 30%), hsl(232 55% 22%));
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(215 30% 10% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(215 30% 10% / 0.1), 0 2px 4px -2px hsl(215 30% 10% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(215 30% 10% / 0.1), 0 4px 6px -4px hsl(215 30% 10% / 0.1);
-    --shadow-glow: 0 0 20px hsl(210 100% 35% / 0.3);
+    --shadow-sm: 0 1px 2px 0 hsl(232 30% 10% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(232 30% 10% / 0.1), 0 2px 4px -2px hsl(232 30% 10% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(232 30% 10% / 0.1), 0 4px 6px -4px hsl(232 30% 10% / 0.1);
+    --shadow-glow: 0 0 20px hsl(40 90% 55% / 0.3);
   }
 
   .dark {
-    /* Sciences Coaching Academy Dark Theme - Blue & Navy */
-    --background: 215 30% 4%;
-    --foreground: 210 10% 92%;
+    /* Standard Coaching Academy Dark Theme - Navy & Gold */
+    --background: 232 40% 5%;
+    --foreground: 40 10% 92%;
 
-    --card: 215 25% 7%;
-    --card-foreground: 210 10% 92%;
+    --card: 232 30% 8%;
+    --card-foreground: 40 10% 92%;
 
-    --popover: 215 25% 7%;
-    --popover-foreground: 210 10% 92%;
+    --popover: 232 30% 8%;
+    --popover-foreground: 40 10% 92%;
 
-    /* Primary - Bright Blue */
-    --primary: 210 100% 50%;
+    /* Primary - Bright Navy */
+    --primary: 232 70% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 210 70% 18%;
-    --primary-hover: 210 100% 58%;
+    --primary-light: 232 50% 18%;
+    --primary-hover: 232 70% 58%;
 
-    --secondary: 215 20% 14%;
-    --secondary-foreground: 210 10% 92%;
+    --secondary: 232 25% 14%;
+    --secondary-foreground: 40 10% 92%;
 
-    --muted: 215 20% 14%;
-    --muted-foreground: 210 10% 55%;
+    --muted: 232 20% 14%;
+    --muted-foreground: 40 10% 55%;
 
-    --accent: 210 60% 18%;
-    --accent-foreground: 210 80% 70%;
+    --accent: 40 60% 18%;
+    --accent-foreground: 40 80% 70%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
 
     --success-light: 142 76% 15%;
-    --warning-light: 38 92% 15%;
-    --pending-light: 210 80% 15%;
+    --warning-light: 40 92% 15%;
+    --pending-light: 232 60% 15%;
 
-    --border: 215 15% 16%;
-    --input: 215 15% 16%;
-    --ring: 210 100% 50%;
+    --border: 232 15% 18%;
+    --input: 232 15% 18%;
+    --ring: 40 90% 55%;
 
-    /* Sidebar - Dark with Blue Accents */
-    --sidebar-background: 215 30% 4%;
-    --sidebar-foreground: 210 10% 80%;
-    --sidebar-primary: 210 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 30% 12%;
-    --sidebar-accent-foreground: 210 80% 90%;
-    --sidebar-border: 215 20% 14%;
-    --sidebar-muted: 210 10% 50%;
+    /* Sidebar - Dark with Gold Accents */
+    --sidebar-background: 232 40% 5%;
+    --sidebar-foreground: 40 15% 80%;
+    --sidebar-primary: 40 90% 55%;
+    --sidebar-primary-foreground: 232 65% 15%;
+    --sidebar-accent: 232 35% 12%;
+    --sidebar-accent-foreground: 40 60% 90%;
+    --sidebar-border: 232 25% 16%;
+    --sidebar-muted: 40 10% 50%;
   }
 }
 
@@ -264,10 +264,10 @@
   .liquid-mesh {
     background: linear-gradient(
       -45deg,
-      #0C1222,
-      #151D2E,
-      #1A2540,
-      #0C1222
+      #0D1442,
+      #1A237E,
+      #283593,
+      #0D1442
     );
     background-size: 400% 400%;
     animation: liquidMesh 15s ease infinite;
@@ -310,7 +310,7 @@
   /* Custom Scrollbar - Thin Blue Theme */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(210 100% 35%) hsl(210 10% 95%);
+    scrollbar-color: hsl(232 65% 30%) hsl(40 10% 95%);
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -318,32 +318,32 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
-    background: hsl(210 10% 95%);
+    background: hsl(40 10% 95%);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: hsl(210 100% 35%);
+    background: hsl(232 65% 30%);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: hsl(210 100% 28%);
+    background: hsl(232 65% 24%);
   }
 
   /* Dark mode scrollbar */
   .dark .scrollbar-thin {
-    scrollbar-color: hsl(210 100% 45%) hsl(215 20% 15%);
+    scrollbar-color: hsl(40 90% 55%) hsl(232 20% 15%);
   }
 
   .dark .scrollbar-thin::-webkit-scrollbar-track {
-    background: hsl(215 20% 15%);
+    background: hsl(232 20% 15%);
   }
 
-  /* Sidebar Navigation Scrollbar - Blue Theme */
+  /* Sidebar Navigation Scrollbar - Navy & Gold Theme */
   .sidebar-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: hsl(210 100% 45% / 0.6) hsl(215 20% 12%);
+    scrollbar-color: hsl(40 90% 55% / 0.6) hsl(232 40% 12%);
   }
 
   .sidebar-scrollbar::-webkit-scrollbar {
@@ -351,17 +351,17 @@
   }
 
   .sidebar-scrollbar::-webkit-scrollbar-track {
-    background: hsl(215 20% 12%);
+    background: hsl(232 40% 12%);
     border-radius: 3px;
   }
 
   .sidebar-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(210 100% 45% / 0.6);
+    background: hsl(40 90% 55% / 0.6);
     border-radius: 3px;
   }
 
   .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: hsl(210 100% 45% / 0.8);
+    background: hsl(40 90% 55% / 0.8);
   }
 }
 

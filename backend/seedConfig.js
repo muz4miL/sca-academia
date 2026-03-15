@@ -13,9 +13,9 @@ const seedConfig = async () => {
   try {
     await Configuration.deleteMany({}); // Clear old settings
     
-    // Create Default Configuration for Sciences Coaching Academy
+    // Create Default Configuration for Standard Coaching Academy
     await Configuration.create({
-      academyName: "Sciences Coaching Academy",
+      academyName: "Standard Coaching Academy",
       academyAddress: "Peshawar, Pakistan",
       academyPhone: "+92 300 1234567",
       
@@ -36,7 +36,7 @@ const seedConfig = async () => {
       sessionPrices: [],
     });
 
-    console.log("🎉 Sciences Coaching Academy Configuration Created!");
+    console.log("🎉 Standard Coaching Academy Configuration Created!");
     process.exit();
   } catch (error) {
     console.error("❌ Error:", error);

@@ -1,6 +1,6 @@
 /**
  * ================================================================
- * SCIENCES COACHING ACADEMY — Master Seed Script (Single-Owner Edition)
+ * STANDARD COACHING ACADEMY — Master Seed Script (Single-Owner Edition)
  * ================================================================
  * Populates the database with realistic test data:
  *   1 Owner (admin)
@@ -70,7 +70,7 @@ async function seed() {
     // ════════════════════════════════════════════════════════════
     log("⚙️", "Creating Configuration...");
     const config = new Configuration({
-      academyName: "SCIENCES COACHING ACADEMY",
+      academyName: "STANDARD COACHING ACADEMY",
       salaryConfig: {
         teacherShare: 70,
         academyShare: 30,
@@ -91,7 +91,7 @@ async function seed() {
     log("📅", "Creating Session...");
     const session = await Session.create({
       sessionName: "Academic Year 2025-2026",
-      description: "Main academic session for SCIENCES COACHING ACADEMY",
+      description: "Main academic session for STANDARD COACHING ACADEMY",
       startDate: new Date("2025-04-01"),
       endDate: new Date("2026-03-31"),
     });
@@ -517,7 +517,7 @@ async function seed() {
     // SUMMARY
     // ════════════════════════════════════════════════════════════
     console.log("\n" + "═".repeat(60));
-    log("🎉", "SCIENCES COACHING ACADEMY SEED COMPLETE!");
+    log("🎉", "STANDARD COACHING ACADEMY SEED COMPLETE!");
     console.log("═".repeat(60));
     console.log(`
     📊 Summary:

@@ -31,7 +31,7 @@ const websiteConfigSchema = new mongoose.Schema(
     heroSection: {
       title: {
         type: String,
-        default: "SCIENCES COACHING ACADEMY",
+        default: "STANDARD COACHING ACADEMY",
       },
       subtitle: {
         type: String,

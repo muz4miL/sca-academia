@@ -115,6 +115,8 @@ interface ClassInstance {
   gradeLevel: string;
   group: string;
   shift?: string;
+  revenueMode?: "percentage" | "fixed-per-student";
+  teacherRatePerStudent?: number;
   status: "active" | "inactive";
   session: string | AcademicSession; // Populated or ID
   assignedTeacher?: string | Teacher;
@@ -147,6 +149,8 @@ interface ClassPayload {
   gradeLevel: string;
   group: string;
   shift?: string;
+  revenueMode?: string;
+  teacherRatePerStudent?: number;
   subjects: { name: string; fee: number }[];
   subjectTeachers: SubjectTeacherMap[];
   status: string;
@@ -279,6 +283,8 @@ export default function Classes() {
     gradeLevel: "",
     group: "",
     shift: "",
+    revenueMode: "percentage",
+    teacherRatePerStudent: undefined,
     subjects: [],
     subjectTeachers: [],
     status: "active",
@@ -541,6 +547,8 @@ export default function Classes() {
       gradeLevel: "",
       group: "",
       shift: "",
+      revenueMode: "percentage",
+      teacherRatePerStudent: undefined,
       subjects: [],
       subjectTeachers: [],
       status: "active",
@@ -555,7 +563,7 @@ export default function Classes() {
 
   const populateFormForEdit = useCallback((classDoc: ClassInstance) => {
     setFormData({
-      _id: classDoc._id, // ✅ Preserve _id for edit
+      _id: classDoc._id,
       session:
         typeof classDoc.session === "string"
           ? classDoc.session
@@ -564,6 +572,8 @@ export default function Classes() {
       gradeLevel: classDoc.gradeLevel || classDoc.className || "",
       group: classDoc.group || "",
       shift: classDoc.shift || "",
+      revenueMode: classDoc.revenueMode || "percentage",
+      teacherRatePerStudent: classDoc.teacherRatePerStudent || undefined,
       subjects: (classDoc.subjects || []).map((s: any) =>
         typeof s === "string" ? { name: s, fee: 0 } : s,
       ),
@@ -612,12 +622,16 @@ export default function Classes() {
       (t) => t._id === formData.assignedTeacher,
     );
     const payload: ClassPayload = {
-      _id: formData._id, // ✅ Included for edit
+      _id: formData._id,
       session: formData.session!,
       classTitle: formData.classTitle!,
       gradeLevel: formData.gradeLevel!,
       group: formData.group!,
       shift: formData.shift || undefined,
+      revenueMode: formData.revenueMode || "percentage",
+      teacherRatePerStudent: formData.revenueMode === "fixed-per-student"
+        ? formData.teacherRatePerStudent || undefined
+        : undefined,
       subjects: (formData.subjects || []).map((s: any) => ({
         name: typeof s === "string" ? s : s.name,
         fee: 0,
@@ -828,7 +842,7 @@ export default function Classes() {
       </HeaderBanner>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 mt-6 md:grid-cols-4">
+      <div className="grid gap-4 mt-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={BookOpen}
           label="Total Classes"
@@ -911,7 +925,7 @@ export default function Classes() {
       </div>
 
       {/* Data Table */}
-      <div className="mt-6 rounded-xl border bg-card shadow-sm overflow-hidden">
+      <div className="mt-6 rounded-xl border bg-card shadow-sm overflow-hidden overflow-x-auto">
         {isClassesLoading ? (
           <div className="flex items-center justify-center p-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -1244,6 +1258,56 @@ export default function Classes() {
               </div>
             </div>
 
+            {/* Revenue Mode & Teacher Rate */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Revenue Mode *</Label>
+                <Select
+                  value={formData.revenueMode || "percentage"}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      revenueMode: val as any,
+                      ...(val === "percentage" ? { teacherRatePerStudent: undefined } : {}),
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select revenue mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="percentage">Percentage Split</SelectItem>
+                    <SelectItem value="fixed-per-student">Fixed Amount / Student</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {formData.revenueMode === "fixed-per-student"
+                    ? "Each teacher gets a fixed amount per student"
+                    : "Fee split among teachers by their compensation %"}
+                </p>
+              </div>
+              {formData.revenueMode === "fixed-per-student" && (
+                <div className="space-y-2">
+                  <Label>Teacher Rate / Student (PKR) *</Label>
+                  <Input
+                    type="number"
+                    placeholder="e.g. 5000"
+                    value={formData.teacherRatePerStudent || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        teacherRatePerStudent: Number(e.target.value) || undefined,
+                      }))
+                    }
+                    min={0}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Each teacher gets this amount per enrolled student
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Schedule Section */}
             <div className="space-y-4 p-4 bg-blue-50/30 rounded-xl border border-blue-100">
               <div className="flex items-center gap-2 text-blue-800">
@@ -1277,7 +1341,7 @@ export default function Classes() {
                   <p className="text-xs text-red-600">{formErrors.days}</p>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs text-muted-foreground">
                     Start Time

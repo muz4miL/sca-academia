@@ -13,7 +13,6 @@ import {
   ChevronDown,
   ChevronRight,
   Calculator,
-  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -285,6 +284,7 @@ export default function Payroll() {
   const teachersWithBalances = dashboard.teachersWithBalances || [];
 
   const earningsTeachers = earningsData?.data?.teachers || [];
+  const totalAcademyPool = earningsData?.data?.totalAcademyPool || 0;
 
   // Build earnings lookup by teacherId
   const earningsMap = new Map(
@@ -329,7 +329,7 @@ export default function Payroll() {
     <DashboardLayout title="Payroll Management">
       <div className="space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="border-l-4 border-l-blue-500">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -362,6 +362,23 @@ export default function Payroll() {
             </CardContent>
           </Card>
 
+          <Card className="border-l-4 border-l-amber-500">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Academy Pool
+                  </p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    Rs. {totalAcademyPool.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">from active enrollments</p>
+                </div>
+                <Banknote className="h-8 w-8 text-amber-500" />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="border-l-4 border-l-red-500">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -389,7 +406,7 @@ export default function Payroll() {
               Teachers Payroll
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             {/* Filters */}
             <div className="mb-6">
               <div className="relative max-w-xs">
@@ -450,11 +467,36 @@ export default function Payroll() {
                             {teacher.subject || "-"}
                           </TableCell>
                           <TableCell className="capitalize">
-                            <Badge variant="outline" className="text-xs">
-                              {teacher.compensation?.type || "percentage"}
-                              {teacher.compensation?.type === "percentage" &&
-                                ` (${teacher.compensation?.teacherShare || 70}%)`}
-                            </Badge>
+                            {(() => {
+                              const bd = earnings?.breakdown || [];
+                              const hasFixedRate = bd.some((b: any) => b.isFixedRate);
+                              const hasPercentage = bd.some((b: any) => !b.isFixedRate && b.calculatedEarning > 0) ||
+                                (!bd.some((b: any) => b.isFixedRate) && bd.some((b: any) => !b.isFixedRate));
+                              const baseType = teacher.compensation?.type || "percentage";
+                              const shareVal = teacher.compensation?.teacherShare || teacher.compensation?.profitShare || 70;
+                              return (
+                                <div className="flex flex-wrap gap-1">
+                                  {(hasPercentage || (!hasFixedRate && baseType !== "fixed")) && baseType !== "fixed" && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {baseType === "hybrid" ? "hybrid" : "percentage"}
+                                      {` (${shareVal}%)`}
+                                    </Badge>
+                                  )}
+                                  {hasFixedRate && (
+                                    <Badge variant="outline" className="text-xs border-orange-300 text-orange-600">
+                                      {bd.find((b: any) => b.isFixedRate)?.ratePerStudent
+                                        ? `Rs. ${(bd.find((b: any) => b.isFixedRate)?.ratePerStudent).toLocaleString()}/student`
+                                        : "fixed/student"}
+                                    </Badge>
+                                  )}
+                                  {baseType === "fixed" && (
+                                    <Badge variant="outline" className="text-xs">
+                                      fixed salary
+                                    </Badge>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell className="text-right">
                             {earningsLoading ? (
@@ -531,6 +573,7 @@ export default function Payroll() {
                                       <th className="text-right pb-1 font-medium">Total Revenue</th>
                                       <th className="text-right pb-1 font-medium">Share %</th>
                                       <th className="text-right pb-1 font-medium text-blue-700">Teacher Earning</th>
+                                      <th className="text-right pb-1 font-medium text-amber-600">Academy Share</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -544,16 +587,36 @@ export default function Payroll() {
                                           {row.isMultiTeacher && (
                                             <Badge variant="outline" className="ml-1 text-xs py-0">Multi-Teacher</Badge>
                                           )}
+                                          {row.isFixedRate && (
+                                            <Badge variant="outline" className="ml-1 text-xs py-0 border-orange-300 text-orange-600">
+                                              FIXED RATE
+                                            </Badge>
+                                          )}
                                         </td>
                                         <td className="py-1.5 text-muted-foreground max-w-[200px] truncate">
                                           {row.subject}
                                         </td>
                                         <td className="py-1.5 text-center">{row.studentCount}</td>
-                                        <td className="py-1.5 text-right">Rs. {(row.subjectFee || 0).toLocaleString()}</td>
+                                        <td className="py-1.5 text-right">
+                                          {row.isFixedRate ? (
+                                            <span className="text-orange-600">Rs. {(row.ratePerStudent || 0).toLocaleString()}/student</span>
+                                          ) : (
+                                            <>Rs. {(row.subjectFee || 0).toLocaleString()}</>
+                                          )}
+                                        </td>
                                         <td className="py-1.5 text-right">Rs. {(row.subjectRevenue || 0).toLocaleString()}</td>
-                                        <td className="py-1.5 text-right">{row.teacherSharePct}%</td>
+                                        <td className="py-1.5 text-right">
+                                          {row.isFixedRate ? (
+                                            <span className="text-orange-600 font-semibold">FIXED</span>
+                                          ) : (
+                                            <>{row.teacherSharePct}%</>
+                                          )}
+                                        </td>
                                         <td className="py-1.5 text-right font-semibold text-blue-600">
                                           Rs. {(row.calculatedEarning || 0).toLocaleString()}
+                                        </td>
+                                        <td className="py-1.5 text-right font-semibold text-amber-600">
+                                          Rs. {(row.academyShare || 0).toLocaleString()}
                                         </td>
                                       </tr>
                                     ))}
@@ -566,6 +629,9 @@ export default function Payroll() {
                                       <td className="pt-2 text-right text-blue-700">
                                         Rs. {(earnings.calculatedEarning || 0).toLocaleString()}
                                       </td>
+                                      <td className="pt-2 text-right text-amber-600">
+                                        Rs. {(earnings.totalAcademyShare || 0).toLocaleString()}
+                                      </td>
                                     </tr>
                                     {teacher.netPayable > 0 && (
                                       <tr>
@@ -575,6 +641,7 @@ export default function Payroll() {
                                         <td className="pt-0.5 text-right text-xs text-muted-foreground">
                                           Rs. {(earnings.alreadyCredited || 0).toLocaleString()}
                                         </td>
+                                        <td></td>
                                       </tr>
                                     )}
                                   </tfoot>
@@ -622,77 +689,6 @@ export default function Payroll() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Earnings Calculator Summary */}
-        {earningsTeachers.length > 0 && (
-          <Card className="border-blue-200">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-blue-500" />
-                  Session Earnings Calculator
-                </CardTitle>
-                <Button variant="outline" size="sm" onClick={() => refetchEarnings()}>
-                  Refresh
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Real-time earnings calculated from enrolled students × subject fees × teacher split %.
-                Click the arrow (▶) next to any teacher in the table above to see the class-by-class breakdown.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {earningsTeachers.map((t: any) => (
-                  <div key={t.teacherId} className="p-3 border rounded-lg bg-blue-50/30">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-sm">{t.teacherName}</span>
-                      <Badge variant="outline" className="text-xs capitalize">{t.compensationType}</Badge>
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                      <BookOpen className="h-3 w-3" />
-                      {t.breakdown?.length > 0
-                        ? `${t.breakdown.length} class${t.breakdown.length !== 1 ? "es" : ""}`
-                        : t.compensationType === "fixed" ? "Fixed salary" : "No classes assigned"}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Calculated:</span>
-                      <span className="font-bold text-blue-700 text-sm">
-                        Rs. {(t.calculatedEarning || 0).toLocaleString()}
-                      </span>
-                    </div>
-                    {t.compensationType === "hybrid" && t.baseSalary > 0 && (
-                      <div className="text-xs text-muted-foreground mt-0.5 text-right">
-                        incl. Rs. {t.baseSalary.toLocaleString()} base
-                      </div>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-full mt-2 text-xs h-7"
-                      onClick={() => {
-                        const teacher = teachersWithBalances.find(
-                          (tw: any) => tw._id?.toString() === t.teacherId?.toString()
-                        );
-                        if (teacher) {
-                          setSelectedTeacher(teacher);
-                          setCreditAmount(String(t.calculatedEarning));
-                          setCreditNote(
-                            `Calculated share — ${t.breakdown?.map((b: any) => b.classTitle).join(", ") || "session earnings"}`
-                          );
-                          setCreditDialogOpen(true);
-                        }
-                      }}
-                    >
-                      <PlusCircle className="h-3 w-3 mr-1" />
-                      Credit Rs. {(t.calculatedEarning || 0).toLocaleString()}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {/* Pay Teacher Dialog */}
@@ -771,8 +767,6 @@ export default function Payroll() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-
 
       {/* Manual Credit Dialog */}
       <Dialog

@@ -478,7 +478,7 @@ export default function Gatekeeper() {
 
         {/* Footer */}
         <div className="px-8 py-4 border-t border-slate-700/50 flex items-center justify-between">
-          <span className="text-slate-500 text-lg">SCIENCES COACHING ACADEMY</span>
+          <span className="text-slate-500 text-lg">STANDARD COACHING ACADEMY</span>
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-slate-500">System Online</span>

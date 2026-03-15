@@ -1,6 +1,6 @@
 /**
  * ================================================================
- * SCIENCES COACHING ACADEMY — FINANCE ROUTES (Clean Single-Owner Edition)
+ * STANDARD COACHING ACADEMY — FINANCE ROUTES (Clean Single-Owner Edition)
  * ================================================================
  * All partner/pool/split routes removed. Single-owner model.
  * ================================================================

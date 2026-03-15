@@ -345,7 +345,7 @@ export const TeacherPaymentPDF = ({
               )}
               <View style={styles.academyInfo}>
                 <Text style={styles.academyName}>
-                  SCIENCES COACHING ACADEMY
+                  STANDARD COACHING ACADEMY
                 </Text>
                 <Text style={styles.contactText}>
                   Contact: 091-5601600 / 0334-5852326
@@ -472,7 +472,7 @@ export const TeacherPaymentPDF = ({
           </View>
 
           {/* Watermark */}
-          <Text style={styles.academyWatermark}>SCIENCES COACHING ACADEMY</Text>
+          <Text style={styles.academyWatermark}>STANDARD COACHING ACADEMY</Text>
         </View>
       </Page>
     </Document>

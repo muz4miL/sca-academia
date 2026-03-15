@@ -227,7 +227,7 @@ export const TeacherPaymentVoucherPDF = ({
           </View>
 
           <View style={styles.headerText}>
-            <Text style={styles.title}>SCIENCES COACHING ACADEMY</Text>
+            <Text style={styles.title}>STANDARD COACHING ACADEMY</Text>
             <Text style={styles.subtitle}>Excellence in Education</Text>
           </View>
         </View>

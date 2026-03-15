@@ -12,7 +12,7 @@ const {
 const { protect, restrictTo } = require("../middleware/authMiddleware");
 
 /**
- * Attendance Routes — Sciences Coaching Academy
+ * Attendance Routes — Standard Coaching Academy
  * All routes protected, role-gated
  */
 

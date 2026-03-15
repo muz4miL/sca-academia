@@ -46,7 +46,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { studentApi, sessionApi, classApi } from "@/lib/api";
+import { studentApi, sessionApi, classApi, teacherApi } from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 // Import CRUD Modals
@@ -94,6 +94,9 @@ const Students = () => {
   // TASK 4: Peshawar Session Filter
   const [sessionFilter, setSessionFilter] = useState("all");
 
+  // Teacher Filter
+  const [teacherFilter, setTeacherFilter] = useState("all");
+
   // Modal states
   const [isViewEditModalOpen, setIsViewEditModalOpen] = useState(false);
   const [viewEditMode, setViewEditMode] = useState<"view" | "edit">("view");
@@ -132,7 +135,15 @@ const Students = () => {
 
   const classOptions = classesData?.data || [];
 
-  // Fetch students with React Query - include session filter
+  // Fetch all teachers for filter dropdown
+  const { data: teachersData } = useQuery({
+    queryKey: ["teachers-filter"],
+    queryFn: () => teacherApi.getAll({ status: "active" }),
+  });
+
+  const teacherOptions = teachersData?.data || [];
+
+  // Fetch students with React Query - include session + teacher filter
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "students",
@@ -141,6 +152,7 @@ const Students = () => {
         group: groupFilter,
         search: searchTerm,
         session: sessionFilter,
+        teacher: teacherFilter,
       },
     ],
     queryFn: () =>
@@ -149,6 +161,7 @@ const Students = () => {
         group: groupFilter !== "all" ? groupFilter : undefined,
         search: searchTerm || undefined,
         sessionRef: sessionFilter !== "all" ? sessionFilter : undefined,
+        teacher: teacherFilter !== "all" ? teacherFilter : undefined,
       }),
   });
 
@@ -206,6 +219,8 @@ const Students = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["payroll-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["payroll-earnings-breakdown"] });
       setFeeSuccess(data.data);
     },
     onError: (error: any) => {
@@ -409,7 +424,7 @@ const Students = () => {
             .footer { margin-top: 24px; font-size: 10px; color: #aaa; }
           </style></head>
           <body>
-            <div class="header">Sciences Coaching Academy</div>
+            <div class="header">Standard Coaching Academy</div>
             <div class="sub">Student Portal Login Credentials</div>
             <hr/>
             <div class="field"><div class="label">Student Name</div><div class="value">${credentialStudent.studentName}</div></div>
@@ -496,6 +511,21 @@ const Students = () => {
             </SelectContent>
           </Select>
 
+          {/* Teacher Filter */}
+          <Select value={teacherFilter} onValueChange={setTeacherFilter}>
+            <SelectTrigger className="w-[180px] bg-background">
+              <SelectValue placeholder="All Teachers" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover">
+              <SelectItem value="all">All Teachers</SelectItem>
+              {teacherOptions.map((teacher: any) => (
+                <SelectItem key={teacher._id} value={teacher._id}>
+                  {teacher.name} — {teacher.subject}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Button variant="outline" size="icon">
             <Download className="h-4 w-4" />
           </Button>
@@ -503,7 +533,7 @@ const Students = () => {
       </div>
 
       {/* Students Table */}
-      <div className="mt-6 rounded-xl border border-border bg-card card-shadow overflow-hidden">
+      <div className="mt-6 rounded-xl border border-border bg-card card-shadow overflow-hidden overflow-x-auto">
         {isLoading ? (
           <div className="flex items-center justify-center p-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -854,6 +884,32 @@ const Students = () => {
                     {feeSuccess?.feeRecord?.month || "N/A"}
                   </span>
                 </div>
+                {feeSuccess?.splitApplied && feeSuccess?.teacherCredits?.length > 0 && (
+                  <div className="pt-2 border-t border-green-200 dark:border-green-800 space-y-1.5">
+                    <span className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase">
+                      Revenue Split ({feeSuccess.revenueModel === "fixed-per-student" ? "Fixed Rate" : "Percentage"})
+                    </span>
+                    {feeSuccess.teacherCredits.map((credit: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">
+                          {credit.teacherName} {credit.percentage ? `(${credit.percentage}%)` : ""}
+                        </span>
+                        <span className="font-semibold text-blue-700 dark:text-blue-300">
+                          Rs. {credit.amount?.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center text-sm pt-1 border-t border-green-100 dark:border-green-900">
+                      <span className="text-muted-foreground">Academy Revenue</span>
+                      <span className="font-semibold text-purple-700 dark:text-purple-300">
+                        Rs. {(
+                          (feeSuccess?.feeRecord?.amount || 0) -
+                          feeSuccess.teacherCredits.reduce((sum: number, c: any) => sum + (c.amount || 0), 0)
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <DialogFooter>

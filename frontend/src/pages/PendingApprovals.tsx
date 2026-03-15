@@ -252,7 +252,7 @@ export default function PendingApprovals() {
 
       {/* Pending List */}
       <Card className="border-gray-200/80 shadow-sm rounded-2xl overflow-hidden">
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
@@ -755,7 +755,7 @@ export default function PendingApprovals() {
               {/* Copy All Button */}
               <Button
                 onClick={() => {
-                  const text = `SCIENCES COACHING ACADEMY - Login Credentials\n\nStudent: ${generatedCredentials.studentName}\nUsername: ${generatedCredentials.credentials.username}\nPassword: ${generatedCredentials.credentials.password}\n\nLogin at: ${window.location.origin}/student-portal`;
+                  const text = `STANDARD COACHING ACADEMY - Login Credentials\n\nStudent: ${generatedCredentials.studentName}\nUsername: ${generatedCredentials.credentials.username}\nPassword: ${generatedCredentials.credentials.password}\n\nLogin at: ${window.location.origin}/student-portal`;
                   navigator.clipboard.writeText(text);
                   toast.success("All credentials copied to clipboard!");
                 }}

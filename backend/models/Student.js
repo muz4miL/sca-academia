@@ -272,7 +272,7 @@ studentSchema.pre("save", async function () {
     }
   }
 
-  // Generate studentId for new documents (numeric format: 260001, 260002, ...)
+  // Generate studentId for new documents (numeric format: 1, 2, 3, ...)
   if (this.isNew && !this.studentId) {
     try {
       // Use aggregation to find the actual highest numeric ID
@@ -305,14 +305,14 @@ studentSchema.pre("save", async function () {
           `✅ GENERATED NUMERIC ID: ${this.studentId} (incremented from ${result[0].studentId})`,
         );
       } else {
-        // No numeric IDs found, start at 260001
-        this.studentId = "260001";
-        console.log("✅ GENERATED ID (Starting numeric): 260001");
+        // No numeric IDs found, start at 1
+        this.studentId = "1";
+        console.log("✅ GENERATED ID (Starting numeric): 1");
       }
     } catch (err) {
       console.error("❌ Error generating studentId:", err);
       // Fallback to timestamp-based ID to avoid crashes
-      this.studentId = `260${Date.now().toString().slice(-3)}`;
+      this.studentId = `${Date.now().toString().slice(-6)}`;
       console.log(`⚠️ FALLBACK ID: ${this.studentId}`);
     }
   }

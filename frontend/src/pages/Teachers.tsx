@@ -205,7 +205,7 @@ const Teachers = () => {
             .footer { margin-top: 24px; font-size: 10px; color: #aaa; }
           </style></head>
           <body>
-            <div class="header">SCIENCES COACHING ACADEMY</div>
+            <div class="header">STANDARD COACHING ACADEMY</div>
             <div class="sub">Staff Login Credentials</div>
             <hr/>
             <div class="field"><div class="label">Name</div><div class="value">${credentialTeacher.name}</div></div>
@@ -328,7 +328,7 @@ const Teachers = () => {
       </div>
 
       {/* Teachers Table */}
-      <div className="mt-6 rounded-xl border border-border bg-card card-shadow overflow-hidden">
+      <div className="mt-6 rounded-xl border border-border bg-card card-shadow overflow-hidden overflow-x-auto">
         {isLoading ? (
           // Loading State
           <div className="flex items-center justify-center py-12">
