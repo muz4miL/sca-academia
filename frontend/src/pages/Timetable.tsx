@@ -41,6 +41,7 @@ import {
   Zap,
   AlertTriangle,
   Trash,
+  Coffee,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { timetableApi, classApi, teacherApi } from "@/lib/api";
@@ -70,30 +71,32 @@ const DAYS = [
   "Saturday",
 ];
 
-// Time slots for dropdowns (30-min intervals)
-const TIME_SLOTS = [
-  "08:00 AM",
-  "08:30 AM",
-  "09:00 AM",
-  "09:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "11:30 AM",
-  "12:00 PM",
-  "12:30 PM",
-  "01:00 PM",
-  "01:30 PM",
-  "02:00 PM",
-  "02:30 PM",
-  "03:00 PM",
-  "03:30 PM",
-  "04:00 PM",
-  "04:30 PM",
-  "05:00 PM",
-  "05:30 PM",
-  "06:00 PM",
-];
+// Helper: convert 24h time ("08:35") to 12h ("08:35 AM")
+const to12Hour = (t: string): string => {
+  if (!t) return '';
+  // If already 12h format, return as is
+  if (/AM|PM/i.test(t)) return t;
+  const [hStr, mStr] = t.split(':');
+  let h = parseInt(hStr);
+  const m = mStr || '00';
+  const period = h >= 12 ? 'PM' : 'AM';
+  if (h === 0) h = 12;
+  else if (h > 12) h -= 12;
+  return `${String(h).padStart(2, '0')}:${m} ${period}`;
+};
+
+// Helper: convert 12h time ("08:35 AM") to 24h ("08:35")
+const to24Hour = (t: string): string => {
+  if (!t) return '';
+  const match = t.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return t; // already 24h or unknown
+  let h = parseInt(match[1]);
+  const m = match[2];
+  const period = match[3].toUpperCase();
+  if (period === 'PM' && h !== 12) h += 12;
+  if (period === 'AM' && h === 12) h = 0;
+  return `${String(h).padStart(2, '0')}:${m}`;
+};
 
 // Reduced slots for grid display (1-hour intervals)
 const GRID_TIME_SLOTS = [
@@ -206,9 +209,12 @@ interface BulkEntry {
   teacherId: string;
   teacherName: string;
   day: string;
+  days: string[];
   startTime: string;
   endTime: string;
   room: string;
+  isBreak: boolean;
+  breakLabel: string;
 }
 
 const Timetable = () => {
@@ -234,6 +240,8 @@ const Timetable = () => {
   const [formStartTime, setFormStartTime] = useState("");
   const [formEndTime, setFormEndTime] = useState("");
   const [formRoom, setFormRoom] = useState("");
+  const [formIsBreak, setFormIsBreak] = useState(false);
+  const [formBreakLabel, setFormBreakLabel] = useState("Break");
 
   // Bulk generation states
   const [bulkClassId, setBulkClassId] = useState("");
@@ -371,6 +379,8 @@ const Timetable = () => {
     setFormStartTime("");
     setFormEndTime("");
     setFormRoom("");
+    setFormIsBreak(false);
+    setFormBreakLabel("Break");
   };
 
   // Populate form for edit
@@ -379,9 +389,11 @@ const Timetable = () => {
     setFormTeacherId(entry.teacherId?._id || entry.teacherId || "");
     setFormSubject(entry.subject || "");
     setFormDay(entry.day || "");
-    setFormStartTime(entry.startTime || "");
-    setFormEndTime(entry.endTime || "");
+    setFormStartTime(to24Hour(entry.startTime || ""));
+    setFormEndTime(to24Hour(entry.endTime || ""));
     setFormRoom(entry.room || "");
+    setFormIsBreak(entry.isBreak || false);
+    setFormBreakLabel(entry.breakLabel || "Break");
   };
 
   // Handlers
@@ -399,8 +411,6 @@ const Timetable = () => {
   const handleSubmitAdd = () => {
     if (
       !formClassId ||
-      !formTeacherId ||
-      !formSubject ||
       !formDay ||
       !formStartTime ||
       !formEndTime
@@ -408,15 +418,21 @@ const Timetable = () => {
       toast.error("Please fill all required fields");
       return;
     }
+    if (!formIsBreak && (!formTeacherId || !formSubject)) {
+      toast.error("Please fill subject and teacher fields");
+      return;
+    }
     createEntryMutation.mutate({
       classId: formClassId,
-      teacherId: formTeacherId,
-      subject: formSubject,
+      teacherId: formIsBreak ? undefined : formTeacherId,
+      subject: formIsBreak ? formBreakLabel : formSubject,
       day: formDay,
-      startTime: formStartTime,
-      endTime: formEndTime,
+      startTime: to12Hour(formStartTime),
+      endTime: to12Hour(formEndTime),
       room: formRoom,
-    });
+      isBreak: formIsBreak,
+      breakLabel: formBreakLabel,
+    } as any);
   };
 
   const handleSubmitEdit = () => {
@@ -425,12 +441,14 @@ const Timetable = () => {
       id: selectedEntry._id,
       data: {
         classId: formClassId,
-        teacherId: formTeacherId,
-        subject: formSubject,
+        teacherId: formIsBreak ? undefined : formTeacherId,
+        subject: formIsBreak ? formBreakLabel : formSubject,
         day: formDay,
-        startTime: formStartTime,
-        endTime: formEndTime,
+        startTime: to12Hour(formStartTime),
+        endTime: to12Hour(formEndTime),
         room: formRoom,
+        isBreak: formIsBreak,
+        breakLabel: formBreakLabel,
       },
     });
   };
@@ -475,33 +493,37 @@ const Timetable = () => {
       const teacherName =
         stMapping?.teacherName || cls.teacherName || "";
 
-      // One default entry per subject (first class day)
-      if (days.length > 0) {
-        newEntries.push({
-          subject: subjectName,
-          teacherId: teacherId?.toString() || "",
-          teacherName,
-          day: days[0],
-          startTime: "",
-          endTime: "",
-          room: cls.roomNumber || "",
-        });
-      }
+      // One default entry per subject (all class days selected)
+      newEntries.push({
+        subject: subjectName,
+        teacherId: teacherId?.toString() || "",
+        teacherName,
+        day: days.length > 0 ? days[0] : "",
+        days: days.length > 0 ? [...days] : [],
+        startTime: "",
+        endTime: "",
+        room: cls.roomNumber || "",
+        isBreak: false,
+        breakLabel: "Break",
+      });
     }
     setBulkEntries(newEntries);
   }, [selectedBulkClass]);
 
-  const addBulkRow = () => {
+  const addBulkRow = (isBreak = false) => {
     setBulkEntries([
       ...bulkEntries,
       {
-        subject: "",
+        subject: isBreak ? "Break" : "",
         teacherId: "",
         teacherName: "",
         day: "",
+        days: [],
         startTime: "",
         endTime: "",
         room: selectedBulkClass?.roomNumber || "",
+        isBreak,
+        breakLabel: "Break",
       },
     ]);
   };
@@ -538,19 +560,34 @@ const Timetable = () => {
     }
     for (let i = 0; i < bulkEntries.length; i++) {
       const e = bulkEntries[i];
-      if (!e.subject || !e.teacherId || !e.day || !e.startTime || !e.endTime) {
-        toast.error(`Row ${i + 1}: Please fill all required fields`);
+      if (!e.startTime || !e.endTime) {
+        toast.error(`Row ${i + 1}: Please set start and end times`);
+        return;
+      }
+      if (!e.day && (!e.days || e.days.length === 0)) {
+        toast.error(`Row ${i + 1}: Please select at least one day`);
+        return;
+      }
+      if (!e.isBreak && (!e.subject || !e.teacherId)) {
+        toast.error(`Row ${i + 1}: Please fill subject and teacher fields`);
         return;
       }
     }
 
     setBulkGenerating(true);
     try {
+      // Convert times to 12h format for the backend
+      const formattedEntries = bulkEntries.map(e => ({
+        ...e,
+        startTime: to12Hour(e.startTime),
+        endTime: to12Hour(e.endTime),
+        days: e.days && e.days.length > 0 ? e.days : (e.day ? [e.day] : []),
+      }));
       const res = await fetch(`${API_BASE_URL}/timetable/bulk-generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ classId: bulkClassId, entries: bulkEntries }),
+        body: JSON.stringify({ classId: bulkClassId, entries: formattedEntries }),
       });
       const data = await res.json();
       if (data.success) {
@@ -650,6 +687,28 @@ const Timetable = () => {
 
     return (
       <div className="grid gap-4 py-4">
+        {/* Break toggle */}
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formIsBreak}
+              onChange={(e) => setFormIsBreak(e.target.checked)}
+              className="w-4 h-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500"
+            />
+            <Coffee className="h-4 w-4 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-300">This is a Break Time</span>
+          </label>
+          {formIsBreak && (
+            <Input
+              placeholder="Break label (e.g., Lunch Break)"
+              value={formBreakLabel}
+              onChange={(e) => setFormBreakLabel(e.target.value)}
+              className="h-8 text-sm flex-1 bg-white dark:bg-slate-800"
+            />
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Class *</Label>
@@ -674,55 +733,70 @@ const Timetable = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label>Subject *</Label>
-            <Select value={formSubject} onValueChange={setFormSubject}>
-              <SelectTrigger className="bg-background">
-                <SelectValue
-                  placeholder={
-                    formClassId ? "Select subject" : "Select class first"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {classSubjects.map((subject: string) => (
-                  <SelectItem key={subject} value={subject}>
-                    {subject}
-                  </SelectItem>
-                ))}
-                {classSubjects.length === 0 && (
-                  <SelectItem value="_none" disabled>
-                    {formClassId
-                      ? "No subjects in this class"
-                      : "Select a class first"}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
+          {!formIsBreak && (
+            <div className="space-y-2">
+              <Label>Subject *</Label>
+              <Select value={formSubject} onValueChange={setFormSubject}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue
+                    placeholder={
+                      formClassId ? "Select subject" : "Select class first"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {classSubjects.map((subject: string) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                  {classSubjects.length === 0 && (
+                    <SelectItem value="_none" disabled>
+                      {formClassId
+                        ? "No subjects in this class"
+                        : "Select a class first"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {formIsBreak && (
+            <div className="space-y-2">
+              <Label>Break Label</Label>
+              <Input
+                value={formBreakLabel}
+                onChange={(e) => setFormBreakLabel(e.target.value)}
+                placeholder="e.g., Lunch Break, Tea Break"
+                className="bg-background"
+              />
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>
-              Teacher *{" "}
-              {subjectTeacherMap[formSubject] && (
-                <span className="text-emerald-600 text-xs">(auto-matched)</span>
-              )}
-            </Label>
-            <Select value={formTeacherId} onValueChange={setFormTeacherId}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select teacher" />
-              </SelectTrigger>
-              <SelectContent>
-                {teachers.map((teacher: any) => (
-                  <SelectItem key={teacher._id} value={teacher._id}>
-                    {teacher.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {!formIsBreak && (
+            <div className="space-y-2">
+              <Label>
+                Teacher *{" "}
+                {subjectTeacherMap[formSubject] && (
+                  <span className="text-emerald-600 text-xs">(auto-matched)</span>
+                )}
+              </Label>
+              <Select value={formTeacherId} onValueChange={setFormTeacherId}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select teacher" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teachers.map((teacher: any) => (
+                    <SelectItem key={teacher._id} value={teacher._id}>
+                      {teacher.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="space-y-2">
             <Label>Day *</Label>
             <Select value={formDay} onValueChange={setFormDay}>
@@ -743,37 +817,21 @@ const Timetable = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Start Time *</Label>
-            <Select value={formStartTime} onValueChange={setFormStartTime}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select time" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_SLOTS.map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              type="time"
+              value={formStartTime}
+              onChange={(e) => setFormStartTime(e.target.value)}
+              className="bg-background"
+            />
           </div>
           <div className="space-y-2">
             <Label>End Time *</Label>
-            <Select value={formEndTime} onValueChange={setFormEndTime}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select time" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_SLOTS.filter(
-                  (t) =>
-                    !formStartTime ||
-                    parseTimeToMinutes(t) > parseTimeToMinutes(formStartTime),
-                ).map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              type="time"
+              value={formEndTime}
+              onChange={(e) => setFormEndTime(e.target.value)}
+              className="bg-background"
+            />
           </div>
         </div>
 
@@ -956,7 +1014,10 @@ const Timetable = () => {
                       className="p-1 min-h-[90px] border-r border-border last:border-r-0"
                     >
                       {dayEntries.map((entry: any) => {
-                        const styles = getSubjectStyles(entry.subject);
+                        const isBreakEntry = entry.isBreak;
+                        const styles = isBreakEntry
+                          ? { bg: 'bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700', border: 'border-slate-400', text: 'text-slate-700 dark:text-slate-200', subtext: 'text-slate-500 dark:text-slate-300' }
+                          : getSubjectStyles(entry.subject);
                         const highlighted = isEntryHighlighted(entry);
                         return (
                           <div
@@ -967,20 +1028,26 @@ const Timetable = () => {
                             <div
                               className={`font-bold text-sm truncate ${styles.text}`}
                             >
-                              {entry.subject}
+                              {isBreakEntry ? (
+                                <span className="flex items-center gap-1"><Coffee className="h-3 w-3" />{entry.breakLabel || entry.subject || 'Break'}</span>
+                              ) : entry.subject}
                             </div>
-                            <div
-                              className={`text-xs truncate mt-0.5 ${styles.subtext}`}
-                            >
-                              {getClassDisplay(entry)}
-                            </div>
-                            <div
-                              className={`text-xs truncate flex items-center gap-1 mt-0.5 ${styles.subtext} opacity-75`}
-                            >
-                              <User className="h-3 w-3" />
-                              {getTeacherDisplay(entry)}
-                            </div>
-                            {entry.room && (
+                            {!isBreakEntry && (
+                              <>
+                                <div
+                                  className={`text-xs truncate mt-0.5 ${styles.subtext}`}
+                                >
+                                  {getClassDisplay(entry)}
+                                </div>
+                                <div
+                                  className={`text-xs truncate flex items-center gap-1 mt-0.5 ${styles.subtext} opacity-75`}
+                                >
+                                  <User className="h-3 w-3" />
+                                  {getTeacherDisplay(entry)}
+                                </div>
+                              </>
+                            )}
+                            {entry.room && !isBreakEntry && (
                               <div
                                 className={`text-[10px] flex items-center gap-0.5 mt-1 ${styles.subtext} opacity-60`}
                               >
@@ -1239,9 +1306,14 @@ const Timetable = () => {
                   <Label className="text-base font-semibold">
                     Schedule Entries ({bulkEntries.length})
                   </Label>
-                  <Button variant="outline" size="sm" onClick={addBulkRow}>
-                    <Plus className="mr-1 h-3.5 w-3.5" /> Add Row
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => addBulkRow(false)}>
+                      <Plus className="mr-1 h-3.5 w-3.5" /> Add Row
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => addBulkRow(true)} className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                      <Coffee className="mr-1 h-3.5 w-3.5" /> Add Break
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -1261,114 +1333,125 @@ const Timetable = () => {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
+                      {/* Break badge */}
+                      {entry.isBreak && (
+                        <div className="flex items-center gap-2 mb-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200">
+                          <Coffee className="h-4 w-4 text-amber-600" />
+                          <span className="text-xs font-bold text-amber-700">Break Entry</span>
+                          <Input
+                            className="h-7 text-xs flex-1 max-w-[200px]"
+                            placeholder="Break label"
+                            value={entry.breakLabel}
+                            onChange={(e) => {
+                              const updated = [...bulkEntries];
+                              updated[idx] = { ...updated[idx], breakLabel: e.target.value };
+                              setBulkEntries(updated);
+                            }}
+                          />
+                        </div>
+                      )}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <div>
-                          <Label className="text-xs">Subject *</Label>
-                          <Select
-                            value={entry.subject}
-                            onValueChange={(v) =>
-                              updateBulkRow(idx, "subject", v)
-                            }
-                          >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="Subject" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {(selectedBulkClass?.subjects || []).map(
-                                (s: any) => (
-                                  <SelectItem
-                                    key={s.name || s}
-                                    value={s.name || s}
-                                  >
-                                    {s.name || s}
+                        {!entry.isBreak && (
+                          <div>
+                            <Label className="text-xs">Subject *</Label>
+                            <Select
+                              value={entry.subject}
+                              onValueChange={(v) =>
+                                updateBulkRow(idx, "subject", v)
+                              }
+                            >
+                              <SelectTrigger className="h-9 text-sm">
+                                <SelectValue placeholder="Subject" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {(selectedBulkClass?.subjects || []).map(
+                                  (s: any) => (
+                                    <SelectItem
+                                      key={s.name || s}
+                                      value={s.name || s}
+                                    >
+                                      {s.name || s}
+                                    </SelectItem>
+                                  ),
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                        {!entry.isBreak && (
+                          <div>
+                            <Label className="text-xs">Teacher *</Label>
+                            <Select
+                              value={entry.teacherId}
+                              onValueChange={(v) =>
+                                updateBulkRow(idx, "teacherId", v)
+                              }
+                            >
+                              <SelectTrigger className="h-9 text-sm">
+                                <SelectValue placeholder="Teacher" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {teachers.map((t: any) => (
+                                  <SelectItem key={t._id} value={t._id}>
+                                    {t.name}
                                   </SelectItem>
-                                ),
-                              )}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-xs">Teacher *</Label>
-                          <Select
-                            value={entry.teacherId}
-                            onValueChange={(v) =>
-                              updateBulkRow(idx, "teacherId", v)
-                            }
-                          >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="Teacher" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {teachers.map((t: any) => (
-                                <SelectItem key={t._id} value={t._id}>
-                                  {t.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-xs">Day *</Label>
-                          <Select
-                            value={entry.day}
-                            onValueChange={(v) => updateBulkRow(idx, "day", v)}
-                          >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="Day" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {DAYS.map((d) => (
-                                <SelectItem key={d} value={d}>
-                                  {d}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                        <div className={entry.isBreak ? "col-span-2" : ""}>
+                          <Label className="text-xs">Days * (select multiple)</Label>
+                          <div className="flex flex-wrap gap-1.5 mt-1">
+                            {DAYS.map((d) => {
+                              const isSelected = (entry.days || []).includes(d) || entry.day === d;
+                              return (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...bulkEntries];
+                                    const currentDays = updated[idx].days || (updated[idx].day ? [updated[idx].day] : []);
+                                    if (currentDays.includes(d)) {
+                                      updated[idx] = { ...updated[idx], days: currentDays.filter((x: string) => x !== d), day: '' };
+                                    } else {
+                                      updated[idx] = { ...updated[idx], days: [...currentDays, d], day: d };
+                                    }
+                                    setBulkEntries(updated);
+                                  }}
+                                  className={`px-2 py-1 text-[11px] font-bold rounded-md border transition-all ${
+                                    isSelected
+                                      ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
+                                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-amber-400'
+                                  }`}
+                                >
+                                  {d.slice(0, 3)}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                         <div>
                           <Label className="text-xs">Start Time *</Label>
-                          <Select
+                          <Input
+                            type="time"
+                            className="h-9 text-sm"
                             value={entry.startTime}
-                            onValueChange={(v) =>
-                              updateBulkRow(idx, "startTime", v)
+                            onChange={(e) =>
+                              updateBulkRow(idx, "startTime", e.target.value)
                             }
-                          >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="Start" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TIME_SLOTS.map((t) => (
-                                <SelectItem key={t} value={t}>
-                                  {t}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">End Time *</Label>
-                          <Select
+                          <Input
+                            type="time"
+                            className="h-9 text-sm"
                             value={entry.endTime}
-                            onValueChange={(v) =>
-                              updateBulkRow(idx, "endTime", v)
+                            onChange={(e) =>
+                              updateBulkRow(idx, "endTime", e.target.value)
                             }
-                          >
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="End" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {TIME_SLOTS.filter(
-                                (t) =>
-                                  !entry.startTime ||
-                                  parseTimeToMinutes(t) >
-                                    parseTimeToMinutes(entry.startTime),
-                              ).map((t) => (
-                                <SelectItem key={t} value={t}>
-                                  {t}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">Room</Label>

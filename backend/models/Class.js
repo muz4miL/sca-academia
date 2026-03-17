@@ -65,7 +65,7 @@ const classSchema = new mongoose.Schema({
     type: String,
     required: [true, "Group is required"],
     enum: {
-      values: ["Pre-Medical", "Pre-Engineering", "Computer Science", "Arts"],
+      values: ["Pre-Medical", "Pre-Engineering", "Computer Science", "Arts", "Science"],
       message: "{VALUE} is not a valid group",
     },
     trim: true,

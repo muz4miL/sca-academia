@@ -14,14 +14,14 @@ const timetableSchema = new mongoose.Schema({
         required: [true, 'Class reference is required'],
     },
 
-    // Reference to Teacher
+    // Reference to Teacher (not required for break entries)
     teacherId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Teacher',
-        required: [true, 'Teacher reference is required'],
+        required: false,
     },
 
-    // Subject being taught
+    // Subject being taught (or break label)
     subject: {
         type: String,
         required: [true, 'Subject is required'],
@@ -35,7 +35,7 @@ const timetableSchema = new mongoose.Schema({
         required: [true, 'Day is required'],
     },
 
-    // Start time (stored as string for UI display, e.g., "04:00 PM")
+    // Start time (stored as string for UI display, e.g., "04:00 PM" or "08:35 AM")
     startTime: {
         type: String,
         required: [true, 'Start time is required'],
@@ -51,6 +51,17 @@ const timetableSchema = new mongoose.Schema({
     room: {
         type: String,
         trim: true,
+    },
+
+    // Break time support
+    isBreak: {
+        type: Boolean,
+        default: false,
+    },
+    breakLabel: {
+        type: String,
+        trim: true,
+        default: 'Break',
     },
 
     // Status

@@ -74,7 +74,7 @@ const websiteConfigSchema = new mongoose.Schema(
       },
       email: {
         type: String,
-        default: "info@sca.edu.pk",
+        default: "standardcoachingacademy99@gmail.com",
       },
       address: {
         type: String,

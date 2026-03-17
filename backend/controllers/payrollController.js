@@ -939,6 +939,82 @@ exports.getEarningsBreakdown = async (req, res) => {
     const totalAcademyReversals = academyReversalAgg[0]?.total || 0;
     const grandTotalAcademyPool = Math.max(0, grandTotalAcademyPoolGross - totalAcademyReversals);
 
+    // 3b. Build student info map for display
+    const studentInfoMap = new Map(
+      allSessionStudents.map((s) => [
+        s._id.toString(),
+        { name: s.name || "Unknown", class: s.class || "", group: s.group || "" }
+      ])
+    );
+    // Populate full student info
+    const studentsWithInfo = await Student.find({
+      _id: { $in: allStudentIds }
+    }).select("_id name class group").lean();
+    for (const s of studentsWithInfo) {
+      studentInfoMap.set(s._id.toString(), {
+        name: s.name || "Unknown",
+        class: s.class || "",
+        group: s.group || ""
+      });
+    }
+
+    // 3c. Academy pool breakdown by class (per-class, per-student detail)
+    const poolClassAgg = allStudentIds.length
+      ? await Transaction.aggregate([
+          {
+            $match: {
+              type: "LIABILITY",
+              category: "Payroll_Credit",
+              studentId: { $in: allStudentIds },
+            },
+          },
+          {
+            $group: {
+              _id: "$studentId",
+              academyShare: { $sum: "$splitDetails.academyShare" },
+              teacherShare: { $sum: "$amount" },
+              totalFee: { $sum: { $add: ["$amount", "$splitDetails.academyShare"] } },
+              lastDate: { $max: "$date" },
+            },
+          },
+        ])
+      : [];
+    // Build per-class pool breakdown
+    const poolClassMap = new Map();
+    for (const row of poolClassAgg) {
+      const studentId = row._id?.toString();
+      if (!studentId) continue;
+      const classId = studentClassMap.get(studentId);
+      if (!classId) continue;
+      const classInfo = classInfoMap.get(classId);
+      if (!poolClassMap.has(classId)) {
+        poolClassMap.set(classId, {
+          classId,
+          classTitle: classInfo?.classTitle || "Unknown Class",
+          gradeLevel: classInfo?.gradeLevel || "",
+          totalAcademyShare: 0,
+          totalTeacherShare: 0,
+          totalRevenue: 0,
+          students: [],
+        });
+      }
+      const lass = poolClassMap.get(classId);
+      lass.totalAcademyShare += row.academyShare || 0;
+      lass.totalTeacherShare += row.teacherShare || 0;
+      lass.totalRevenue += row.totalFee || 0;
+      const studentInfo = studentInfoMap.get(studentId) || { name: "Unknown", class: "", group: "" };
+      lass.students.push({
+        studentName: studentInfo.name,
+        studentClass: studentInfo.class,
+        academyShare: row.academyShare || 0,
+        teacherShare: row.teacherShare || 0,
+        totalPaid: row.totalFee || 0,
+        lastDate: row.lastDate,
+      });
+    }
+    const academyPoolBreakdown = Array.from(poolClassMap.values())
+      .sort((a, b) => b.totalAcademyShare - a.totalAcademyShare);
+
     // 4. Teacher credits from Payroll_Credit transactions (created by feeSplitCalculator)
     const teacherCreditAgg = allStudentIds.length
       ? await Transaction.aggregate([
@@ -985,6 +1061,57 @@ exports.getEarningsBreakdown = async (req, res) => {
     const teacherReversalMap = new Map(
       teacherReversalAgg.map((r) => [r._id.teacherId?.toString(), r.totalReversed])
     );
+
+    // 4c. Per-student transaction details for teacher breakdown (for detailed proof)
+    const teacherStudentDetailAgg = allStudentIds.length
+      ? await Transaction.aggregate([
+          {
+            $match: {
+              type: "LIABILITY",
+              category: "Payroll_Credit",
+              "splitDetails.teacherId": { $ne: null },
+              studentId: { $in: allStudentIds },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                teacherId: "$splitDetails.teacherId",
+                studentId: "$studentId",
+              },
+              teacherShare: { $sum: "$amount" },
+              academyShare: { $sum: "$splitDetails.academyShare" },
+              totalPaid: { $sum: { $add: ["$amount", "$splitDetails.academyShare"] } },
+              txCount: { $sum: 1 },
+              lastDate: { $max: "$date" },
+            },
+          },
+        ])
+      : [];
+
+    // Build per-teacher → per-class → student details map
+    // teacherId → classId → [student details]
+    const teacherStudentMap = new Map();
+    for (const row of teacherStudentDetailAgg) {
+      const teacherId = row._id.teacherId?.toString();
+      const studentId = row._id.studentId?.toString();
+      if (!teacherId || !studentId) continue;
+      const classId = studentClassMap.get(studentId);
+      if (!classId) continue;
+      if (!teacherStudentMap.has(teacherId)) teacherStudentMap.set(teacherId, new Map());
+      const classMap = teacherStudentMap.get(teacherId);
+      if (!classMap.has(classId)) classMap.set(classId, []);
+      const studentInfo = studentInfoMap.get(studentId) || { name: "Unknown", class: "", group: "" };
+      classMap.get(classId).push({
+        studentName: studentInfo.name,
+        studentClass: studentInfo.class,
+        studentGroup: studentInfo.group,
+        teacherShare: row.teacherShare || 0,
+        academyShare: row.academyShare || 0,
+        totalPaid: row.totalPaid || 0,
+        lastDate: row.lastDate,
+      });
+    }
 
     // 5. Build per-teacher → per-classId earnings map
     // teacherId → Map(classId → { classId, studentSet, totalAmount, academyShare })
@@ -1041,6 +1168,7 @@ exports.getEarningsBreakdown = async (req, res) => {
 
       const teacherId = teacher._id.toString();
       const classEarningsMap = teacherEarningsMap.get(teacherId) || new Map();
+      const classStudentDetails = teacherStudentMap.get(teacherId) || new Map();
       const breakdown = [];
       let totalCalculatedEarning = 0;
       let totalAcademyShare = 0;
@@ -1072,6 +1200,10 @@ exports.getEarningsBreakdown = async (req, res) => {
           ? cls?.teacherRatePerStudent || 0
           : cls?.baseFee || 0;
 
+        // Get per-student details for this class
+        const studentDetails = (classStudentDetails.get(entry.classId) || [])
+          .sort((a, b) => (b.teacherShare || 0) - (a.teacherShare || 0));
+
         breakdown.push({
           classId: entry.classId,
           classTitle: cls?.classTitle || "Unknown Class",
@@ -1086,6 +1218,7 @@ exports.getEarningsBreakdown = async (req, res) => {
           teacherSharePct,
           calculatedEarning: teacherEarning,
           academyShare: academyEarning,
+          studentDetails,
         });
 
         totalCalculatedEarning += teacherEarning;
@@ -1132,6 +1265,7 @@ exports.getEarningsBreakdown = async (req, res) => {
           teacherSharePct,
           calculatedEarning: 0,
           academyShare: 0,
+          studentDetails: [],
         });
       }
 
@@ -1167,6 +1301,7 @@ exports.getEarningsBreakdown = async (req, res) => {
         session: activeSessions[0],
         teachers: teacherBreakdowns,
         totalAcademyPool: grandTotalAcademyPool,
+        academyPoolBreakdown,
       },
     });
   } catch (error) {
