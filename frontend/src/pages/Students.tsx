@@ -508,6 +508,9 @@ const Students = () => {
               <SelectItem value="all">All Groups</SelectItem>
               <SelectItem value="Pre-Medical">Pre-Medical</SelectItem>
               <SelectItem value="Pre-Engineering">Pre-Engineering</SelectItem>
+              <SelectItem value="Computer Science">Computer Science</SelectItem>
+              <SelectItem value="Arts">Arts</SelectItem>
+              <SelectItem value="Science">Science</SelectItem>
             </SelectContent>
           </Select>
 
