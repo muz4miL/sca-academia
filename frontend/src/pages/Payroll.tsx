@@ -13,6 +13,9 @@ import {
   ChevronDown,
   ChevronRight,
   Calculator,
+  Eye,
+  GraduationCap,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,6 +73,12 @@ export default function Payroll() {
 
   // Expanded teacher breakdown rows
   const [expandedTeachers, setExpandedTeachers] = useState<Set<string>>(new Set());
+
+  // Expanded per-student detail rows within each class breakdown
+  const [expandedClassRows, setExpandedClassRows] = useState<Set<string>>(new Set());
+
+  // Academy Pool detail modal
+  const [poolDialogOpen, setPoolDialogOpen] = useState(false);
 
   // Logo cache for PDF
   const [cachedLogo, setCachedLogo] = useState<string | null>(null);
@@ -245,6 +254,7 @@ export default function Payroll() {
 
   const earningsTeachers = earningsData?.data?.teachers || [];
   const totalAcademyPool = earningsData?.data?.totalAcademyPool || 0;
+  const academyPoolBreakdown = earningsData?.data?.academyPoolBreakdown || [];
 
   // Build earnings lookup by teacherId
   const earningsMap = new Map(
@@ -257,6 +267,16 @@ export default function Payroll() {
       const next = new Set(prev);
       if (next.has(teacherId)) next.delete(teacherId);
       else next.add(teacherId);
+      return next;
+    });
+  };
+
+  // Toggle per-student detail rows within class breakdown
+  const toggleClassRow = (key: string) => {
+    setExpandedClassRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
@@ -322,7 +342,7 @@ export default function Payroll() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-amber-500">
+          <Card className="border-l-4 border-l-amber-500 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setPoolDialogOpen(true)}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -334,7 +354,10 @@ export default function Payroll() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">from active enrollments</p>
                 </div>
-                <Banknote className="h-8 w-8 text-amber-500" />
+                <div className="flex flex-col items-center gap-1">
+                  <Banknote className="h-8 w-8 text-amber-500" />
+                  <span className="text-[10px] text-amber-600 font-semibold flex items-center gap-0.5"><Eye className="h-3 w-3" /> View Details</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -521,49 +544,101 @@ export default function Payroll() {
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {earnings.breakdown.map((row: any, idx: number) => (
-                                      <tr key={idx} className="border-b border-dashed last:border-0">
-                                        <td className="py-1.5">
-                                          <span className="font-medium">{row.classTitle}</span>
-                                          {row.gradeLevel && (
-                                            <span className="text-muted-foreground ml-1 text-xs">({row.gradeLevel})</span>
+                                    {earnings.breakdown.map((row: any, idx: number) => {
+                                      const classRowKey = `${teacher._id}-${row.classId}-${idx}`;
+                                      const isClassExpanded = expandedClassRows.has(classRowKey);
+                                      const hasStudents = row.studentDetails && row.studentDetails.length > 0;
+
+                                      return (
+                                        <>
+                                          <tr key={idx} className={`border-b border-dashed last:border-0 ${hasStudents ? 'cursor-pointer hover:bg-blue-50/50' : ''}`}
+                                            onClick={() => hasStudents && toggleClassRow(classRowKey)}
+                                          >
+                                            <td className="py-1.5">
+                                              <div className="flex items-center gap-1">
+                                                {hasStudents && (
+                                                  <span className="text-muted-foreground">
+                                                    {isClassExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                                  </span>
+                                                )}
+                                                <span className="font-medium">{row.classTitle}</span>
+                                                {row.gradeLevel && (
+                                                  <span className="text-muted-foreground ml-1 text-xs">({row.gradeLevel})</span>
+                                                )}
+                                                {row.isMultiTeacher && (
+                                                  <Badge variant="outline" className="ml-1 text-xs py-0">Multi-Teacher</Badge>
+                                                )}
+                                                {row.isFixedRate && (
+                                                  <Badge variant="outline" className="ml-1 text-xs py-0 border-orange-300 text-orange-600">
+                                                    FIXED RATE
+                                                  </Badge>
+                                                )}
+                                              </div>
+                                            </td>
+                                            <td className="py-1.5 text-muted-foreground max-w-[200px] truncate">
+                                              {row.subject}
+                                            </td>
+                                            <td className="py-1.5 text-center">{row.studentCount}</td>
+                                            <td className="py-1.5 text-right">
+                                              {row.isFixedRate ? (
+                                                <span className="text-orange-600">Rs. {(row.ratePerStudent || 0).toLocaleString()}/student</span>
+                                              ) : (
+                                                <>Rs. {(row.subjectFee || 0).toLocaleString()}</>
+                                              )}
+                                            </td>
+                                            <td className="py-1.5 text-right">Rs. {(row.subjectRevenue || 0).toLocaleString()}</td>
+                                            <td className="py-1.5 text-right">
+                                              {row.isFixedRate ? (
+                                                <span className="text-orange-600 font-semibold">FIXED</span>
+                                              ) : (
+                                                <>{row.teacherSharePct}%</>
+                                              )}
+                                            </td>
+                                            <td className="py-1.5 text-right font-semibold text-blue-600">
+                                              Rs. {(row.calculatedEarning || 0).toLocaleString()}
+                                            </td>
+                                            <td className="py-1.5 text-right font-semibold text-amber-600">
+                                              Rs. {(row.academyShare || 0).toLocaleString()}
+                                            </td>
+                                          </tr>
+                                          {/* Per-Student Detail Rows */}
+                                          {isClassExpanded && hasStudents && (
+                                            <tr key={`${idx}-students`}>
+                                              <td colSpan={8} className="p-0">
+                                                <div className="bg-slate-50 dark:bg-slate-900/50 border-l-4 border-l-blue-300 mx-2 mb-2 rounded-lg overflow-hidden">
+                                                  <div className="px-3 py-1.5 bg-blue-100/50 dark:bg-blue-900/20 flex items-center gap-2">
+                                                    <UserCheck className="h-3.5 w-3.5 text-blue-600" />
+                                                    <span className="text-xs font-bold text-blue-700 dark:text-blue-400">Per-Student Fee Breakdown — {row.studentDetails.length} student(s)</span>
+                                                  </div>
+                                                  <table className="w-full text-xs">
+                                                    <thead>
+                                                      <tr className="text-muted-foreground border-b">
+                                                        <th className="text-left px-3 py-1 font-medium">Student Name</th>
+                                                        <th className="text-left px-3 py-1 font-medium">Class</th>
+                                                        <th className="text-right px-3 py-1 font-medium">Total Paid</th>
+                                                        <th className="text-right px-3 py-1 font-medium text-blue-600">Teacher Share</th>
+                                                        <th className="text-right px-3 py-1 font-medium text-amber-600">Academy Share</th>
+                                                      </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                      {row.studentDetails.map((student: any, sIdx: number) => (
+                                                        <tr key={sIdx} className="border-b border-dashed last:border-0 hover:bg-blue-50/30">
+                                                          <td className="px-3 py-1 font-medium">{student.studentName}</td>
+                                                          <td className="px-3 py-1 text-muted-foreground">{student.studentClass}{student.studentGroup ? ` (${student.studentGroup})` : ''}</td>
+                                                          <td className="px-3 py-1 text-right">Rs. {(student.totalPaid || 0).toLocaleString()}</td>
+                                                          <td className="px-3 py-1 text-right font-semibold text-blue-600">Rs. {(student.teacherShare || 0).toLocaleString()}</td>
+                                                          <td className="px-3 py-1 text-right font-semibold text-amber-600">Rs. {(student.academyShare || 0).toLocaleString()}</td>
+                                                        </tr>
+                                                      ))}
+                                                    </tbody>
+                                                  </table>
+                                                </div>
+                                              </td>
+                                            </tr>
                                           )}
-                                          {row.isMultiTeacher && (
-                                            <Badge variant="outline" className="ml-1 text-xs py-0">Multi-Teacher</Badge>
-                                          )}
-                                          {row.isFixedRate && (
-                                            <Badge variant="outline" className="ml-1 text-xs py-0 border-orange-300 text-orange-600">
-                                              FIXED RATE
-                                            </Badge>
-                                          )}
-                                        </td>
-                                        <td className="py-1.5 text-muted-foreground max-w-[200px] truncate">
-                                          {row.subject}
-                                        </td>
-                                        <td className="py-1.5 text-center">{row.studentCount}</td>
-                                        <td className="py-1.5 text-right">
-                                          {row.isFixedRate ? (
-                                            <span className="text-orange-600">Rs. {(row.ratePerStudent || 0).toLocaleString()}/student</span>
-                                          ) : (
-                                            <>Rs. {(row.subjectFee || 0).toLocaleString()}</>
-                                          )}
-                                        </td>
-                                        <td className="py-1.5 text-right">Rs. {(row.subjectRevenue || 0).toLocaleString()}</td>
-                                        <td className="py-1.5 text-right">
-                                          {row.isFixedRate ? (
-                                            <span className="text-orange-600 font-semibold">FIXED</span>
-                                          ) : (
-                                            <>{row.teacherSharePct}%</>
-                                          )}
-                                        </td>
-                                        <td className="py-1.5 text-right font-semibold text-blue-600">
-                                          Rs. {(row.calculatedEarning || 0).toLocaleString()}
-                                        </td>
-                                        <td className="py-1.5 text-right font-semibold text-amber-600">
-                                          Rs. {(row.academyShare || 0).toLocaleString()}
-                                        </td>
-                                      </tr>
-                                    ))}
+                                        </>
+                                      );
+                                    })}
                                   </tbody>
                                   <tfoot>
                                     <tr className="border-t-2 font-semibold">
@@ -708,6 +783,95 @@ export default function Payroll() {
                 "Pay Now"
               )}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Academy Pool Detail Modal */}
+      <Dialog open={poolDialogOpen} onOpenChange={setPoolDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Banknote className="h-5 w-5 text-amber-600" />
+              Academy Pool — Detailed Proof
+            </DialogTitle>
+            <DialogDescription>
+              Complete breakdown of how the academy pool of <strong>Rs. {totalAcademyPool.toLocaleString()}</strong> is generated from student fee payments across all classes.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {academyPoolBreakdown.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <GraduationCap className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No academy pool data available yet.</p>
+                <p className="text-xs mt-1">The pool is generated when students pay fees and the fee split creates teacher/academy shares.</p>
+              </div>
+            ) : (
+              academyPoolBreakdown.map((poolClass: any, cIdx: number) => (
+                <div key={cIdx} className="border rounded-xl overflow-hidden">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 px-4 py-3 flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-amber-800 dark:text-amber-300">{poolClass.classTitle}</span>
+                      {poolClass.gradeLevel && (
+                        <span className="text-amber-600 text-sm ml-2">({poolClass.gradeLevel})</span>
+                      )}
+                      <span className="text-xs text-muted-foreground ml-3">{poolClass.students?.length || 0} paying student(s)</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-amber-700 dark:text-amber-400">Academy: Rs. {(poolClass.totalAcademyShare || 0).toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">Revenue: Rs. {(poolClass.totalRevenue || 0).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  {poolClass.students?.length > 0 && (
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-muted-foreground border-b bg-muted/30">
+                          <th className="text-left px-4 py-1.5 font-medium">#</th>
+                          <th className="text-left px-4 py-1.5 font-medium">Student Name</th>
+                          <th className="text-left px-4 py-1.5 font-medium">Class</th>
+                          <th className="text-right px-4 py-1.5 font-medium">Total Paid</th>
+                          <th className="text-right px-4 py-1.5 font-medium text-blue-600">→ Teacher</th>
+                          <th className="text-right px-4 py-1.5 font-medium text-amber-600">→ Academy</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {poolClass.students.map((student: any, sIdx: number) => (
+                          <tr key={sIdx} className="border-b border-dashed last:border-0 hover:bg-amber-50/30">
+                            <td className="px-4 py-1.5 text-muted-foreground text-xs">{sIdx + 1}</td>
+                            <td className="px-4 py-1.5 font-medium">{student.studentName}</td>
+                            <td className="px-4 py-1.5 text-muted-foreground">{student.studentClass}</td>
+                            <td className="px-4 py-1.5 text-right">Rs. {(student.totalPaid || 0).toLocaleString()}</td>
+                            <td className="px-4 py-1.5 text-right text-blue-600">Rs. {(student.teacherShare || 0).toLocaleString()}</td>
+                            <td className="px-4 py-1.5 text-right font-semibold text-amber-600">Rs. {(student.academyShare || 0).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t-2 font-semibold bg-amber-50/50">
+                          <td colSpan={3} className="px-4 py-1.5 text-right text-sm">Class Total:</td>
+                          <td className="px-4 py-1.5 text-right">Rs. {(poolClass.totalRevenue || 0).toLocaleString()}</td>
+                          <td className="px-4 py-1.5 text-right text-blue-600">Rs. {(poolClass.totalTeacherShare || 0).toLocaleString()}</td>
+                          <td className="px-4 py-1.5 text-right text-amber-600">Rs. {(poolClass.totalAcademyShare || 0).toLocaleString()}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  )}
+                </div>
+              ))
+            )}
+            {academyPoolBreakdown.length > 0 && (
+              <div className="bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl p-4 text-center">
+                <p className="text-lg font-bold text-amber-800 dark:text-amber-300">
+                  Grand Total Academy Pool: Rs. {totalAcademyPool.toLocaleString()}
+                </p>
+                <p className="text-xs text-amber-600 mt-1">
+                  Sum of academy shares from {academyPoolBreakdown.reduce((s: number, c: any) => s + (c.students?.length || 0), 0)} paying student(s) across {academyPoolBreakdown.length} class(es)
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPoolDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
