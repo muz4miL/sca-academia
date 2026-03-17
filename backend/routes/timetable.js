@@ -156,12 +156,12 @@ router.get('/:id', protect, async (req, res) => {
 });
 
 // @route   POST /api/timetable/bulk-generate
-// @desc    Generate timetable entries for all subjects of a class
+// @desc    Generate timetable entries for all subjects of a class (supports multi-day & breaks)
 // @access  Protected (OWNER, STAFF)
 router.post('/bulk-generate', protect, async (req, res) => {
     try {
         const { classId, entries } = req.body;
-        // entries = [{ subject, teacherId, day, startTime, endTime, room }]
+        // entries = [{ subject, teacherId, day, days?, startTime, endTime, room, isBreak?, breakLabel? }]
 
         if (!classId || !entries || !entries.length) {
             return res.status(400).json({
@@ -175,9 +175,19 @@ router.post('/bulk-generate', protect, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Class not found' });
         }
 
-        // Check all conflicts first
-        const allConflicts = [];
+        // Expand multi-day entries: if entry has days[], create one per day
+        const expandedEntries = [];
         for (const entry of entries) {
+            const daysArr = entry.days && entry.days.length > 0 ? entry.days : (entry.day ? [entry.day] : []);
+            for (const d of daysArr) {
+                expandedEntries.push({ ...entry, day: d });
+            }
+        }
+
+        // Check all conflicts first (skip conflicts for break entries)
+        const allConflicts = [];
+        for (const entry of expandedEntries) {
+            if (entry.isBreak) continue; // breaks don't conflict
             const conflicts = await checkConflicts({ ...entry, day: entry.day }, null);
             if (conflicts.length > 0) {
                 allConflicts.push({ entry, conflicts });
@@ -194,15 +204,17 @@ router.post('/bulk-generate', protect, async (req, res) => {
 
         // Create all entries
         const created = [];
-        for (const entry of entries) {
+        for (const entry of expandedEntries) {
             const newEntry = await Timetable.create({
                 classId,
-                teacherId: entry.teacherId,
-                subject: entry.subject,
+                teacherId: entry.isBreak ? undefined : entry.teacherId,
+                subject: entry.isBreak ? (entry.breakLabel || 'Break') : entry.subject,
                 day: entry.day,
                 startTime: entry.startTime,
                 endTime: entry.endTime,
                 room: entry.room || classDoc.roomNumber || 'TBD',
+                isBreak: entry.isBreak || false,
+                breakLabel: entry.breakLabel || 'Break',
                 status: 'active',
             });
             created.push(newEntry);
@@ -258,14 +270,22 @@ router.post('/', protect, async (req, res) => {
         const entryData = { ...req.body };
         delete entryData.entryId;
 
-        // Check for conflicts
-        const conflicts = await checkConflicts(entryData);
-        if (conflicts.length > 0) {
-            return res.status(409).json({
-                success: false,
-                message: 'Schedule conflict detected',
-                conflicts,
-            });
+        // Check for conflicts (skip for break entries)
+        if (!entryData.isBreak) {
+            const conflicts = await checkConflicts(entryData);
+            if (conflicts.length > 0) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Schedule conflict detected',
+                    conflicts,
+                });
+            }
+        }
+
+        // For break entries, set subject from breakLabel
+        if (entryData.isBreak) {
+            entryData.subject = entryData.breakLabel || entryData.subject || 'Break';
+            entryData.teacherId = undefined;
         }
 
         const newEntry = new Timetable(entryData);
