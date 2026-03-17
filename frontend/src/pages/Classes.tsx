@@ -170,6 +170,7 @@ const GROUP_OPTIONS = [
   "Pre-Engineering",
   "Computer Science",
   "Arts",
+  "Science",
 ] as const;
 
 const SHIFT_OPTIONS = [
