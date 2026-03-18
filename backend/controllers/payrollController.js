@@ -943,16 +943,20 @@ exports.getEarningsBreakdown = async (req, res) => {
     const studentInfoMap = new Map(
       allSessionStudents.map((s) => [
         s._id.toString(),
-        { name: s.name || "Unknown", class: s.class || "", group: s.group || "" }
+        {
+          name: s.studentName || "Unknown",
+          class: s.class || "",
+          group: s.group || "",
+        }
       ])
     );
     // Populate full student info
     const studentsWithInfo = await Student.find({
       _id: { $in: allStudentIds }
-    }).select("_id name class group").lean();
+    }).select("_id studentName class group").lean();
     for (const s of studentsWithInfo) {
       studentInfoMap.set(s._id.toString(), {
-        name: s.name || "Unknown",
+        name: s.studentName || "Unknown",
         class: s.class || "",
         group: s.group || ""
       });

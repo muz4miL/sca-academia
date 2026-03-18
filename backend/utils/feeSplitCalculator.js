@@ -95,21 +95,114 @@ async function calculateAndApplyFeeSplit({
   // ─── MODEL A: FIXED PER-STUDENT RATE ───
   if (isFixedRate) {
     const ratePerStudent = classDoc.teacherRatePerStudent;
-    const totalTeacherCost = ratePerStudent * teacherCount;
-    const academyShare = Math.max(0, amount - totalTeacherCost);
+    const teacherIds = uniqueTeachers.map((t) => t.teacherId);
+
+    // In fixed-per-student mode, each teacher should receive at most
+    // `ratePerStudent` for a given student across all installments.
+    const existingCredits = await Transaction.aggregate([
+      {
+        $match: {
+          type: { $in: ["LIABILITY", "CREDIT"] },
+          category: "Payroll_Credit",
+          studentId: student._id,
+          "splitDetails.teacherId": { $in: teacherIds },
+        },
+      },
+      {
+        $group: {
+          _id: "$splitDetails.teacherId",
+          totalCredited: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    const creditedMap = new Map(
+      existingCredits.map((row) => [row._id?.toString(), row.totalCredited || 0])
+    );
+
+    const entitlementRows = uniqueTeachers.map((tInfo) => {
+      const alreadyCredited = creditedMap.get(tInfo.teacherId.toString()) || 0;
+      const remainingEntitlement = Math.max(0, ratePerStudent - alreadyCredited);
+      return {
+        ...tInfo,
+        alreadyCredited,
+        remainingEntitlement,
+      };
+    });
+
+    const totalRemainingEntitlement = entitlementRows.reduce(
+      (sum, row) => sum + row.remainingEntitlement,
+      0
+    );
+
+    const totalTeacherCreditThisPayment = Math.min(
+      amount,
+      totalRemainingEntitlement
+    );
+    const academyShare = Math.max(0, amount - totalTeacherCreditThisPayment);
+
+    // Allocate this payment's teacher credit proportionally to remaining entitlement.
+    // This prevents over-crediting on later installments and keeps totals exact.
+    const rawAllocations = entitlementRows.map((row) => {
+      if (totalRemainingEntitlement <= 0 || totalTeacherCreditThisPayment <= 0) {
+        return {
+          teacherId: row.teacherId,
+          value: 0,
+          floor: 0,
+          fractional: 0,
+        };
+      }
+
+      const value =
+        totalTeacherCreditThisPayment *
+        (row.remainingEntitlement / totalRemainingEntitlement);
+      const floor = Math.floor(value);
+      return {
+        teacherId: row.teacherId,
+        value,
+        floor,
+        fractional: value - floor,
+      };
+    });
+
+    let allocatedTeacherAmount = rawAllocations.reduce(
+      (sum, row) => sum + row.floor,
+      0
+    );
+    let teacherRemainder = Math.round(
+      totalTeacherCreditThisPayment - allocatedTeacherAmount
+    );
+
+    rawAllocations
+      .sort((a, b) => b.fractional - a.fractional)
+      .forEach((row) => {
+        if (teacherRemainder <= 0) return;
+        row.floor += 1;
+        teacherRemainder -= 1;
+      });
+
+    const teacherAllocationMap = new Map(
+      rawAllocations.map((row) => [row.teacherId.toString(), row.floor])
+    );
+
+    const academyBasePerTeacher = Math.floor(academyShare / teacherCount);
+    let academyRemainder = Math.round(
+      academyShare - academyBasePerTeacher * teacherCount
+    );
 
     result.revenueModel = "fixed-per-student";
 
-    for (const tInfo of uniqueTeachers) {
-      const teacherShareAmt = ratePerStudent;
-      const academySharePerTeacher = Math.round(academyShare / teacherCount);
+    for (const [index, tInfo] of uniqueTeachers.entries()) {
+      const teacherShareAmt = teacherAllocationMap.get(tInfo.teacherId.toString()) || 0;
+      const academySharePerTeacher =
+        academyBasePerTeacher + (index < academyRemainder ? 1 : 0);
 
       // Create LIABILITY transaction (teacher is owed this money)
       await Transaction.create({
         type: "LIABILITY",
         category: "Payroll_Credit",
         amount: teacherShareAmt,
-        description: `Auto-split: ${tInfo.teacherName} — Rs.${teacherShareAmt.toLocaleString()} from ${student.studentName} (${month}) [Fixed rate]`,
+        description: `Auto-split: ${tInfo.teacherName} — Rs.${teacherShareAmt.toLocaleString()} from ${student.studentName} (${month}) [Fixed rate capped per student]`,
         date: new Date(),
         collectedBy: collector?._id,
         status: "FLOATING",
@@ -129,24 +222,28 @@ async function calculateAndApplyFeeSplit({
       });
 
       // Credit teacher balance
-      await Teacher.findByIdAndUpdate(tInfo.teacherId, {
-        $inc: { "balance.pending": teacherShareAmt },
-      });
+      if (teacherShareAmt > 0) {
+        await Teacher.findByIdAndUpdate(tInfo.teacherId, {
+          $inc: { "balance.pending": teacherShareAmt },
+        });
+      }
 
-      result.teacherCredits.push({
-        teacherId: tInfo.teacherId,
-        teacherName: tInfo.teacherName,
-        amount: teacherShareAmt,
-        percentage: null, // fixed rate, no percentage
-        subjects: tInfo.subjects,
-      });
+      if (teacherShareAmt > 0) {
+        result.teacherCredits.push({
+          teacherId: tInfo.teacherId,
+          teacherName: tInfo.teacherName,
+          amount: teacherShareAmt,
+          percentage: null, // fixed rate, no percentage
+          subjects: tInfo.subjects,
+        });
+      }
 
       console.log(
-        `✅ Auto-credited ${tInfo.teacherName}: Rs.${teacherShareAmt} (fixed rate)`
+        `✅ Auto-credited ${tInfo.teacherName}: Rs.${teacherShareAmt} (fixed rate, remaining entitlement aware)`
       );
     }
 
-    result.splitApplied = true;
+    result.splitApplied = amount > 0;
     return result;
   }
 
