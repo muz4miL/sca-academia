@@ -13,8 +13,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Use current directory instead of script location
-SCRIPT_DIR="."
+# Resolve to script directory and change to it
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}SCA Academia - Production Server Setup${NC}"
