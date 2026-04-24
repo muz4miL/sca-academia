@@ -61,6 +61,7 @@ echo -e "${YELLOW}\n🚀 Starting Backend...${NC}"
 mkdir -p "$SCRIPT_DIR/backend/logs"
 pm2 start "$SCRIPT_DIR/backend/server.js" \
   --name "sca-backend" \
+  --cwd "$SCRIPT_DIR/backend" \
   -e "$SCRIPT_DIR/backend/logs/error.log" \
   -o "$SCRIPT_DIR/backend/logs/output.log"
 
