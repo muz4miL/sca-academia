@@ -58,22 +58,22 @@ pm2 stop sca-backend sca-frontend 2>/dev/null || true
 
 # Start Backend with PM2
 echo -e "${YELLOW}\n🚀 Starting Backend...${NC}"
+mkdir -p "$SCRIPT_DIR/backend/logs"
 pm2 start "$SCRIPT_DIR/backend/server.js" \
   --name "sca-backend" \
-  --namespace "sca" \
-  --env "NODE_ENV=production" \
-  --error "$SCRIPT_DIR/backend/logs/error.log" \
-  --out "$SCRIPT_DIR/backend/logs/output.log"
+  -e "$SCRIPT_DIR/backend/logs/error.log" \
+  -o "$SCRIPT_DIR/backend/logs/output.log"
 
 # Start Frontend with PM2
 echo -e "${YELLOW}\n🚀 Starting Frontend...${NC}"
-cd "$SCRIPT_DIR/frontend"
-pm2 start "npm run build && npm run preview" \
+mkdir -p "$SCRIPT_DIR/frontend/logs"
+pm2 start "$SCRIPT_DIR/frontend/package.json" \
   --name "sca-frontend" \
-  --namespace "sca" \
+  --interpreter bash \
+  --exec "npm run preview" \
   --cwd "$SCRIPT_DIR/frontend" \
-  --error "$SCRIPT_DIR/frontend/logs/error.log" \
-  --out "$SCRIPT_DIR/frontend/logs/output.log"
+  -e "$SCRIPT_DIR/frontend/logs/error.log" \
+  -o "$SCRIPT_DIR/frontend/logs/output.log"
 
 # Save PM2 process list
 pm2 save
