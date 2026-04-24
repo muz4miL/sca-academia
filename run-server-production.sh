@@ -73,7 +73,7 @@ pm2 start npm \
   --name "sca-frontend" \
   -e "$SCRIPT_DIR/frontend/logs/error.log" \
   -o "$SCRIPT_DIR/frontend/logs/output.log" \
-  -- run preview
+  -- run dev
 
 # Save PM2 process list
 pm2 save
