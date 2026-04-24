@@ -19,6 +19,9 @@ echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}SCA Academia - Production Server Setup${NC}"
 echo -e "${BLUE}========================================${NC}"
 
+# Use current directory instead of script location
+SCRIPT_DIR="."
+
 # Check Node.js
 if ! command -v node &> /dev/null; then
     echo -e "${RED}❌ Node.js not installed${NC}"
@@ -36,8 +39,6 @@ if ! command -v pm2 &> /dev/null; then
 fi
 
 echo -e "${GREEN}✓ PM2: $(pm2 --version)${NC}"
-
-cd "$SCRIPT_DIR"
 
 # Install dependencies
 echo -e "${YELLOW}\n📦 Checking dependencies...${NC}"
