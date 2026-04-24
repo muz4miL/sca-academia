@@ -13,14 +13,12 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Use current directory instead of script location
+SCRIPT_DIR="."
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}SCA Academia - Production Server Setup${NC}"
 echo -e "${BLUE}========================================${NC}"
-
-# Use current directory instead of script location
-SCRIPT_DIR="."
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
