@@ -67,13 +67,12 @@ pm2 start "$SCRIPT_DIR/backend/server.js" \
 # Start Frontend with PM2
 echo -e "${YELLOW}\n🚀 Starting Frontend...${NC}"
 mkdir -p "$SCRIPT_DIR/frontend/logs"
-pm2 start "$SCRIPT_DIR/frontend/package.json" \
+cd "$SCRIPT_DIR/frontend"
+pm2 start npm \
   --name "sca-frontend" \
-  --interpreter bash \
-  --exec "npm run preview" \
-  --cwd "$SCRIPT_DIR/frontend" \
   -e "$SCRIPT_DIR/frontend/logs/error.log" \
-  -o "$SCRIPT_DIR/frontend/logs/output.log"
+  -o "$SCRIPT_DIR/frontend/logs/output.log" \
+  -- run preview
 
 # Save PM2 process list
 pm2 save
