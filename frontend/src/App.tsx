@@ -39,7 +39,7 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/public">
+        <BrowserRouter>
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
@@ -52,7 +52,7 @@ const App = () => (
 
             {/* Protected Routes */}
             <Route
-              path="/dashboard"
+              path="/"
               element={
                 <ProtectedRoute>
                   <Dashboard />
